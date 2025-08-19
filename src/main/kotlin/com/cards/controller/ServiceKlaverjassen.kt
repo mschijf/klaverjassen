@@ -1,10 +1,14 @@
-package com.cards.controller.klaverjassen
+package com.cards.controller
 
-import com.cards.controller.basic.model.*
-import com.cards.controller.klaverjassen.model.GameStatusModelKlaverjassen
-import com.cards.controller.klaverjassen.model.RoundScoreKlaverjassen
-import com.cards.controller.klaverjassen.model.ScoreModelKlaverjassen
-import com.cards.controller.klaverjassen.model.TrumpChoiceModel
+import com.cards.controller.model.GameStatusModelKlaverjassen
+import com.cards.controller.model.RoundScoreKlaverjassen
+import com.cards.controller.model.ScoreModelKlaverjassen
+import com.cards.controller.model.TrumpChoiceModel
+import com.cards.controller.model.CardInHandModel
+import com.cards.controller.model.CardPlayedModel
+import com.cards.controller.model.GameStatusModel
+import com.cards.controller.model.TableModel
+import com.cards.controller.model.TrickCompletedModel
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank

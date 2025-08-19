@@ -1,4 +1,4 @@
-package com.cards.controller.klaverjassen.model
+package com.cards.controller.model
 
 import com.cards.game.card.CardColor
 import com.cards.game.fourplayercardgame.basic.TableSide

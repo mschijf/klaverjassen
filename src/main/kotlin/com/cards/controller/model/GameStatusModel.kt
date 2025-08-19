@@ -1,4 +1,4 @@
-package com.cards.controller.basic.model
+package com.cards.controller.model
 
 import com.cards.game.card.Card
 import com.cards.game.fourplayercardgame.basic.TableSide

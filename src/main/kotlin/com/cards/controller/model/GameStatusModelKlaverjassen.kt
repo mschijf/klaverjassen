@@ -1,6 +1,4 @@
-package com.cards.controller.klaverjassen.model
-
-import com.cards.controller.basic.model.GameStatusModel
+package com.cards.controller.model
 
 data class GameStatusModelKlaverjassen(
     val generic: GameStatusModel,

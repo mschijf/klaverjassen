@@ -1,8 +1,8 @@
 package com.cards.player
 
 import com.cards.game.card.Card
-import com.cards.game.klaverjassen.basic.Game
-import com.cards.game.klaverjassen.basic.TableSide
+import com.cards.game.klaverjassen.Game
+import com.cards.game.klaverjassen.TableSide
 
 abstract class Player(
     val tableSide: TableSide,

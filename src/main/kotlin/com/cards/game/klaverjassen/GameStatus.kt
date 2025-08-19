@@ -1,4 +1,4 @@
-package com.cards.game.klaverjassen.basic
+package com.cards.game.klaverjassen
 
 data class GameStatus (val gameFinished: Boolean, val roundFinished: Boolean, val trickFinished: Boolean) {
     init {

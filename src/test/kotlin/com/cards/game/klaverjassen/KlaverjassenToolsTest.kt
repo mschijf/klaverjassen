@@ -1,4 +1,4 @@
-package com.cards.game.klaverjassen.klaverjassen
+package com.cards.game.klaverjassen
 
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor

@@ -1,12 +1,7 @@
-package com.cards.game.klaverjassen.basic
+package com.cards.game.klaverjassen
 
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
-import com.cards.game.klaverjassen.klaverjassen.ScoreKlaverjassen
-import com.cards.game.klaverjassen.klaverjassen.bonusValue
-import com.cards.game.klaverjassen.klaverjassen.cardValue
-import com.cards.game.klaverjassen.klaverjassen.toRankNumberNoTrump
-import com.cards.game.klaverjassen.klaverjassen.toRankNumberTrump
 
 class Trick(
     private val sideToLead: TableSide,

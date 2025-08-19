@@ -1,8 +1,6 @@
-package com.cards.game.klaverjassen.basic
+package com.cards.game.klaverjassen
 
 import com.cards.game.card.CardColor
-import com.cards.game.klaverjassen.klaverjassen.NUMBER_OF_TRICKS_PER_ROUND
-import com.cards.game.klaverjassen.klaverjassen.ScoreKlaverjassen
 
 class Round() {
 

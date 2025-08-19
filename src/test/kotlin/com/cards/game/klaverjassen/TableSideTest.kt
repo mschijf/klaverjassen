@@ -1,4 +1,4 @@
-package com.cards.game.klaverjassen.basic
+package com.cards.game.klaverjassen
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

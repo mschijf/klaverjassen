@@ -1,9 +1,9 @@
 package com.cards.controller
 
 import com.cards.game.card.Card
-import com.cards.game.klaverjassen.basic.Game
-import com.cards.game.klaverjassen.basic.TableSide
-import com.cards.game.klaverjassen.klaverjassen.ScoreKlaverjassen
+import com.cards.game.klaverjassen.Game
+import com.cards.game.klaverjassen.TableSide
+import com.cards.game.klaverjassen.ScoreKlaverjassen
 import com.cards.player.Player
 import com.cards.player.PlayerGroup
 import com.cards.player.klaverjassen.PlayerKlaverjassen

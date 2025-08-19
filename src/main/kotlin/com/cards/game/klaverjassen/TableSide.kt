@@ -1,4 +1,4 @@
-package com.cards.game.klaverjassen.basic
+package com.cards.game.klaverjassen
 
 enum class TableSide {
     WEST,

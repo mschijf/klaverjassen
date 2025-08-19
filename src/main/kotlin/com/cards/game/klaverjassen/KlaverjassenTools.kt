@@ -1,10 +1,8 @@
-package com.cards.game.klaverjassen.klaverjassen
+package com.cards.game.klaverjassen
 
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
-import com.cards.game.klaverjassen.basic.TableSide
-import com.cards.game.klaverjassen.basic.Trick
 
 const val NUMBER_OF_TRICKS_PER_ROUND = 8
 const val NUMBER_OF_ROUNDS_PER_GAME = 16

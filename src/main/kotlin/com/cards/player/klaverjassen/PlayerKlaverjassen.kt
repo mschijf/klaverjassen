@@ -2,9 +2,9 @@ package com.cards.player.klaverjassen
 
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
-import com.cards.game.klaverjassen.basic.Game
-import com.cards.game.klaverjassen.basic.TableSide
-import com.cards.game.klaverjassen.klaverjassen.legalPlayable
+import com.cards.game.klaverjassen.Game
+import com.cards.game.klaverjassen.TableSide
+import com.cards.game.klaverjassen.legalPlayable
 import com.cards.player.Player
 
 open class PlayerKlaverjassen(tableSide: TableSide, game: Game) : Player(tableSide, game) {

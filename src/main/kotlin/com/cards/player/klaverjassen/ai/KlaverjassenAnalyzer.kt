@@ -1,9 +1,11 @@
 package com.cards.player.klaverjassen.ai
 
 import com.cards.game.card.*
-import com.cards.game.klaverjassen.basic.TableSide
-import com.cards.game.klaverjassen.basic.Trick
-import com.cards.game.klaverjassen.klaverjassen.*
+import com.cards.game.klaverjassen.TableSide
+import com.cards.game.klaverjassen.Trick
+import com.cards.game.klaverjassen.beats
+import com.cards.game.klaverjassen.toRankNumberNoTrump
+import com.cards.game.klaverjassen.toRankNumberTrump
 
 class KlaverjassenAnalyzer(
     private val playerForWhichWeAnalyse: GeniusPlayerKlaverjassen) {

@@ -7,7 +7,7 @@ import com.cards.controller.model.ScoreModelKlaverjassen
 import com.cards.controller.model.TrumpChoiceModel
 import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
-import com.cards.game.klaverjassen.basic.TableSide
+import com.cards.game.klaverjassen.TableSide
 import com.cards.tools.Log
 import org.springframework.web.bind.annotation.*
 

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+        <link rel="stylesheet" href="./card-style.css">
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="grid-signal">
+                <img id="upDownSignal" src="assets/Green_Arrow_Up.svg" class="up-down-arrow">
+            </div>
+            <div class="grid-player-north">
+                <div class="flexcontainer-player">
+                    <div class="player-card"><img id="playerNorth0" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    <div class="player-card"><img id="playerNorth1" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    <div class="player-card"><img id="playerNorth2" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    <div class="player-card"><img id="playerNorth3" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    <div class="player-card"><img id="playerNorth4" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    <div class="player-card"><img id="playerNorth5" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    <div class="player-card"><img id="playerNorth6" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    <div class="player-card"><img id="playerNorth7" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                </div>    
+            </div>
+            
+            <div class="grid-player-west">
+                <div class="flexcontainer-player-vert">
+                    <div class="flexcontainer-player">
+                        <div class="player-card"><img id="playerWest0" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                        <div class="player-card"><img id="playerWest1" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    </div>
+                    <div class="flexcontainer-player">
+                        <div class="player-card"><img id="playerWest2" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                        <div class="player-card"><img id="playerWest3" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    </div>
+                    <div class="flexcontainer-player">
+                        <div class="player-card"><img id="playerWest4" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                        <div class="player-card"><img id="playerWest5" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    </div>
+                    <div class="flexcontainer-player">
+                        <div class="player-card"><img id="playerWest6" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                        <div class="player-card"><img id="playerWest7" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    </div>
+                </div>    
+            </div>
+            
+            <div class="grid-table">
+                <div class="flexcontainer-table">
+                    <div class="table-player-west">
+                        <img  id="tableWest" src="carddeck/NoCard.svg" class="card-size-normal">
+                        <div class="player-table-label"><label id="playerNameWest">West</label></div>
+                    </div>
+                    <div class="flexcontainer-column">
+                        <div class="table-player-north">
+                            <div class="player-table-label"><label id="playerNameNorth">North</label></div>
+                            <img id="tableNorth" src="carddeck/NoCard.svg" class="card-size-normal">
+                        </div>
+                        <div class="table-arrow-middle"><img id="pointToWinnerNorth" src="assets/Green_Arrow_Up.svg" class="up-down-arrow"></div>
+                        <div class="table-player-south">
+                            <img id="tableSouth" src="carddeck/NoCard.svg" class="card-size-normal">
+                            <div class="player-table-label"><label id="playerNameSouth">South</label></div>
+                        </div>
+                    </div>
+                    <div class="table-player-east">
+                        <img id="tableEast" src="carddeck/NoCard.svg" class="card-size-normal">
+                        <div class="player-table-label"><label id="playerNameEast">East</label></div>
+                    </div>
+                </div>    
+            </div>
+
+            <div class="grid-player-east">
+                <div class="flexcontainer-player-vert">
+                    <div class="flexcontainer-player">
+                        <div class="player-card"><img id="playerEast0" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                        <div class="player-card"><img id="playerEast1" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    </div>
+                    <div class="flexcontainer-player">
+                        <div class="player-card"><img id="playerEast2" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                        <div class="player-card"><img id="playerEast3" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    </div>
+                    <div class="flexcontainer-player">
+                        <div class="player-card"><img id="playerEast4" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                        <div class="player-card"><img id="playerEast5" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    </div>
+                    <div class="flexcontainer-player">
+                        <div class="player-card"><img id="playerEast6" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                        <div class="player-card"><img id="playerEast7" src="carddeck/NoCard.svg" class="card-size-small"></div>
+                    </div>
+                </div>    
+            </div>
+
+            <div class="grid-player-south">
+                <div class="flexcontainer-player">
+                    <div class="flex-container-vert"><div class="player-card"><img id="playerSouth0" src="carddeck/NoCard.svg" class="card-size-normal"></div><label id="meta0"></label></div>
+                    <div class="flex-container-vert"><div class="player-card"><img id="playerSouth1" src="carddeck/NoCard.svg" class="card-size-normal"></div><label id="meta1"></label></div>
+                    <div class="flex-container-vert"><div class="player-card"><img id="playerSouth2" src="carddeck/NoCard.svg" class="card-size-normal"></div><label id="meta2"></label></div>
+                    <div class="flex-container-vert"><div class="player-card"><img id="playerSouth3" src="carddeck/NoCard.svg" class="card-size-normal"></div><label id="meta3"></label></div>
+                    <div class="flex-container-vert"><div class="player-card"><img id="playerSouth4" src="carddeck/NoCard.svg" class="card-size-normal"></div><label id="meta4"></label></div>
+                    <div class="flex-container-vert"><div class="player-card"><img id="playerSouth5" src="carddeck/NoCard.svg" class="card-size-normal"></div><label id="meta5"></label></div>
+                    <div class="flex-container-vert"><div class="player-card"><img id="playerSouth6" src="carddeck/NoCard.svg" class="card-size-normal"></div><label id="meta6"></label></div>
+                    <div class="flex-container-vert"><div class="player-card"><img id="playerSouth7" src="carddeck/NoCard.svg" class="card-size-normal"></div><label id="meta7"></label></div>
+                </div>    
+            </div>
+
+            <div class="grid-info">
+                <table>
+                    <tr>
+                        <th style="width:5%"></th>
+                        <th>West</th>
+                        <th>North</th>
+                        <th>East</th>
+                        <th>South</th>
+                    </tr>
+                    <tr>
+                        <td id="roundNr1">1</td>
+                        <td id="scoreW1"></td>
+                        <td id="scoreN1"></td>
+                        <td id="scoreE1"></td>
+                        <td id="scoreS1"></td>
+                    </tr>
+                    <tr>
+                        <td id="roundNr2">2</td>
+                        <td id="scoreW2"></td>
+                        <td id="scoreN2"></td>
+                        <td id="scoreE2"></td>
+                        <td id="scoreS2"></td>
+                    </tr>
+                    <tr>
+                        <td id="roundNr3">3</td>
+                        <td id="scoreW3"></td>
+                        <td id="scoreN3"></td>
+                        <td id="scoreE3"></td>
+                        <td id="scoreS3"></td>
+                    </tr>
+                    <tr>
+                        <td id="roundNr4">4</td>
+                        <td id="scoreW4"></td>
+                        <td id="scoreN4"></td>
+                        <td id="scoreE4"></td>
+                        <td id="scoreS4"></td>
+                    </tr>
+                    <tr>
+                        <td id="roundNr5">5</td>
+                        <td id="scoreW5"></td>
+                        <td id="scoreN5"></td>
+                        <td id="scoreE5"></td>
+                        <td id="scoreS5"></td>
+                    </tr>
+                    <tr>
+                        <td id="roundNr6">6</td>
+                        <td id="scoreW6"></td>
+                        <td id="scoreN6"></td>
+                        <td id="scoreE6"></td>
+                        <td id="scoreS6"></td>
+                    </tr>
+                    <tr>
+                        <td id="roundNr7">7</td>
+                        <td id="scoreW7"></td>
+                        <td id="scoreN7"></td>
+                        <td id="scoreE7"></td>
+                        <td id="scoreS7"></td>
+                    </tr>
+                    <tr>
+                        <td id="roundNr8">8</td>
+                        <td id="scoreW8"></td>
+                        <td id="scoreN8"></td>
+                        <td id="scoreE8"></td>
+                        <td id="scoreS8"></td>
+                    </tr>
+                    <tr>
+                        <td id="roundNr9">9</td>
+                        <td id="scoreW9"></td>
+                        <td id="scoreN9"></td>
+                        <td id="scoreE9"></td>
+                        <td id="scoreS9"></td>
+                    </tr>
+                    <tr><td colspan="5" class="info-line" id="scoreInfo"></td></tr>
+                    <tr><td colspan="5" class="info-line" id="shuffleSeed"></td></tr>
+
+                </table>
+            </div>
+
+        </div>
+        <button id="buttonNew" onclick="initGame()">NEW</button>
+        <button id="buttonPlay" onclick="requestComputeMove()">PLAY</button>
+        <button id="buttonJson" onclick="showJson()">JSON</button>
+        <div id="jsonText"></div>
+        <!-- Card images by Adrian Kennard - Own work, CC0, <a href="https://commons.wikimedia.org/w/index.php?curid=70667162">https://commons.wikimedia.org/w/index.php?curid=70667162</a>     -->
+    </body>
+
+    <script type="text/javascript" src="./board-scripts-generic.js"></script>
+    <script type="text/javascript" src="./board-scripts-hearts.js"></script>
+    <script type="text/javascript" src="./rest-calls.js"></script>
+</html>

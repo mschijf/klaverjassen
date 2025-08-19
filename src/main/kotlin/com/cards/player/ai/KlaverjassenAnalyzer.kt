@@ -137,8 +137,6 @@ class KlaverjassenAnalyzer(
     }
 
     private fun processTrick(trick: Trick) {
-        val allCards = CARDDECK.baseDeckCardsSevenAndHigher
-
         val firstCard = trick.getCardsPlayed().first()
         processCard(trick, firstCard, null)
         var highestTrumpUpTillNow = if (firstCard.color == trumpColor) firstCard else null

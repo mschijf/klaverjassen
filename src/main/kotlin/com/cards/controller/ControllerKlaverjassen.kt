@@ -11,10 +11,10 @@ import com.cards.game.klaverjassen.TableSide
 import com.cards.tools.Log
 import org.springframework.web.bind.annotation.*
 
-const val REQUESTPATH_BASE_KLAVERJJASSEN = "/api/v1/klaverjassen/"
+const val REQUEST_PATH_BASE_KLAVERJASSEN = "/api/v1/klaverjassen/"
 
 @RestController
-@RequestMapping(REQUESTPATH_BASE_KLAVERJJASSEN)
+@RequestMapping(REQUEST_PATH_BASE_KLAVERJASSEN)
 class ControllerKlaverjassen(private val gameService: ServiceKlaverjassen) {
 
     @PostMapping("/new-game")

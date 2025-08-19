@@ -23,7 +23,7 @@ class GeniusPlayerKlaverjassen(
             print(String.format("%-5s ", it.toString().lowercase()))
             print(String.format("(%2d): ", playerCanHaveCards.size))
             CardColor.values().forEach { color ->
-                print(String.format("%-7s: %-25s  ", color, playerCanHaveCards.filter{it.color == color}.map { it.rank.rankString }))
+                print(String.format("%-7s: %-25s  ", color, playerCanHaveCards.filter{card->card.color == color}.map { card -> card.rank.rankString }))
             }
             println()
         }

@@ -42,7 +42,7 @@ class ServiceKlaverjassenTest {
 
         while (!game.isFinished()) {
             val sideToMove = game.getSideToMove()
-            val playerToMove = playerGroup.getPlayer(sideToMove) as Player
+            val playerToMove = playerGroup.getPlayer(sideToMove)
 
             if (game.hasNewRoundStarted()) {
                 playerGroup.dealCards()

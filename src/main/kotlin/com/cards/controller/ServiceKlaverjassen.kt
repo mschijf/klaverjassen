@@ -101,7 +101,7 @@ class ServiceKlaverjassen {
                 CardInHandModel(
                     card,
                     isLegalCardToPlay(player, card),
-                    ""//getGeniusCardValue(player as GeniusPlayerKlaverjassen, card)
+                    getGeniusCardValue(player as GeniusPlayerKlaverjassen, card)
                 )
             }
         return xx
@@ -110,7 +110,7 @@ class ServiceKlaverjassen {
     private fun getGeniusCardValue(geniusPlayerKlaverjassen: GeniusPlayerKlaverjassen, card: Card): String {
 //        val valueList = geniusPlayerKlaverjassen.getCardPlayedValueList()
 //        return valueList.firstOrNull{card == it.card}?.value?.toString()?:"x"
-        return "x"
+        return if (geniusPlayerKlaverjassen.tableSide == TableSide.SOUTH) " " else if (card.isJack()) "x" else " "
     }
 
     fun computeMove(): CardPlayedModel? {

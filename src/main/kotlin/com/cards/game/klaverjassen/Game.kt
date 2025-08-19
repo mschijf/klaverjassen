@@ -47,7 +47,6 @@ class Game() {
 
         val currentRound = getCurrentRound()
         val trickOnTable = currentRound.getTrickOnTable()
-        val sideToPlay = trickOnTable.getSideToPlay()
         trickOnTable.addCard(card)
 
         val gameStatus = if (isFinished()) {
@@ -90,7 +89,7 @@ class Game() {
     }
 
     companion object {
-        fun startNewGame(startSide: TableSide = TableSide.WEST): Game {
+        fun startNewGame(startSide: TableSide = GAME_START_PLAYER): Game {
             val game = Game()
             game.start(startSide)
             return game

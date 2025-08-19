@@ -1,4 +1,4 @@
-package com.cards.player.klaverjassen.ai
+package com.cards.player.ai
 
 import com.cards.game.card.*
 import com.cards.game.klaverjassen.TableSide

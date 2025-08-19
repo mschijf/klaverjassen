@@ -6,8 +6,7 @@ import com.cards.game.klaverjassen.TableSide
 import com.cards.game.klaverjassen.ScoreKlaverjassen
 import com.cards.player.Player
 import com.cards.player.PlayerGroup
-import com.cards.player.klaverjassen.PlayerKlaverjassen
-import com.cards.player.klaverjassen.ai.GeniusPlayerKlaverjassen
+import com.cards.player.ai.GeniusPlayerKlaverjassen
 import com.cards.tools.RANDOMIZER
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -38,12 +37,12 @@ class ServiceKlaverjassenTest {
     private fun testOneGame(index: Int): ScoreKlaverjassen {
         val game = Game.startNewGame(TableSide.WEST)
         val playerGroup = PlayerGroup(
-            listOf(PlayerKlaverjassen(TableSide.WEST, game), PlayerKlaverjassen(TableSide.NORTH, game), PlayerKlaverjassen(TableSide.EAST, game), PlayerKlaverjassen(TableSide.SOUTH, game),)
+            listOf(Player(TableSide.WEST, game), Player(TableSide.NORTH, game), Player(TableSide.EAST, game), Player(TableSide.SOUTH, game),)
         )
 
         while (!game.isFinished()) {
             val sideToMove = game.getSideToMove()
-            val playerToMove = playerGroup.getPlayer(sideToMove) as PlayerKlaverjassen
+            val playerToMove = playerGroup.getPlayer(sideToMove) as Player
 
             if (game.hasNewRoundStarted()) {
                 playerGroup.dealCards()
@@ -84,16 +83,16 @@ class ServiceKlaverjassenTest {
         val game = Game.startNewGame(TableSide.WEST)
         val playerGroup = PlayerGroup(
             listOf(
-                PlayerKlaverjassen(TableSide.WEST, game),
+                Player(TableSide.WEST, game),
                 GeniusPlayerKlaverjassen(TableSide.NORTH, game),
-                PlayerKlaverjassen(TableSide.EAST, game),
+                Player(TableSide.EAST, game),
                 GeniusPlayerKlaverjassen(TableSide.SOUTH, game),
             )
         )
 
         while (!game.isFinished()) {
             val sideToMove = game.getSideToMove()
-            val playerToMove = playerGroup.getPlayer(sideToMove) as PlayerKlaverjassen
+            val playerToMove = playerGroup.getPlayer(sideToMove)
 
             if (game.hasNewRoundStarted()) {
                 playerGroup.dealCards()

@@ -1,4 +1,4 @@
-package com.cards.player.klaverjassen.ai
+package com.cards.player.ai
 
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
@@ -7,13 +7,12 @@ import com.cards.game.klaverjassen.Game
 import com.cards.game.klaverjassen.TableSide
 import com.cards.game.klaverjassen.Trick
 import com.cards.game.klaverjassen.legalPlayable
-import com.cards.player.klaverjassen.PlayerKlaverjassen
+import com.cards.player.Player
 import com.cards.tools.cardCombinations
 
 class GeniusPlayerKlaverjassen(
     tableSide: TableSide,
-    game: Game
-) : PlayerKlaverjassen(tableSide, game) {
+    game: Game) : Player(tableSide, game) {
 
     private val analyzer = KlaverjassenAnalyzer(this)
 

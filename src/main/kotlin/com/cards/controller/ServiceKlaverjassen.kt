@@ -19,8 +19,7 @@ import com.cards.game.klaverjassen.ScoreType
 import com.cards.game.klaverjassen.legalPlayable
 import com.cards.player.Player
 import com.cards.player.PlayerGroup
-import com.cards.player.klaverjassen.PlayerKlaverjassen
-import com.cards.player.klaverjassen.ai.GeniusPlayerKlaverjassen
+import com.cards.player.ai.GeniusPlayerKlaverjassen
 import com.cards.tools.RANDOMIZER
 import org.springframework.stereotype.Service
 
@@ -185,7 +184,7 @@ class ServiceKlaverjassen {
     }
 
     fun computeTrumpCardChoice(tableSide: TableSide): TrumpChoiceModel {
-        val choosingPlayer = (playerGroup.getPlayer(tableSide) as PlayerKlaverjassen)
+        val choosingPlayer = playerGroup.getPlayer(tableSide)
         val trumpColor = choosingPlayer.chooseTrumpColor()
         return executeTrumpCardChoice(trumpColor, tableSide)
     }

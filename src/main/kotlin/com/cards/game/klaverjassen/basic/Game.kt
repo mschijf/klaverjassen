@@ -1,14 +1,13 @@
 package com.cards.game.klaverjassen.basic
 
 import com.cards.game.card.Card
+import com.cards.game.card.CardColor
+import com.cards.game.klaverjassen.klaverjassen.NUMBER_OF_ROUNDS_PER_GAME
+import com.cards.game.klaverjassen.klaverjassen.ScoreKlaverjassen
 
-abstract class Game() {
+class Game() {
 
     private val roundList = mutableListOf<Round>()
-
-    abstract fun createTrick(sideToLead: TableSide): Trick
-    abstract fun createRound(): Round
-    abstract fun isFinished(): Boolean
 
     fun start(startSide: TableSide ) {
         createNewRoundAndTrick(startSide)
@@ -67,6 +66,39 @@ abstract class Game() {
         }
         return gameStatus
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+    // Klaverjassen specific
+    //------------------------------------------------------------------------------------------------------------------
+
+    fun createTrick(sideToLead: TableSide) =
+        Trick(
+            sideToLead,
+            getCurrentRound()
+        )
+    fun createRound() = Round()
+
+    fun isFinished(): Boolean {
+        return getRounds().size == NUMBER_OF_ROUNDS_PER_GAME && getRounds().last().isComplete()
+    }
+
+    fun setTrumpColorAndContractOwner(trumpColor: CardColor, side: TableSide) {
+        getCurrentRound().setTrumpColorAndContractOwner(trumpColor, side)
+    }
+
+    fun getAllScoresPerRound(): List<ScoreKlaverjassen> {
+        return getRounds()
+            .map { round ->  round.getScore()}
+    }
+
+    companion object {
+        fun startNewGame(startSide: TableSide = TableSide.WEST): Game {
+            val game = Game()
+            game.start(startSide)
+            return game
+        }
+    }
+
 }
 
 

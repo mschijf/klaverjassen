@@ -8,7 +8,7 @@ import com.cards.game.klaverjassen.klaverjassen.*
 class KlaverjassenAnalyzer(
     private val playerForWhichWeAnalyse: GeniusPlayerKlaverjassen) {
 
-    private var currentRound = playerForWhichWeAnalyse.getCurrentRound()
+    private var currentRound = playerForWhichWeAnalyse.game.getCurrentRound()
     private var trumpColor = currentRound.getTrumpColor()
 
     private val allSides = TableSide.values().toSet()
@@ -130,7 +130,7 @@ class KlaverjassenAnalyzer(
                 //player just follows, we can not conclude anything yet
             }
         }
-        determineAssumptions(trick as TrickKlaverjassen)
+        determineAssumptions(trick)
         cardsPlayedDuringAnalysis.add(cardPlayed)
     }
 
@@ -149,7 +149,7 @@ class KlaverjassenAnalyzer(
     }
 
     private fun determinePlayerCanHaveCards() {
-        currentRound = playerForWhichWeAnalyse.getCurrentRound()
+        currentRound = playerForWhichWeAnalyse.game.getCurrentRound()
         trumpColor = currentRound.getTrumpColor()
         cardsPlayedDuringAnalysis.clear()
 
@@ -164,13 +164,13 @@ class KlaverjassenAnalyzer(
             playerCanHave[otherSide]!!.addAll(allCards - playerForWhichWeAnalyse.getCardsInHand())
         }
 
-        val allTricks = playerForWhichWeAnalyse.getCurrentRound().getTrickList()
+        val allTricks = currentRound.getTrickList()
         allTricks.filterNot { trick -> trick.hasNotStarted() }.forEach { trick ->
             processTrick(trick)
         }
     }
 
-    private fun determineAssumptions(trickSoFar: TrickKlaverjassen) {
+    private fun determineAssumptions(trickSoFar: Trick) {
         val cardJustPlayed = trickSoFar.getCardsPlayed().last()
         val playerJustMoved = trickSoFar.getSideThatPlayedCard(cardJustPlayed)!!
 
@@ -253,7 +253,7 @@ class KlaverjassenAnalyzer(
         }
     }
 
-    private fun roemWeggegevenDoorLastPlayer(trickSoFar: TrickKlaverjassen): Boolean {
+    private fun roemWeggegevenDoorLastPlayer(trickSoFar: Trick): Boolean {
         val cardJustPlayed = trickSoFar.getCardsPlayed().last()
         val playerJustMoved = trickSoFar.getSideThatPlayedCard(cardJustPlayed)!!
 
@@ -264,7 +264,7 @@ class KlaverjassenAnalyzer(
         return bonusAfter > bonusBefore
     }
 
-    private fun roemOntwekenDoorLastPlayer(trickSoFar: TrickKlaverjassen): Boolean {
+    private fun roemOntwekenDoorLastPlayer(trickSoFar: Trick): Boolean {
         val cardJustPlayed = trickSoFar.getCardsPlayed().last()
         val playerJustMoved = trickSoFar.getSideThatPlayedCard(cardJustPlayed)!!
 

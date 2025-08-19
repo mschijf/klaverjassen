@@ -6,7 +6,7 @@ import com.cards.game.klaverjassen.basic.TableSide
 
 abstract class Player(
     val tableSide: TableSide,
-    protected val game: Game
+    val game: Game
 ) {
 
     private var cardsInHand: MutableList<Card> = mutableListOf()

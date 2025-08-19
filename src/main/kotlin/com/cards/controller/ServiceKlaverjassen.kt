@@ -12,10 +12,9 @@ import com.cards.controller.model.TrickCompletedModel
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
+import com.cards.game.klaverjassen.basic.Game
 import com.cards.game.klaverjassen.basic.GameStatus
 import com.cards.game.klaverjassen.basic.TableSide
-import com.cards.game.klaverjassen.klaverjassen.GameKlaverjassen
-import com.cards.game.klaverjassen.klaverjassen.RoundKlaverjassen
 import com.cards.game.klaverjassen.klaverjassen.ScoreType
 import com.cards.game.klaverjassen.klaverjassen.legalPlayable
 import com.cards.player.Player
@@ -27,7 +26,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class ServiceKlaverjassen {
-    private var gameKlaverjassen = GameKlaverjassen.startNewGame()
+    private var gameKlaverjassen = Game.startNewGame()
 
     private fun createInitialPlayerList(): List<Player> {
         return listOf(
@@ -45,7 +44,7 @@ class ServiceKlaverjassen {
         }
 
     fun newGame(): GameStatusModelKlaverjassen {
-        gameKlaverjassen = GameKlaverjassen.startNewGame()
+        gameKlaverjassen = Game.startNewGame()
         playerGroup = PlayerGroup(createInitialPlayerList())
         playerGroup.dealCards()
         return getGameStatus()
@@ -88,8 +87,8 @@ class ServiceKlaverjassen {
                 RANDOMIZER.getLastSeedUsed()
             ),
             trumpChoice = TrumpChoiceModel(
-                    (gameKlaverjassen.getCurrentRound() as RoundKlaverjassen).getTrumpColor(),
-                    (gameKlaverjassen.getCurrentRound() as RoundKlaverjassen).getContractOwningSide()
+                    gameKlaverjassen.getCurrentRound().getTrumpColor(),
+                    gameKlaverjassen.getCurrentRound().getContractOwningSide()
                 )
         )
     }
@@ -192,7 +191,7 @@ class ServiceKlaverjassen {
     }
 
     fun executeTrumpCardChoice(trumpColor: CardColor, tableSide: TableSide): TrumpChoiceModel {
-        (gameKlaverjassen.getCurrentRound() as RoundKlaverjassen).setTrumpColorAndContractOwner(trumpColor, tableSide)
+        gameKlaverjassen.getCurrentRound().setTrumpColorAndContractOwner(trumpColor, tableSide)
         return TrumpChoiceModel(trumpColor, tableSide)
     }
 
@@ -207,7 +206,7 @@ class ServiceKlaverjassen {
             .getCardsInHand()
             .legalPlayable(
                 trickOnTable,
-                (gameKlaverjassen.getCurrentRound() as RoundKlaverjassen).getTrumpColor()
+                gameKlaverjassen.getCurrentRound().getTrumpColor()
             )
         return legalCards.contains(card)
     }

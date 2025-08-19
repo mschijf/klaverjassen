@@ -1,9 +1,9 @@
-package com.cards.game.fourplayercardgame.basic
+package com.cards.game.klaverjassen.basic
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-class TablePositionTest {
+class TableSideTest {
     @Test
     fun clockwiseNext() {
         assertEquals(TableSide.WEST, TableSide.WEST.clockwiseNext(0))
@@ -12,5 +12,4 @@ class TablePositionTest {
         assertEquals(TableSide.SOUTH, TableSide.WEST.clockwiseNext(3))
         assertEquals(TableSide.EAST, TableSide.WEST.clockwiseNext(6))
     }
-
 }

@@ -1,12 +1,12 @@
-package com.cards.game.fourplayercardgame.klaverjassen
+package com.cards.game.klaverjassen.klaverjassen
 
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-class RoemTest {
+class KlaverjassenToolsTest {
     @Test
     fun test50low() {
         val trick = listOf("7H", "8H", "9H", "10H").map { str -> Card.of(str) }

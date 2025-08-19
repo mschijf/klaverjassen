@@ -1,8 +1,8 @@
-package com.cards.game.fourplayercardgame.klaverjassen
+package com.cards.game.klaverjassen.klaverjassen
 
 import com.cards.game.card.Card
-import com.cards.game.fourplayercardgame.basic.TableSide
-import com.cards.game.fourplayercardgame.basic.Trick
+import com.cards.game.klaverjassen.basic.TableSide
+import com.cards.game.klaverjassen.basic.Trick
 
 class TrickKlaverjassen(
     sideToLead: TableSide,

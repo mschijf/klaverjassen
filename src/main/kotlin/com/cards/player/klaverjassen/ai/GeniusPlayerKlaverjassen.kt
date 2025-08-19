@@ -3,8 +3,8 @@ package com.cards.player.klaverjassen.ai
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
-import com.cards.game.fourplayercardgame.basic.TableSide
-import com.cards.game.fourplayercardgame.klaverjassen.*
+import com.cards.game.klaverjassen.basic.TableSide
+import com.cards.game.klaverjassen.klaverjassen.*
 import com.cards.player.klaverjassen.PlayerKlaverjassen
 import com.cards.tools.cardCombinations
 

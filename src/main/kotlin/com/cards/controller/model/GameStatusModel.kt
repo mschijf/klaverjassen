@@ -1,7 +1,7 @@
 package com.cards.controller.model
 
 import com.cards.game.card.Card
-import com.cards.game.fourplayercardgame.basic.TableSide
+import com.cards.game.klaverjassen.basic.TableSide
 
 data class GameStatusModel(
     val onTable: TableModel,

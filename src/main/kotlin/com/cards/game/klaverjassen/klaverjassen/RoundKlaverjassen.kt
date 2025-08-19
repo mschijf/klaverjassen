@@ -1,8 +1,8 @@
-package com.cards.game.fourplayercardgame.klaverjassen
+package com.cards.game.klaverjassen.klaverjassen
 
 import com.cards.game.card.CardColor
-import com.cards.game.fourplayercardgame.basic.Round
-import com.cards.game.fourplayercardgame.basic.TableSide
+import com.cards.game.klaverjassen.basic.Round
+import com.cards.game.klaverjassen.basic.TableSide
 
 
 class RoundKlaverjassen() : Round() {

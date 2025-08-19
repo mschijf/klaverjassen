@@ -1,6 +1,6 @@
-package com.cards.game.fourplayercardgame.klaverjassen
+package com.cards.game.klaverjassen.klaverjassen
 
-import com.cards.game.fourplayercardgame.basic.TableSide
+import com.cards.game.klaverjassen.basic.TableSide
 
 data class ScoreKlaverjassen(val eastWestPoints: Int, val northSouthPoints: Int,
                              val eastWestBonus: Int, val northSouthBonus: Int,

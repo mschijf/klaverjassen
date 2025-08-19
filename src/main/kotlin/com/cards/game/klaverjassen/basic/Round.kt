@@ -1,6 +1,6 @@
-package com.cards.game.fourplayercardgame.basic
+package com.cards.game.klaverjassen.basic
 
-import com.cards.game.fourplayercardgame.klaverjassen.NUMBER_OF_TRICKS_PER_ROUND
+import com.cards.game.klaverjassen.klaverjassen.NUMBER_OF_TRICKS_PER_ROUND
 
 abstract class Round() {
 

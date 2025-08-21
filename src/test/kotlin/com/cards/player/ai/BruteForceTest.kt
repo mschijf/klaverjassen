@@ -25,8 +25,8 @@ class BruteForceTest {
 //        val trick = Trick(TableSide.EAST)
         setUp(analyzer)
 
-        println(analyzer.playerCanHaveCards(TableSide.WEST))
-        println(analyzer.playerSureHasCards(TableSide.WEST))
+        println(analyzer.playerCanHaveCards(TableSide.SOUTH))
+        println(analyzer.playerSureHasCards(TableSide.SOUTH))
     }
 
     fun setUp(analyzer: KlaverjassenAnalyzer) {
@@ -36,12 +36,12 @@ class BruteForceTest {
         every { analyzer.playerSureHasCards(TableSide.SOUTH) } returns emptySet()
 
         every { analyzer.playerCanHaveCards(TableSide.WEST) } returns
-                listOf("8C", "9C", "10C", "JC", "QC").map{Card.of(it)}.toSet()
+                Card.ofList("8C 9C 10C JC QC").toSet()
         every { analyzer.playerCanHaveCards(TableSide.NORTH) } returns
-                listOf("8C", "9C", "10C", "JC", "QC").map{Card.of(it)}.toSet()
+                Card.ofList("8C 9C 10C JC QC").toSet()
         every { analyzer.playerCanHaveCards(TableSide.EAST) } returns
-                listOf("8C", "9C", "10C", "JC", "QC").map{Card.of(it)}.toSet()
+                Card.ofList("8C 9C 10C JC QC").toSet()
         every { analyzer.playerCanHaveCards(TableSide.SOUTH) } returns
-                listOf("8C", "9C", "10C", "JC", "QC").map{Card.of(it)}.toSet()
+                Card.ofList("8C 9C 10C JC QC").toSet()
     }
 }

@@ -32,23 +32,4 @@ class PermutationTest {
         assertEquals(1, cardCombinations(24, 0))
         assertEquals(24, cardCombinations(24, 1))
     }
-
-    @Test
-    fun combinationPossibleCards() {
-        val combiClass = CardCombinations()
-
-        val abc = listOf(2,2,1)
-        val (a,b,c) = abc
-        val xx = combiClass.getPossibleCombinations(a, b, c,
-            setOf(0,1,4), setOf(0,1,2,3,4), setOf(0,1,2,3,4))
-
-        xx.forEach { combi ->
-            combi.forEachIndexed { i, card ->
-                if (i == a || i == a+b || i == a+b+c)
-                    print("   ")
-                print("$card, ")
-            }
-            println()
-        }
-    }
 }

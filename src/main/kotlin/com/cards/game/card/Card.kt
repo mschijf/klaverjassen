@@ -15,6 +15,10 @@ data class Card(val color: CardColor, val rank: CardRank) {
                 throw IllegalArgumentException("Illegal card string")
             return Card(cardColor, cardRank)
         }
+
+        fun ofList(cardStringList: String): List<Card> {
+            return cardStringList.split("\\s+".toRegex()).map{of(it)}
+        }
     }
 
     fun isHearts() = color == CardColor.HEARTS

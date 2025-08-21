@@ -69,10 +69,7 @@ class Game() {
     //------------------------------------------------------------------------------------------------------------------
 
     fun createTrick(sideToLead: TableSide) =
-        Trick(
-            sideToLead,
-            getCurrentRound()
-        )
+        Trick(sideToLead, getCurrentRound())
     fun createRound() = Round()
 
     fun isFinished(): Boolean {

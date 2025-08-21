@@ -1,0 +1,20 @@
+<configuration>
+
+    <!-- Root logger: INFO (or whatever level you prefer for your tests) -->
+<!--    <root level="INFO">-->
+<!--        <appender-ref ref="STDOUT"/>-->
+<!--    </root>-->
+
+<!--    &lt;!&ndash; Console appender &ndash;&gt;-->
+<!--    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <encoder>-->
+<!--            <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+    <!-- Suppress MockK transformer warnings -->
+    <logger name="io.mockk.proxy.jvm.transformation.InliningClassTransformer" level="ERROR"/>
+    <logger name="io.mockk.proxy.jvm.JvmMockFactory" level="ERROR"/>
+    <logger name="io.mockk.impl.instantiation.JvmMockFactoryHelper" level="ERROR"/>
+
+</configuration>

@@ -22,16 +22,15 @@ class KlaverjassenAnalyzer(
     private val playerProbablyHas: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
     private val playerProbablyHasNot: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
 
-
     private val cardsPlayedDuringAnalysis = mutableListOf<Card>()
+
+    fun playerCanHaveCards(side: TableSide): Set<Card> = playerCanHave[side]!!
+    fun playerSureHasCards(side: TableSide): Set<Card> = playerSureHas[side]!!
 
     fun refreshAnalysis() {
         determinePlayerCanHaveCards()
         updateAfterAnalysis()
     }
-
-    fun playerCanHaveCards(side: TableSide): Set<Card> = playerCanHave[side]!!
-    fun playerSureHasCards(side: TableSide): Set<Card> = playerSureHas[side]!!
 
     private fun updateAfterAnalysis() {
 

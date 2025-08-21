@@ -1,22 +1,13 @@
 package com.cards.controller
 
-import com.cards.controller.model.GameStatusModelKlaverjassen
-import com.cards.controller.model.RoundScoreKlaverjassen
-import com.cards.controller.model.ScoreModelKlaverjassen
-import com.cards.controller.model.TrumpChoiceModel
-import com.cards.controller.model.CardInHandModel
-import com.cards.controller.model.CardPlayedModel
-import com.cards.controller.model.GameStatusModel
-import com.cards.controller.model.TableModel
-import com.cards.controller.model.TrickCompletedModel
+import com.cards.controller.model.*
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
 import com.cards.game.klaverjassen.Game
 import com.cards.game.klaverjassen.GameStatus
-import com.cards.game.klaverjassen.TableSide
 import com.cards.game.klaverjassen.ScoreType
-import com.cards.game.klaverjassen.legalPlayable
+import com.cards.game.klaverjassen.TableSide
 import com.cards.player.Player
 import com.cards.player.PlayerGroup
 import com.cards.player.ai.GeniusPlayerKlaverjassen
@@ -69,8 +60,8 @@ class ServiceKlaverjassen {
         val newRoundStarted = gameKlaverjassen.getCurrentRound().hasNotStarted()
 
         println("====================================================================================================")
-        println("$sideToMove")
-        (playerGroup.getPlayer(TableSide.NORTH) as GeniusPlayerKlaverjassen).printAnalyzer()
+        println("To Move: $sideToMove")
+        (playerGroup.getPlayer(TableSide.SOUTH) as GeniusPlayerKlaverjassen).printAnalyzer()
 
         return GameStatusModelKlaverjassen(
             generic = GameStatusModel(
@@ -199,15 +190,7 @@ class ServiceKlaverjassen {
     //======================================================================================================
 
     private fun isLegalCardToPlay(player: Player, card: Card): Boolean {
-        val trickOnTable = gameKlaverjassen.getCurrentRound().getTrickOnTable()
-
-        val legalCards = player
-            .getCardsInHand()
-            .legalPlayable(
-                trickOnTable,
-                gameKlaverjassen.getCurrentRound().getTrumpColor()
-            )
-        return legalCards.contains(card)
+        return player.getLegalPlayableCards().contains(card)
     }
 
     fun playCard(card: Card): GameStatus {

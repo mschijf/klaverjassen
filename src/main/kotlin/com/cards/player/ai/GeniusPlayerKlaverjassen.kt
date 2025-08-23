@@ -14,6 +14,8 @@ class GeniusPlayerKlaverjassen(
 
 
     fun printAnalyzer() {
+        if (game.newRoundToBeStarted())
+            return
         val analyzer = KlaverjassenAnalyzer(this)
         analyzer.refreshAnalysis()
         TableSide.values().forEach {

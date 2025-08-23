@@ -34,7 +34,7 @@ class ServiceKlaverjassen {
         }
 
     fun newGame(): GameStatusModelKlaverjassen {
-        gameKlaverjassen = Game(TableSide.EAST)
+        gameKlaverjassen = Game()
         playerGroup = PlayerGroup(createInitialPlayerList())
         playerGroup.dealCards()
         return getGameStatus()
@@ -64,9 +64,9 @@ class ServiceKlaverjassen {
         val gameJsonString = ""
         val newRoundToBeStarted = gameKlaverjassen.newRoundToBeStarted()
 
-//        println("====================================================================================================")
-//        println("To Move: $sideToMove")
-//        (playerGroup.getPlayer(TableSide.SOUTH) as GeniusPlayerKlaverjassen).printAnalyzer()
+        println("====================================================================================================")
+        println("To Move: $sideToMove")
+        (playerGroup.getPlayer(TableSide.SOUTH) as GeniusPlayerKlaverjassen).printAnalyzer()
 
         return GameStatusModelKlaverjassen(
             generic = GameStatusModel(

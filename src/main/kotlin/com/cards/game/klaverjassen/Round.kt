@@ -8,15 +8,13 @@ class Round(
 
     private val trickList = mutableListOf<Trick>()
 
-    fun getTrickOnTable() = getLastTrick()
+    private fun getFirstTrick() = trickList.firstOrNull()?:throw Exception("We do not have a first trick")
+    fun getTrickOnTable() = trickList.lastOrNull()?:throw Exception("We do not have a trick on table")
 
     fun getLastCompletedTrickWinner(): TableSide? = getLastCompletedTrick()?.getWinningSide()
     fun getTrickList() = trickList.toList()
     fun isComplete() = getTrickList().size == NUMBER_OF_TRICKS_PER_ROUND && getTrickList().last().isComplete()
     fun getFirstTrickLead() = getFirstTrick().getSideToPlay()
-
-    private fun getLastTrick() = trickList.lastOrNull()?:throw Exception("We do not have a last trick")
-    private fun getFirstTrick() = trickList.firstOrNull()?:throw Exception("We do not have a first trick")
 
     private fun getLastCompletedTrick(): Trick? {
         if (trickList.isEmpty())

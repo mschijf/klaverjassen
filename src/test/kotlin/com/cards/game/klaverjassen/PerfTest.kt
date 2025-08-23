@@ -16,17 +16,29 @@ class PerfTest {
         val game = Game()
         game.startNewRound(CardColor.CLUBS, TableSide.WEST)
 
-        println("  :  r    t")
         cardSet.forEach{card ->
             game.playCard(card)
-            println("$card:  ${game.getRounds().size}   ${game.getCurrentRound().getTrickList().size}")
         }
-        println("----------------------------------------------")
+        val trickLead = game.getCurrentRound().getTrickList().last().getSideToLead()
+        var card = cardSet.first()
+        repeat(5) {
+            card = game.takeLastCardBack()
+        }
+        game.playCard(card)
+        assertEquals(CardColor.CLUBS, game.getCurrentRound().getTrumpColor())
+        assertEquals(0, game.getCurrentRound().getTrickOnTable().getCardsPlayed().size)
+        assertEquals(1, game.getRounds().size)
+        assertEquals(8, game.getCurrentRound().getTrickList().size)
+        assertEquals(trickLead, game.getCurrentRound().getTrickOnTable().getSideToLead())
 
-        repeat(32) {
-            val card = game.takeLastCardBack()
-            println("$card:  ${game.getRounds().size}   ${game.getCurrentRound().getTrickList().size}")
+        repeat(28) {
+            card = game.takeLastCardBack()
         }
+
+        assertEquals(CardColor.CLUBS, game.getCurrentRound().getTrumpColor())
+        assertEquals(0, game.getCurrentRound().getTrickOnTable().getCardsPlayed().size)
+        assertEquals(1, game.getRounds().size)
+        assertEquals(1, game.getCurrentRound().getTrickList().size)
     }
 
 }

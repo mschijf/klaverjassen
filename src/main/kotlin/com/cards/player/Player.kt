@@ -41,8 +41,11 @@ open class Player(
     //------------------------------------------------------------------------------------------------------------------
 
     fun getLegalPlayableCards(): List<Card> {
-        return getCardsInHand()
-            .legalPlayable(game.getCurrentRound().getTrickOnTable(), game.getCurrentRound().getTrumpColor())
+        return if (game.newRoundToBeStarted())
+            getCardsInHand() //todo: or null?
+        else
+            getCardsInHand()
+                .legalPlayable(game.getCurrentRound().getTrickOnTable(), game.getCurrentRound().getTrumpColor())
     }
 
     private fun List<Card>.legalPlayable(trick: Trick, trumpColor: CardColor): List<Card> {

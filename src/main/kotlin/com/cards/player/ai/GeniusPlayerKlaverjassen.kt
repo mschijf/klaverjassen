@@ -11,9 +11,10 @@ class GeniusPlayerKlaverjassen(
     tableSide: TableSide,
     game: Game) : Player(tableSide, game) {
 
-    private val analyzer = KlaverjassenAnalyzer(this)
+
 
     fun printAnalyzer() {
+        val analyzer = KlaverjassenAnalyzer(this)
         analyzer.refreshAnalysis()
         TableSide.values().forEach {
             val playerCanHaveCards = analyzer.playerCanHaveCards(it)
@@ -34,6 +35,8 @@ class GeniusPlayerKlaverjassen(
     }
 
     override fun chooseCard(): Card {
+        val analyzer = KlaverjassenAnalyzer(this)
+
         val legalCards = getLegalPlayableCards()
         if (legalCards.size == 1)
             return legalCards.first()

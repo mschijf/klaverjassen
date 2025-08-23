@@ -3,13 +3,9 @@ package com.cards.game.klaverjassen
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 
-class Game() {
+class Game(private val startSide: TableSide = GAME_START_PLAYER) {
 
     private val roundList = mutableListOf<Round>()
-
-    fun start(startSide: TableSide ) {
-        createNewRoundAndTrick(startSide)
-    }
 
     fun getLastTrickWinner(): TableSide?  =
         if (getCurrentRound().hasNotStarted())
@@ -26,20 +22,13 @@ class Game() {
     fun getRounds() = roundList.toList()
     fun getCurrentRound() = roundList.lastOrNull()?:throw Exception("We do not have a current round")
     fun getPreviousRound() = if (roundList.size >= 2) roundList[roundList.size - 2] else null
-    fun getSideToMove() = getCurrentRound().getTrickOnTable().getSideToPlay()
+    fun getSideToMove() =
+        if (newRoundToBeStarted())
+            roundList.lastOrNull()?.getFirstTrickLead()?.clockwiseNext()?:startSide
+        else
+            getCurrentRound().getTrickOnTable().getSideToPlay()
 
-    private fun createNewRoundAndTrick(sideToLead: TableSide) {
-        if (isFinished())
-            throw Exception("Trying to add a round to a finished game")
-        roundList.add(createRound())
-        createNewTrick(sideToLead)
-    }
-
-    private fun createNewTrick(sideToLead: TableSide) {
-        getCurrentRound().addTrick(createTrick(sideToLead))
-    }
-
-    fun hasNewRoundStarted() = getCurrentRound().hasNotStarted()
+    fun newRoundToBeStarted() = !isFinished() && (roundList.lastOrNull()?.isComplete()?:true)
 
     fun playCard(card: Card): GameStatus {
         if (isFinished())
@@ -52,11 +41,9 @@ class Game() {
         val gameStatus = if (isFinished()) {
             GameStatus(gameFinished = true, roundFinished = true, trickFinished = true)
         } else if (currentRound.isComplete()) {
-            val previousLeadStart = currentRound.getTrickList().first().getSideToLead()
-            createNewRoundAndTrick(previousLeadStart.clockwiseNext())
             GameStatus(gameFinished = false, roundFinished = true, trickFinished = true)
         } else if (trickOnTable.isComplete()) {
-            createNewTrick(trickOnTable.getWinningSide()!!)
+            createAndAddNewTrickToCurrentRound(trickOnTable.getWinningSide()!!)
             GameStatus(gameFinished = false, roundFinished = false, trickFinished = true)
         } else {
             GameStatus(gameFinished = false, roundFinished = false, trickFinished = false)
@@ -74,29 +61,32 @@ class Game() {
     // Klaverjassen specific
     //------------------------------------------------------------------------------------------------------------------
 
-    fun createTrick(sideToLead: TableSide) =
-        Trick(sideToLead, getCurrentRound())
-    fun createRound() = Round()
+    fun startNewRound(trumpColor: CardColor, contractOwningSide: TableSide) {
+        if (isFinished())
+            throw Exception("Trying to add a round to a finished game")
+
+        val sideToLead = getSideToMove()
+
+        val newRound = Round(trumpColor, contractOwningSide)
+        roundList.add(newRound)
+        createAndAddNewTrickToCurrentRound(sideToLead)
+    }
+
+    private fun createAndAddNewTrickToCurrentRound(sideToLead: TableSide) {
+        val trick = Trick(
+            sideToLead = sideToLead,
+            trumpColor = getCurrentRound().getTrumpColor(),
+            lastTrickInRound = roundList.size == 8)
+        getCurrentRound().addTrick(trick)
+    }
 
     fun isFinished(): Boolean {
         return getRounds().size == NUMBER_OF_ROUNDS_PER_GAME && getRounds().last().isComplete()
     }
 
-    fun setTrumpColorAndContractOwner(trumpColor: CardColor, side: TableSide) {
-        getCurrentRound().setTrumpColorAndContractOwner(trumpColor, side)
-    }
-
     fun getAllScoresPerRound(): List<ScoreKlaverjassen> {
         return getRounds()
             .map { round ->  round.getScore()}
-    }
-
-    companion object {
-        fun startNewGame(startSide: TableSide = GAME_START_PLAYER): Game {
-            val game = Game()
-            game.start(startSide)
-            return game
-        }
     }
 
 }

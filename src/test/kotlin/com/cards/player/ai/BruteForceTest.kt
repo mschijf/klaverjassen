@@ -12,7 +12,7 @@ class BruteForceTest {
 
     @Test
     fun mostValuableCardToPlay() {
-        val game = Game.startNewGame(TableSide.WEST)
+        val game = Game()
         val playerGroup = PlayerGroup(
             listOf(
                 GeniusPlayerKlaverjassen(TableSide.WEST, game),

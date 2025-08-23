@@ -5,7 +5,8 @@ import com.cards.game.card.CardColor
 
 class Trick(
     private val sideToLead: TableSide,
-    private val round: Round) {
+    private val trumpColor: CardColor,
+    private val lastTrickInRound: Boolean) {
 
     private val cardsPlayed = mutableListOf<Card>()
 
@@ -54,9 +55,9 @@ class Trick(
     }
 
     fun getWinningCard(): Card? {
-        return if (getCardsPlayed().any { card -> card.color == round.getTrumpColor() }) {
+        return if (getCardsPlayed().any { card -> card.color == trumpColor }) {
             getCardsPlayed()
-                .filter { card -> card.color == round.getTrumpColor() }
+                .filter { card -> card.color == trumpColor }
                 .maxByOrNull { card -> card.toRankNumberTrump() }
         } else {
             getCardsPlayed()
@@ -66,14 +67,14 @@ class Trick(
     }
 
     fun getScore(): ScoreKlaverjassen {
-        val lastTrickPoints = if (round.isLastTrick(this)) 10 else 0
+        val lastTrickPoints = if (lastTrickInRound) 10 else 0
         return if (!isComplete()) {
             ScoreKlaverjassen.ZERO
         } else {
             ScoreKlaverjassen.scoreForPlayer(
                 getWinningSide()!!,
-                lastTrickPoints + getCardsPlayed().sumOf { card -> card.cardValue(round.getTrumpColor()) },
-                getCardsPlayed().bonusValue(trumpColor = round.getTrumpColor())
+                lastTrickPoints + getCardsPlayed().sumOf { card -> card.cardValue(trumpColor) },
+                getCardsPlayed().bonusValue(trumpColor = trumpColor)
             )
         }
     }

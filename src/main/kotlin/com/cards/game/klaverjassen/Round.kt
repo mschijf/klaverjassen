@@ -2,20 +2,19 @@ package com.cards.game.klaverjassen
 
 import com.cards.game.card.CardColor
 
-class Round() {
+class Round(private val trumpColor: CardColor,
+            private val contractOwningSide: TableSide) {
 
     private val trickList = mutableListOf<Trick>()
-    private var trumpColor: CardColor = CardColor.CLUBS
-    private var contractOwningSide: TableSide = TableSide.WEST
-
-
     private fun getLastTrick() = trickList.lastOrNull()?:throw Exception("We do not have a last trick")
+    private fun getFirstTrick() = trickList.firstOrNull()?:throw Exception("We do not have a first trick")
     fun hasNotStarted(): Boolean = trickList.size == 1 && trickList.first().hasNotStarted()
     fun getTrickOnTable() = if (getLastTrick().isActive()) getLastTrick() else throw Exception("We do not have a current trick on table")
     fun getLastCompletedTrickWinner(): TableSide? = getLastCompletedTrick()?.getWinningSide()
     fun getTrickList() = trickList.toList()
     fun isComplete() = getTrickList().size == NUMBER_OF_TRICKS_PER_ROUND && getTrickList().last().isComplete()
     fun isLastTrick(trick: Trick) = getTrickList().size == NUMBER_OF_TRICKS_PER_ROUND && getTrickList().last() == trick
+    fun getFirstTrickLead() = getFirstTrick().getSideToPlay()
 
     fun getLastCompletedTrick(): Trick? {
         if (trickList.isEmpty())
@@ -40,11 +39,6 @@ class Round() {
     fun getTrumpColor() = trumpColor
     fun getContractOwningSide() = contractOwningSide
     fun isContractOwningSide(tableSide: TableSide) = (contractOwningSide == tableSide)
-
-    fun setTrumpColorAndContractOwner(trumpColor: CardColor, contractOwner: TableSide) {
-        this.trumpColor= trumpColor
-        this.contractOwningSide = contractOwner
-    }
 
     private fun allTricksWonByTeam(team: Set<TableSide>): Boolean {
         return getTrickList().all { trick -> trick.getWinningSide()!! in team }

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class ServiceKlaverjassen {
-    private var gameKlaverjassen = Game.startNewGame()
+    private var gameKlaverjassen = Game()
 
     private fun createInitialPlayerList(): List<Player> {
         return listOf(
@@ -34,22 +34,27 @@ class ServiceKlaverjassen {
         }
 
     fun newGame(): GameStatusModelKlaverjassen {
-        gameKlaverjassen = Game.startNewGame()
+        gameKlaverjassen = Game()
         playerGroup = PlayerGroup(createInitialPlayerList())
         playerGroup.dealCards()
         return getGameStatus()
     }
 
     fun getGameStatus(): GameStatusModelKlaverjassen {
-        val trickOnTable = gameKlaverjassen.getCurrentRound().getTrickOnTable()
+        val trickOnTable = if (gameKlaverjassen.newRoundToBeStarted()) {
+            null
+        } else {
+            gameKlaverjassen.getCurrentRound().getTrickOnTable()
+        }
+
         val onTableSide = TableModel(
-            trickOnTable.getCardPlayedBy(TableSide.SOUTH),
-            trickOnTable.getCardPlayedBy(TableSide.WEST),
-            trickOnTable.getCardPlayedBy(TableSide.NORTH),
-            trickOnTable.getCardPlayedBy(TableSide.EAST)
+            trickOnTable?.getCardPlayedBy(TableSide.SOUTH),
+            trickOnTable?.getCardPlayedBy(TableSide.WEST),
+            trickOnTable?.getCardPlayedBy(TableSide.NORTH),
+            trickOnTable?.getCardPlayedBy(TableSide.EAST)
         )
         val sideToMove = gameKlaverjassen.getSideToMove()
-        val sideToLead = trickOnTable.getSideToLead()
+        val sideToLead = trickOnTable?.getSideToLead()?:sideToMove
 
         val playerSouth = makePlayerCardListModel(TableSide.SOUTH)
         val playerNorth = makePlayerCardListModel(TableSide.NORTH)
@@ -57,11 +62,11 @@ class ServiceKlaverjassen {
         val playerEast = makePlayerCardListModel(TableSide.EAST)
 
         val gameJsonString = "" //Gson().toJson(gm)
-        val newRoundStarted = gameKlaverjassen.getCurrentRound().hasNotStarted()
+        val newRoundStarted = gameKlaverjassen.newRoundToBeStarted()
 
-        println("====================================================================================================")
-        println("To Move: $sideToMove")
-        (playerGroup.getPlayer(TableSide.SOUTH) as GeniusPlayerKlaverjassen).printAnalyzer()
+//        println("====================================================================================================")
+//        println("To Move: $sideToMove")
+//        (playerGroup.getPlayer(TableSide.SOUTH) as GeniusPlayerKlaverjassen).printAnalyzer()
 
         return GameStatusModelKlaverjassen(
             generic = GameStatusModel(
@@ -76,10 +81,13 @@ class ServiceKlaverjassen {
                 gameJsonString,
                 RANDOMIZER.getLastSeedUsed()
             ),
-            trumpChoice = TrumpChoiceModel(
+            trumpChoice = if (!gameKlaverjassen.newRoundToBeStarted())
+                TrumpChoiceModel(
                     gameKlaverjassen.getCurrentRound().getTrumpColor(),
                     gameKlaverjassen.getCurrentRound().getContractOwningSide()
                 )
+            else
+                null
         )
     }
 
@@ -181,7 +189,7 @@ class ServiceKlaverjassen {
     }
 
     fun executeTrumpCardChoice(trumpColor: CardColor, tableSide: TableSide): TrumpChoiceModel {
-        gameKlaverjassen.getCurrentRound().setTrumpColorAndContractOwner(trumpColor, tableSide)
+        gameKlaverjassen.startNewRound(trumpColor, tableSide)
         return TrumpChoiceModel(trumpColor, tableSide)
     }
 

@@ -67,9 +67,13 @@ function closeModalAndRequestTrumpSetting(cardColor, player) {
 }
 
 function handleTrumpColorSet(trumpColorModel) {
-    document.getElementById("trumpCard").src = cardColorAndRankToImageURL(trumpColorModel.trumpColor, "ONE")
-    clearContract()
-    document.getElementById("hasContract" + playerModelToElementPostFix(trumpColorModel.contractOwner)).innerHTML = "Plays " + cardColorToSymbol(trumpColorModel.trumpColor)
+    if (trumpColorModel !== null) {
+        document.getElementById("trumpCard").src = cardColorAndRankToImageURL(trumpColorModel.trumpColor, "ONE")
+        clearContract()
+        document.getElementById("hasContract" + playerModelToElementPostFix(trumpColorModel.contractOwner)).innerHTML = "Plays " + cardColorToSymbol(trumpColorModel.trumpColor)
+    } else {
+        clearContract()
+    }
 }
 
 function clearContract() {

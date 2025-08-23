@@ -64,6 +64,12 @@ class Game() {
         return gameStatus
     }
 
+    fun takeLastCardBack(): GameStatus {
+        //todo: implement
+        return GameStatus(gameFinished = false, roundFinished = false, trickFinished = false)
+    }
+
+
     //------------------------------------------------------------------------------------------------------------------
     // Klaverjassen specific
     //------------------------------------------------------------------------------------------------------------------

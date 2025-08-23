@@ -37,7 +37,9 @@ function handleGameSpecificNewRoundToBeStartedActions(gameStatus){
     if (isHumanPlayer(gameStatus.generic.playerToMove)) {
         waitForPlayerTrumpSelection(gameStatus.generic.playerToMove)
     } else {
-        requestComputeTrumpCardColor(gameStatus.generic.playerToMove)
+        setTimeout(function () {
+            requestComputeTrumpCardColor(gameStatus.generic.playerToMove)
+        }, 500)
     }
 }
 
@@ -77,10 +79,10 @@ function handleTrumpColorSet(trumpColorModel) {
 }
 
 function clearContract() {
-    document.getElementById("hasContractWest").innerHTML = "-"
-    document.getElementById("hasContractNorth").innerHTML = "-"
-    document.getElementById("hasContractEast").innerHTML = "-"
-    document.getElementById("hasContractSouth").innerHTML = "-"
+    document.getElementById("hasContractWest").innerHTML = "W"
+    document.getElementById("hasContractNorth").innerHTML = "N"
+    document.getElementById("hasContractEast").innerHTML = "E"
+    document.getElementById("hasContractSouth").innerHTML = "S"
 }
 
 //----------------------------------------------------------------------------------------------------------------

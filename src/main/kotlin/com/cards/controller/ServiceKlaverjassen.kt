@@ -34,7 +34,7 @@ class ServiceKlaverjassen {
         }
 
     fun newGame(): GameStatusModelKlaverjassen {
-        gameKlaverjassen = Game()
+        gameKlaverjassen = Game(TableSide.EAST)
         playerGroup = PlayerGroup(createInitialPlayerList())
         playerGroup.dealCards()
         return getGameStatus()
@@ -54,7 +54,7 @@ class ServiceKlaverjassen {
             trickOnTable?.getCardPlayedBy(TableSide.EAST)
         )
         val sideToMove = gameKlaverjassen.getSideToMove()
-        val sideToLead = gameKlaverjassen.getTrickLead()
+        val sideToLead = gameKlaverjassen.getTrickLead()?: gameKlaverjassen.getNewRoundLead()
 
         val playerSouth = makePlayerCardListModel(TableSide.SOUTH)
         val playerNorth = makePlayerCardListModel(TableSide.NORTH)
@@ -182,15 +182,16 @@ class ServiceKlaverjassen {
         )
     }
 
-    fun computeTrumpCardChoice(tableSide: TableSide): TrumpChoiceModel {
+    fun computeTrumpCardChoice(tableSide: TableSide): GameStatusModelKlaverjassen {
         val choosingPlayer = playerGroup.getPlayer(tableSide)
         val trumpColor = choosingPlayer.chooseTrumpColor()
         return executeTrumpCardChoice(trumpColor, tableSide)
     }
 
-    fun executeTrumpCardChoice(trumpColor: CardColor, tableSide: TableSide): TrumpChoiceModel {
+    fun executeTrumpCardChoice(trumpColor: CardColor, tableSide: TableSide): GameStatusModelKlaverjassen {
         gameKlaverjassen.startNewRound(trumpColor, tableSide)
-        return TrumpChoiceModel(trumpColor, tableSide)
+//        return TrumpChoiceModel(trumpColor, tableSide)
+        return getGameStatus()
     }
 
     //======================================================================================================

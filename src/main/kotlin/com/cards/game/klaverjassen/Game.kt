@@ -7,19 +7,17 @@ class Game(
     private val startSide: TableSide = GAME_START_PLAYER) {
 
     private val roundList = mutableListOf<Round>()
-    private var status = GameStatus(false, false, false)
-
     fun getLastTrickWinner(): TableSide? = getCurrentRound().getLastCompletedTrickWinner()
-    fun getStatus() = status
 
     fun getRounds() = roundList.toList()
     fun getCurrentRound() = getCurrentRoundOrNull()?:throw Exception("We do not have a current round")
     fun getSideToMove() =
         if (newRoundToBeStarted())
-            roundList.lastOrNull()?.getFirstTrickLead()?.clockwiseNext()?:startSide
+            roundList.lastOrNull()?.getFirstTrickLead()?.clockwiseNext() ?: startSide
         else
             getCurrentRound().getTrickOnTable().getSideToPlay()
     fun getTrickLead() = getCurrentRoundOrNull()?.getTrickOnTableOrNull()?.getSideToLead()
+    fun getNewRoundLead() = if (newRoundToBeStarted()) getSideToMove() else null
 
     private fun getCurrentRoundOrNull() = roundList.lastOrNull()
 
@@ -33,7 +31,7 @@ class Game(
         val trickOnTable = currentRound.getTrickOnTable()
         trickOnTable.addCard(card)
 
-        status = if (isFinished()) {
+        val status = if (isFinished()) {
             GameStatus(gameFinished = true, roundFinished = true, trickFinished = true)
         } else if (currentRound.isComplete()) {
             GameStatus(gameFinished = false, roundFinished = true, trickFinished = true)
@@ -48,7 +46,7 @@ class Game(
 
     fun takeLastCardBack(): GameStatus {
         //todo: implement
-        status = GameStatus(gameFinished = false, roundFinished = false, trickFinished = false)
+        val status = GameStatus(gameFinished = false, roundFinished = false, trickFinished = false)
         return status
     }
 
@@ -66,7 +64,7 @@ class Game(
         val newRound = Round(trumpColor, contractOwningSide)
         roundList.add(newRound)
         createAndAddNewTrickToCurrentRound(sideToLead)
-        status = GameStatus(gameFinished = false, roundFinished = false, trickFinished = false)
+        val status = GameStatus(gameFinished = false, roundFinished = false, trickFinished = false)
         return status
     }
 

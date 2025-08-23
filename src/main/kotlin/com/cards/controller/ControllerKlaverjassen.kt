@@ -4,7 +4,6 @@ import com.cards.controller.model.CardPlayedModel
 import com.cards.controller.model.CardPlayedResponse
 import com.cards.controller.model.GameStatusModelKlaverjassen
 import com.cards.controller.model.ScoreModelKlaverjassen
-import com.cards.controller.model.TrumpChoiceModel
 import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
 import com.cards.game.klaverjassen.TableSide
@@ -44,14 +43,14 @@ class ControllerKlaverjassen(private val gameService: ServiceKlaverjassen) {
     }
 
     @PostMapping("/computeTrumpCardChoice/{tablePosition}")
-    fun computeTrumpCardChoice(@PathVariable(name = "tablePosition") tableSide: TableSide): TrumpChoiceModel {
+    fun computeTrumpCardChoice(@PathVariable(name = "tablePosition") tableSide: TableSide): GameStatusModelKlaverjassen {
         return gameService.computeTrumpCardChoice(tableSide)
     }
 
     @PostMapping("/executeTrumpCardChoice/{cardColor}/{tablePosition}")
     fun executeTrumpCardChoice(
         @PathVariable(name = "cardColor") color: CardColor,
-        @PathVariable(name = "tablePosition") tableSide: TableSide): TrumpChoiceModel {
+        @PathVariable(name = "tablePosition") tableSide: TableSide): GameStatusModelKlaverjassen {
         return gameService.executeTrumpCardChoice(color, tableSide)
     }
 

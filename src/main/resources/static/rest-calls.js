@@ -91,8 +91,8 @@ function requestComputeTrumpCardColor(player) {
     request.open("POST", requestBase + "/computeTrumpCardChoice/" + player);
     request.onreadystatechange = function() {
         if(this.readyState === 4 && this.status === 200) {
-            let trumpColor = JSON.parse(this.responseText);
-            handleTrumpColorSet(trumpColor)
+            let gameStatus = JSON.parse(this.responseText);
+            handleGameStatus(gameStatus)
         }
     };
     request.send();
@@ -104,8 +104,8 @@ function requestExecuteTrumpCardColorChoice(cardColor, player) {
     request.open("POST", requestBase + "/executeTrumpCardChoice/" + cardColor +"/" + player);
     request.onreadystatechange = function() {
         if(this.readyState === 4 && this.status === 200) {
-            let trumpColor = JSON.parse(this.responseText);
-            handleTrumpColorSet(trumpColor)
+            let gameStatus = JSON.parse(this.responseText);
+            handleGameStatus(gameStatus)
         }
     };
     request.send();

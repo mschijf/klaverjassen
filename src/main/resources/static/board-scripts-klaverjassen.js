@@ -32,7 +32,7 @@ function handleScoreCard(scoreModel) {
 
 //--------------------------------------------------------------------------------------------------------------
 
-function handleGameSpecificNewRoundStartActions(gameStatus){
+function handleGameSpecificNewRoundToBeStartedActions(gameStatus){
     clearTrumpIndicator()
     if (isHumanPlayer(gameStatus.generic.playerToMove)) {
         waitForPlayerTrumpSelection(gameStatus.generic.playerToMove)

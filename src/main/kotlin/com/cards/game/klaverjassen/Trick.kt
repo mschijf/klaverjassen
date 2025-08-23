@@ -3,7 +3,7 @@ package com.cards.game.klaverjassen
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 
-class Trick(
+class Trick (
     private val sideToLead: TableSide,
     private val trumpColor: CardColor,
     private val lastTrickInRound: Boolean) {

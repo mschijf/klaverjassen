@@ -6,8 +6,8 @@ import com.cards.game.klaverjassen.TableSide
 data class GameStatusModel(
     val onTable: TableModel,
     val playerToMove: TableSide,
-    val leadPlayer: TableSide,
-    val newRoundStarted: Boolean = false,
+    val leadPlayer: TableSide?,
+    val newRoundToBeStarted: Boolean = false,
     val playerSouth: List<CardInHandModel>,
     val playerWest: List<CardInHandModel>,
     val playerNorth: List<CardInHandModel>,

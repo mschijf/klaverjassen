@@ -15,7 +15,8 @@ class ServiceKlaverjassenTest {
     fun runTest() {
         RANDOMIZER.setFixedSequence(true)
         val numberOfTests = 1000
-        val serie = (1..numberOfTests).map { testOneGame(it) }
+
+        val serie = (1..numberOfTests).map { testOneGame() }
         println()
         println("----------------------------------------------------------------")
         println("%7d runs           WIJ        ZIJ".format(numberOfTests))
@@ -33,7 +34,7 @@ class ServiceKlaverjassenTest {
         assertEquals(1601543, total.getEastWestTotal())
     }
 
-    private fun testOneGame(index: Int): ScoreKlaverjassen {
+    private fun testOneGame(): ScoreKlaverjassen {
         val game = Game()
         val playerGroup = PlayerGroup(
             listOf(Player(TableSide.WEST, game), Player(TableSide.NORTH, game), Player(TableSide.EAST, game), Player(TableSide.SOUTH, game),)
@@ -77,32 +78,6 @@ class ServiceKlaverjassenTest {
 //        println("Points          %10d %10d".format(2124123, 1059727))
 //    }
 //
-//    private fun testOneGameGenius(index: Int): ScoreKlaverjassen {
-//        val game = Game.startNewGame(TableSide.WEST)
-//        val playerGroup = PlayerGroup(
-//            listOf(
-//                Player(TableSide.WEST, game),
-//                GeniusPlayerKlaverjassen(TableSide.NORTH, game),
-//                Player(TableSide.EAST, game),
-//                GeniusPlayerKlaverjassen(TableSide.SOUTH, game),
-//            )
-//        )
-//
-//        while (!game.isFinished()) {
-//            val sideToMove = game.getSideToMove()
-//            val playerToMove = playerGroup.getPlayer(sideToMove)
-//
-//            if (game.hasNewRoundStarted()) {
-//                playerGroup.dealCards()
-//                val trumpColor = playerToMove.chooseTrumpColor()
-//                game.setTrumpColorAndContractOwner(trumpColor, playerToMove.tableSide)
-//            }
-//
-//            val suggestedCardToPlay = playerToMove.chooseCard()
-//            playCard(playerToMove, game, suggestedCardToPlay)
-//        }
-//        return game.getAllScoresPerRound().reduce { acc, roundScore -> acc.plus(roundScore) }
-//    }
 
     private fun playCard(playerToMove: Player, game: Game, cardToPlay: Card) {
         playerToMove.removeCard(cardToPlay)

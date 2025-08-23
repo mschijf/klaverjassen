@@ -190,6 +190,9 @@ function showGeniusSouthValues(cardModelListPlayerSouth) {
 
 let __lastWinnerId = "pointToWinnerNorth"
 function showLeader(leader) {
+    if (leader === null)
+        return
+
     let lastWinner = document.getElementById(__lastWinnerId)
     __lastWinnerId = "pointToWinner" + playerModelToElementPostFix(leader)
     lastWinner.id = __lastWinnerId
@@ -204,8 +207,8 @@ function handleGameStatus(gameStatus) {
     handleGameStatusGeneric(gameStatus.generic)
     showGameSpecific(gameStatus)
     requestForScoreCard();
-    if (gameStatus.generic.newRoundStarted) {
-        handleGameSpecificNewRoundStartActions(gameStatus)
+    if (gameStatus.generic.newRoundToBeStarted) {
+        handleGameSpecificNewRoundToBeStartedActions(gameStatus)
     }
     handleNextMove(gameStatus.generic)
 }

@@ -3,30 +3,25 @@ package com.cards.game.klaverjassen
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 
-class Game(private val startSide: TableSide = GAME_START_PLAYER) {
+class Game(
+    private val startSide: TableSide = GAME_START_PLAYER) {
 
     private val roundList = mutableListOf<Round>()
+    private var status = GameStatus(false, false, false)
 
-    fun getLastTrickWinner(): TableSide?  =
-        if (getCurrentRound().hasNotStarted())
-            getPreviousRound()?.getLastCompletedTrickWinner()
-        else
-            getCurrentRound().getLastCompletedTrickWinner()
-
-    fun getLastCompletedTrick(): Trick?  =
-        if (getCurrentRound().hasNotStarted())
-            getPreviousRound()?.getLastCompletedTrick()
-        else
-            getCurrentRound().getLastCompletedTrick()
+    fun getLastTrickWinner(): TableSide? = getCurrentRound().getLastCompletedTrickWinner()
+    fun getStatus() = status
 
     fun getRounds() = roundList.toList()
-    fun getCurrentRound() = roundList.lastOrNull()?:throw Exception("We do not have a current round")
-    fun getPreviousRound() = if (roundList.size >= 2) roundList[roundList.size - 2] else null
+    fun getCurrentRound() = getCurrentRoundOrNull()?:throw Exception("We do not have a current round")
     fun getSideToMove() =
         if (newRoundToBeStarted())
             roundList.lastOrNull()?.getFirstTrickLead()?.clockwiseNext()?:startSide
         else
             getCurrentRound().getTrickOnTable().getSideToPlay()
+    fun getTrickLead() = getCurrentRoundOrNull()?.getTrickOnTableOrNull()?.getSideToLead()
+
+    private fun getCurrentRoundOrNull() = roundList.lastOrNull()
 
     fun newRoundToBeStarted() = !isFinished() && (roundList.lastOrNull()?.isComplete()?:true)
 
@@ -38,7 +33,7 @@ class Game(private val startSide: TableSide = GAME_START_PLAYER) {
         val trickOnTable = currentRound.getTrickOnTable()
         trickOnTable.addCard(card)
 
-        val gameStatus = if (isFinished()) {
+        status = if (isFinished()) {
             GameStatus(gameFinished = true, roundFinished = true, trickFinished = true)
         } else if (currentRound.isComplete()) {
             GameStatus(gameFinished = false, roundFinished = true, trickFinished = true)
@@ -48,12 +43,13 @@ class Game(private val startSide: TableSide = GAME_START_PLAYER) {
         } else {
             GameStatus(gameFinished = false, roundFinished = false, trickFinished = false)
         }
-        return gameStatus
+        return status
     }
 
     fun takeLastCardBack(): GameStatus {
         //todo: implement
-        return GameStatus(gameFinished = false, roundFinished = false, trickFinished = false)
+        status = GameStatus(gameFinished = false, roundFinished = false, trickFinished = false)
+        return status
     }
 
 
@@ -61,7 +57,7 @@ class Game(private val startSide: TableSide = GAME_START_PLAYER) {
     // Klaverjassen specific
     //------------------------------------------------------------------------------------------------------------------
 
-    fun startNewRound(trumpColor: CardColor, contractOwningSide: TableSide) {
+    fun startNewRound(trumpColor: CardColor, contractOwningSide: TableSide): GameStatus {
         if (isFinished())
             throw Exception("Trying to add a round to a finished game")
 
@@ -70,13 +66,15 @@ class Game(private val startSide: TableSide = GAME_START_PLAYER) {
         val newRound = Round(trumpColor, contractOwningSide)
         roundList.add(newRound)
         createAndAddNewTrickToCurrentRound(sideToLead)
+        status = GameStatus(gameFinished = false, roundFinished = false, trickFinished = false)
+        return status
     }
 
     private fun createAndAddNewTrickToCurrentRound(sideToLead: TableSide) {
         val trick = Trick(
             sideToLead = sideToLead,
             trumpColor = getCurrentRound().getTrumpColor(),
-            lastTrickInRound = roundList.size == 8)
+            lastTrickInRound = getCurrentRound().getTrickList().size == NUMBER_OF_TRICKS_PER_ROUND-1)
         getCurrentRound().addTrick(trick)
     }
 
@@ -88,7 +86,6 @@ class Game(private val startSide: TableSide = GAME_START_PLAYER) {
         return getRounds()
             .map { round ->  round.getScore()}
     }
-
 }
 
 

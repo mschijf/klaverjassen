@@ -42,7 +42,7 @@ open class Player(
 
     fun getLegalPlayableCards(): List<Card> {
         return if (game.newRoundToBeStarted())
-            getCardsInHand() //todo: or null?
+            emptyList() //trump is not known yet, so no idea what will be legal
         else
             getCardsInHand()
                 .legalPlayable(game.getCurrentRound().getTrickOnTable(), game.getCurrentRound().getTrumpColor())

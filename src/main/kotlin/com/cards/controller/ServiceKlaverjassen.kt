@@ -47,22 +47,22 @@ class ServiceKlaverjassen {
             gameKlaverjassen.getCurrentRound().getTrickOnTable()
         }
 
-        val onTableSide = TableModel(
+        val cardsOnTable = TableModel(
             trickOnTable?.getCardPlayedBy(TableSide.SOUTH),
             trickOnTable?.getCardPlayedBy(TableSide.WEST),
             trickOnTable?.getCardPlayedBy(TableSide.NORTH),
             trickOnTable?.getCardPlayedBy(TableSide.EAST)
         )
         val sideToMove = gameKlaverjassen.getSideToMove()
-        val sideToLead = trickOnTable?.getSideToLead()?:sideToMove
+        val sideToLead = gameKlaverjassen.getTrickLead()
 
         val playerSouth = makePlayerCardListModel(TableSide.SOUTH)
         val playerNorth = makePlayerCardListModel(TableSide.NORTH)
         val playerWest = makePlayerCardListModel(TableSide.WEST)
         val playerEast = makePlayerCardListModel(TableSide.EAST)
 
-        val gameJsonString = "" //Gson().toJson(gm)
-        val newRoundStarted = gameKlaverjassen.newRoundToBeStarted()
+        val gameJsonString = ""
+        val newRoundToBeStarted = gameKlaverjassen.newRoundToBeStarted()
 
 //        println("====================================================================================================")
 //        println("To Move: $sideToMove")
@@ -70,10 +70,10 @@ class ServiceKlaverjassen {
 
         return GameStatusModelKlaverjassen(
             generic = GameStatusModel(
-                onTableSide,
+                cardsOnTable,
                 sideToMove,
                 sideToLead,
-                newRoundStarted,
+                newRoundToBeStarted,
                 playerSouth,
                 playerWest,
                 playerNorth,

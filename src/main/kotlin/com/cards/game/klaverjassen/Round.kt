@@ -8,9 +8,7 @@ class Round(
 
     private val trickList = mutableListOf<Trick>()
 
-    fun getTrickOnTableOrNull() = if (getLastTrick().isActive()) getLastTrick() else null
-    fun getTrickOnTable() = getTrickOnTableOrNull()?:throw Exception("We do not have a current trick on table")
-
+    fun getTrickOnTable() = getLastTrick()
 
     fun getLastCompletedTrickWinner(): TableSide? = getLastCompletedTrick()?.getWinningSide()
     fun getTrickList() = trickList.toList()
@@ -23,7 +21,7 @@ class Round(
     private fun getLastCompletedTrick(): Trick? {
         if (trickList.isEmpty())
             return null
-        if (!trickList.last().isActive())
+        if (trickList.last().isComplete())
             return trickList.last()
         if (trickList.size <= 1)
             return null

@@ -11,13 +11,20 @@ class Game(
 
     fun getRounds() = roundList.toList()
     fun getCurrentRound() = getCurrentRoundOrNull()?:throw Exception("We do not have a current round")
+
     fun getSideToMove() =
         if (newRoundToBeStarted())
             roundList.lastOrNull()?.getFirstTrickLead()?.clockwiseNext() ?: startSide
         else
             getCurrentRound().getTrickOnTable().getSideToPlay()
-    fun getTrickLead() = getCurrentRoundOrNull()?.getTrickOnTableOrNull()?.getSideToLead()
-    fun getNewRoundLead() = if (newRoundToBeStarted()) getSideToMove() else null
+
+    fun getTrickLeadOrNull() =
+        if (getCurrentRoundOrNull()?.getTrickOnTable()?.isComplete()?:true)
+             null
+        else
+            getCurrentRoundOrNull()?.getTrickOnTable()?.getSideToLead()
+
+    fun getNewRoundLeadOrNull() = if (newRoundToBeStarted()) getSideToMove() else null
 
     private fun getCurrentRoundOrNull() = roundList.lastOrNull()
 

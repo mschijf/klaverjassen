@@ -54,7 +54,7 @@ class ServiceKlaverjassen {
             trickOnTable?.getCardPlayedBy(TableSide.EAST)
         )
         val sideToMove = gameKlaverjassen.getSideToMove()
-        val sideToLead = gameKlaverjassen.getTrickLead()?: gameKlaverjassen.getNewRoundLead()
+        val sideToLead = gameKlaverjassen.getTrickLeadOrNull()?: gameKlaverjassen.getNewRoundLeadOrNull()
 
         val playerSouth = makePlayerCardListModel(TableSide.SOUTH)
         val playerNorth = makePlayerCardListModel(TableSide.NORTH)

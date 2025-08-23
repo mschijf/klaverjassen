@@ -21,7 +21,6 @@ class Trick (
     fun getSidesPlayed() = cardsPlayed.mapIndexed { index, _ -> sideToLead.clockwiseNext(index) }
 
     fun hasNotStarted() = cardsPlayed.isEmpty()
-    fun isActive() = !isComplete()
     fun isComplete() = cardsPlayed.size == TableSide.values().size
 
     fun getCardPlayedBy(tableSide: TableSide): Card? {

@@ -40,10 +40,10 @@ class Trick (
         cardsPlayed.add(aCard)
     }
 
-    fun removeLastCard() {
+    fun removeLastCard(): Card {
         if (hasNotStarted())
             throw Exception("Removing a card from a not started trick")
-        cardsPlayed.removeLast()
+        return cardsPlayed.removeLast()
     }
 
     //------------------------------------------------------------------------------------------------------------------

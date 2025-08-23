@@ -44,10 +44,25 @@ class Game(
         return status
     }
 
-    fun takeLastCardBack(): GameStatus {
-        //todo: implement
-        val status = GameStatus(gameFinished = false, roundFinished = false, trickFinished = false)
-        return status
+    fun takeLastCardBack(): Card {
+        val currentRound = getCurrentRound()
+        if (currentRound.getTrickList().isEmpty())
+            throw Exception("Trying to take a card, but the there is no trick on the list")
+
+        val card = if (currentRound.getTrickOnTable().getCardsPlayed().isNotEmpty()) {
+            //1. regular trick (>= 1 kaart op de trick)
+            currentRound.getTrickOnTable().removeLastCard()
+        } else if (getCurrentRound().getTrickList().size > 1) {
+            //3. geen kaarten op de trick
+            //3b. meerdere tricks in round
+            currentRound.removeLastTrick()
+            currentRound.getTrickOnTable().removeLastCard()
+        } else {
+            //3a. enige trick in round
+            throw Exception("Trying to take a card, but the there is no trick with a card on the list")
+        }
+
+        return card//GameStatus(gameFinished = false, roundFinished = false, trickFinished = false)
     }
 
 

@@ -209,8 +209,9 @@ function handleGameStatus(gameStatus) {
     requestForScoreCard();
     if (gameStatus.generic.newRoundToBeStarted) {
         handleGameSpecificNewRoundToBeStartedActions(gameStatus)
+    } else {
+        handleNextMove(gameStatus.generic)
     }
-    handleNextMove(gameStatus.generic)
 }
 
 function handleGameStatusGeneric(gameStatusGeneric) {

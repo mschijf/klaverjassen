@@ -36,6 +36,15 @@ class Round(
         trickList.add(trick)
     }
 
+    fun removeLastTrick() {
+        if (trickList.isEmpty())
+            throw Exception("Trying to remove a trick from an empty trick list")
+        if (trickList.last().getCardsPlayed().isNotEmpty())
+            throw Exception("Trying to remove a trick with cards played")
+        trickList.removeLast()
+    }
+
+
     //------------------------------------------------------------------------------------------------------------------
     // Klaverjassen specific
     //------------------------------------------------------------------------------------------------------------------

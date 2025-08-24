@@ -88,6 +88,6 @@ function clearContract() {
 //----------------------------------------------------------------------------------------------------------------
 
 function doSomeTest() {
-    selectTrump()
+    requestPrintGame()
 }
 

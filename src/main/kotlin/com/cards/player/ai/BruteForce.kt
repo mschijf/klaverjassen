@@ -26,11 +26,17 @@ class BruteForce(
             fakeGroup.getPlayer(player2).setCardsInHand(combination.second)
             fakeGroup.getPlayer(player3).setCardsInHand(combination.third)
             val valuePerCard = tryCard()
-//            println("$combination    -->  %-3s %4d %-3s %4d ".format(valuePerCard[0].card, valuePerCard[0].value, valuePerCard[1].card, valuePerCard[1].value))
+            println("$combination    -->  %-3s %4d %-3s %4d ".format(valuePerCard[0].card, valuePerCard[0].value, valuePerCard[1].card, valuePerCard[1].value))
             valuePerCard
         }
         val totalCardValue = playerForWhichWeAnalyze.getCardsInHand().map{card -> card to cardValueList.flatten().filter { it.card == card }.sumOf { it.value }}
         return totalCardValue.maxBy { it.second }.first
+
+        // todo: find out best analytical card playing choice
+        //keuze: welke kaart is meeste keren winnaar?
+        //       welke kaart levert als som de meeste punten op ('=average')
+        //       wat is de modus ('=modus')
+
     }
 
     private fun tryCard(): List<CardValue> {

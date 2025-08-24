@@ -11,13 +11,11 @@ class GeniusPlayerKlaverjassen(
     tableSide: TableSide,
     game: Game) : Player(tableSide, game) {
 
-
-
-    fun printAnalyzer() {
+    fun printAnalyzer(analyzer: KlaverjassenAnalyzer) {
         if (game.newRoundToBeStarted())
             return
-        val analyzer = KlaverjassenAnalyzer(this)
-        analyzer.refreshAnalysis()
+//        val analyzer = KlaverjassenAnalyzer(this)
+//        analyzer.refreshAnalysis()
         TableSide.values().forEach {
             val playerCanHaveCards = analyzer.playerCanHaveCards(it)
             print(String.format("%-5s ", it.toString().lowercase()))
@@ -37,16 +35,20 @@ class GeniusPlayerKlaverjassen(
     }
 
     override fun chooseCard(): Card {
-        val analyzer = KlaverjassenAnalyzer(this)
-
         val legalCards = getLegalPlayableCards()
         if (legalCards.size == 1)
             return legalCards.first()
 
-        analyzer.refreshAnalysis()
-
         if (firstTrick() && isContractOwner() && isLeadPlayer() && hasTrumpJack()) {
             return trumpJack()
+        }
+
+        if (getNumberOfCardsInHand() == 2) {
+            val analyzer = KlaverjassenAnalyzer(this)
+            analyzer.refreshAnalysis()
+            printAnalyzer(analyzer)
+            val card = BruteForce(this, analyzer).mostValuableCardToPlay()
+            return card
         }
 
         return super.chooseCard()

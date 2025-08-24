@@ -64,6 +64,10 @@ class ControllerKlaverjassen(private val gameService: ServiceKlaverjassen) {
         return Log.get()
     }
 
+    @PostMapping("/printgame")
+    fun printGame() {
+        return gameService.printGame()
+    }
 }
 
 

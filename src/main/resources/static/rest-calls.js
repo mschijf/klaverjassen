@@ -110,3 +110,11 @@ function requestExecuteTrumpCardColorChoice(cardColor, player) {
     };
     request.send();
 }
+
+function requestPrintGame() {
+    let request = new XMLHttpRequest();
+
+    request.open("POST", requestBase + "/printgame");
+    request.send();
+}
+

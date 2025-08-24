@@ -17,7 +17,7 @@ data class Card(val color: CardColor, val rank: CardRank) {
         }
 
         fun ofList(cardStringList: String): List<Card> {
-            return cardStringList.split("\\s+".toRegex()).map{of(it)}
+            return cardStringList.replace(",", "").split("\\s+".toRegex()).map{of(it)}
         }
     }
 

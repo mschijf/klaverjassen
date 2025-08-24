@@ -29,7 +29,7 @@ class ServiceKlaverjassen {
 
     private var playerGroup = PlayerGroup(createInitialPlayerList())
         .also {
-            RANDOMIZER.setSeed(141471740)
+            RANDOMIZER.setSeed(845351837)
             it.dealCards()
         }
 
@@ -64,9 +64,9 @@ class ServiceKlaverjassen {
         val gameJsonString = ""
         val newRoundToBeStarted = gameKlaverjassen.newRoundToBeStarted()
 
-        println("====================================================================================================")
-        println("To Move: $sideToMove")
-        (playerGroup.getPlayer(TableSide.SOUTH) as GeniusPlayerKlaverjassen).printAnalyzer()
+//        println("====================================================================================================")
+//        println("To Move: $sideToMove")
+//        (playerGroup.getPlayer(TableSide.SOUTH) as GeniusPlayerKlaverjassen).printAnalyzer()
 
         return GameStatusModelKlaverjassen(
             generic = GameStatusModel(
@@ -114,6 +114,8 @@ class ServiceKlaverjassen {
 
     fun computeMove(): CardPlayedModel? {
         val playerToMove = playerGroup.getPlayer(gameKlaverjassen.getSideToMove())
+        if (playerToMove.getNumberOfCardsInHand() == 2)
+            printGame()
         val suggestedCardToPlay = playerToMove.chooseCard()
         return executeMove(suggestedCardToPlay.color, suggestedCardToPlay.rank)
     }
@@ -192,6 +194,15 @@ class ServiceKlaverjassen {
         gameKlaverjassen.startNewRound(trumpColor, tableSide)
 //        return TrumpChoiceModel(trumpColor, tableSide)
         return getGameStatus()
+    }
+
+    fun printGame() {
+        println("Random seed  : ${RANDOMIZER.getLastSeedUsed()}")
+        println("RoundLead    : ${gameKlaverjassen.getCurrentRound().getFirstTrickLead()}")
+        println("ContractOwner: ${gameKlaverjassen.getCurrentRound().getContractOwningSide()}")
+        println("Trump        : ${gameKlaverjassen.getCurrentRound().getTrumpColor()}")
+        println("PlayerToMove : ${gameKlaverjassen.getCurrentRound().getTrickOnTable().getSideToPlay()}")
+        println(gameKlaverjassen.getCurrentRound().getTrickList().flatMap { it.getCardsPlayed() })
     }
 
     //======================================================================================================

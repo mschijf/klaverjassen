@@ -14,7 +14,7 @@ class Round(
     fun getLastCompletedTrickWinner(): TableSide? = getLastCompletedTrick()?.getWinningSide()
     fun getTrickList() = trickList.toList()
     fun isComplete() = getTrickList().size == NUMBER_OF_TRICKS_PER_ROUND && getTrickList().last().isComplete()
-    fun getFirstTrickLead() = getFirstTrick().getSideToPlay()
+    fun getFirstTrickLead() = getFirstTrick().getSideToLead()
 
     private fun getLastCompletedTrick(): Trick? {
         if (trickList.isEmpty())
@@ -54,6 +54,9 @@ class Round(
     }
 
     fun getScore(): ScoreKlaverjassen {
+//        if (isComplete())
+//            return trickList[6].getScore().plus(trickList[7].getScore())
+
         val roundScore= getTrickList()
             .fold(ScoreKlaverjassen.ZERO){acc, trick -> acc.plus(trick.getScore())}
         if (!isComplete())

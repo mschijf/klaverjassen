@@ -7,8 +7,7 @@ import com.cards.player.PlayerGroup
 import com.cards.tools.CardCombinations
 
 class BruteForce(
-    val playerForWhichWeAnalyze: GeniusPlayerKlaverjassen,
-    val analyzer: KlaverjassenAnalyzer) {
+    val playerForWhichWeAnalyze: GeniusPlayerKlaverjassen) {
 
     private val player1 = playerForWhichWeAnalyze.tableSide.clockwiseNext()
     private val player2 = player1.clockwiseNext()
@@ -18,6 +17,7 @@ class BruteForce(
     private val fakeGroup = createFakeGroup()
     private val combiClass = CardCombinations()
 
+    private val analyzer = KlaverjassenAnalyzer(playerForWhichWeAnalyze).refreshAnalysis()
 
     fun mostValuableCardToPlay(): Card {
         val combinations = getCombinations()
@@ -26,7 +26,7 @@ class BruteForce(
             fakeGroup.getPlayer(player2).setCardsInHand(combination.second)
             fakeGroup.getPlayer(player3).setCardsInHand(combination.third)
             val valuePerCard = tryCard()
-            println("$combination    -->  %-3s %4d %-3s %4d ".format(valuePerCard[0].card, valuePerCard[0].value, valuePerCard[1].card, valuePerCard[1].value))
+//            println("$combination    -->  %-3s %4d %-3s %4d ".format(valuePerCard[0].card, valuePerCard[0].value, valuePerCard[1].card, valuePerCard[1].value))
             valuePerCard
         }
         val totalCardValue = playerForWhichWeAnalyze.getCardsInHand().map{card -> card to cardValueList.flatten().filter { it.card == card }.sumOf { it.value }}
@@ -119,5 +119,3 @@ class BruteForce(
         return yy
     }
 }
-
-data class CardValue(val card: Card, val value: Int)

@@ -29,7 +29,7 @@ class ServiceKlaverjassen {
 
     private var playerGroup = PlayerGroup(createInitialPlayerList())
         .also {
-            RANDOMIZER.setSeed(845351837)
+            RANDOMIZER.setSeed(1685742163)
             it.dealCards()
         }
 

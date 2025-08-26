@@ -1,0 +1,12 @@
+package com.cards.player.ai
+
+import com.cards.game.card.Card
+
+class FirstPlayerInTrick(player: GeniusPlayerKlaverjassen): AbstractPlayerInTrick(player) {
+    override fun chooseCard(): Card {
+        if (firstTrick() && isContractOwner() && isLeadPlayer() && hasTrumpJack())
+            return trumpJack()
+
+        return player.getCardsInHand().first()
+    }
+}

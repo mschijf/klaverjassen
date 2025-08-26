@@ -6,9 +6,10 @@ import com.cards.game.klaverjassen.Trick
 import com.cards.game.klaverjassen.beats
 import com.cards.game.klaverjassen.toRankNumberNoTrump
 import com.cards.game.klaverjassen.toRankNumberTrump
+import com.cards.player.Player
 
 class KlaverjassenAnalyzer(
-    private val playerForWhichWeAnalyse: GeniusPlayerKlaverjassen) {
+    private val playerForWhichWeAnalyse: Player) {
 
     private var currentRound = playerForWhichWeAnalyse.game.getCurrentRound()
     private var trumpColor = currentRound.getTrumpColor()
@@ -22,14 +23,17 @@ class KlaverjassenAnalyzer(
     private val playerProbablyHas: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
     private val playerProbablyHasNot: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
 
-    private val cardsPlayedDuringAnalysis = mutableListOf<Card>()
+    private val cardsPlayedDuringAnalysis = mutableSetOf<Card>()
 
     fun playerCanHaveCards(side: TableSide): Set<Card> = playerCanHave[side]!!
     fun playerSureHasCards(side: TableSide): Set<Card> = playerSureHas[side]!!
+    fun cardsInPlay() = CARDDECK.baseDeckCardsSevenAndHigher - cardsPlayedDuringAnalysis
+    fun cardsInPlayOtherPlayers() = cardsInPlay() - playerForWhichWeAnalyse.getCardsInHand()
 
-    fun refreshAnalysis() {
+    fun refreshAnalysis(): KlaverjassenAnalyzer {
         determinePlayerCanHaveCards()
         updateAfterAnalysis()
+        return this
     }
 
     private fun updateAfterAnalysis() {

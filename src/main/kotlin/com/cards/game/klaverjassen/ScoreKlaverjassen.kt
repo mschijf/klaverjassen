@@ -52,6 +52,7 @@ data class ScoreKlaverjassen(val eastWestPoints: Int, val northSouthPoints: Int,
     fun getTotalForPlayer(tableSide: TableSide) = getPointsForPLayer(tableSide) + getBonusForPlayer(tableSide)
 
     fun getDeltaForPlayer(tableSide: TableSide) = getTotalForPlayer(tableSide) - getTotalForPlayer(tableSide.clockwiseNext())
+    fun getDeltaBonusForPlayer(tableSide: TableSide) = getBonusForPlayer(tableSide) - getBonusForPlayer(tableSide.clockwiseNext())
 
     companion object {
         val ZERO = ScoreKlaverjassen(0,0,0,0)

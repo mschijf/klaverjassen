@@ -3,6 +3,7 @@ package com.cards.game.klaverjassen
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
+import kotlin.collections.ifEmpty
 
 const val NUMBER_OF_TRICKS_PER_ROUND = 8
 const val NUMBER_OF_ROUNDS_PER_GAME = 16
@@ -105,3 +106,42 @@ private fun bonusValueForColor(cardList: List<Card>, forCardColor: CardColor, tr
     }
     return bonus + stuk
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+fun List<Card>.legalPlayable(trick: Trick, trumpColor: CardColor): List<Card> {
+    val cardsPlayed = trick.getCardsPlayed()
+    if (cardsPlayed.isEmpty())
+        return this
+
+    val leadColor = cardsPlayed.first().color
+    if (this.any {card -> card.color == leadColor}) {
+        return if (trumpColor == leadColor) {
+            this.legalTrumpCardsToPlay(cardsPlayed, trumpColor).ifEmpty { this }
+        } else {
+            this.filter { card -> card.color == leadColor }.ifEmpty { this }
+        }
+    }
+
+    if (this.any {card -> card.color == trumpColor}) {
+        return this.legalTrumpCardsToPlay(cardsPlayed, trumpColor)
+    }
+
+    return this
+}
+
+private fun highestTrumpCard(cardsPlayed: List<Card>, trumpColor: CardColor) : Card? {
+    return cardsPlayed
+        .filter{ cardPlayed -> cardPlayed.color == trumpColor }
+        .maxByOrNull { cardPlayed -> cardPlayed.toRankNumberTrump() }
+}
+
+private fun List<Card>.legalTrumpCardsToPlay(cardsPlayed: List<Card>, trumpColor: CardColor):List<Card> {
+    val highestTrumpCard = highestTrumpCard(cardsPlayed, trumpColor)
+    val maxTrumpCardRank = highestTrumpCard?.toRankNumberTrump() ?: Int.MAX_VALUE
+
+    return this
+        .filter { card -> (card.color == trumpColor) && card.toRankNumberTrump() > maxTrumpCardRank }
+        .ifEmpty { this.filter { card -> card.color == trumpColor } }
+}
+

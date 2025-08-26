@@ -88,6 +88,7 @@ function clearContract() {
 //----------------------------------------------------------------------------------------------------------------
 
 function doSomeTest() {
-    requestPrintGame()
+    // requestPrintGame()
+    run()
 }
 

@@ -4,6 +4,7 @@ import com.cards.controller.model.CardPlayedModel
 import com.cards.controller.model.CardPlayedResponse
 import com.cards.controller.model.GameStatusModelKlaverjassen
 import com.cards.controller.model.ScoreModelKlaverjassen
+import com.cards.controller.model.TrumpChoiceModel
 import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
 import com.cards.game.klaverjassen.TableSide
@@ -68,6 +69,15 @@ class ControllerKlaverjassen(private val gameService: ServiceKlaverjassen) {
     fun printGame() {
         return gameService.printGame()
     }
+
+    @GetMapping("/asynctest")
+    fun asynctest():  TrumpChoiceModel {
+        println("START")
+        Thread.sleep(5_000)
+        println("STOP")
+        return TrumpChoiceModel(CardColor.DIAMONDS, TableSide.NORTH)
+    }
+
 }
 
 

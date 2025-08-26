@@ -19,6 +19,20 @@ data class Card(val color: CardColor, val rank: CardRank) {
         fun ofList(cardStringList: String): List<Card> {
             return cardStringList.replace(",", "").split("\\s+".toRegex()).map{of(it)}
         }
+
+        fun ace(color: CardColor) = Card(color, CardRank.ACE)
+        fun king(color: CardColor) = Card(color, CardRank.KING)
+        fun queen(color: CardColor) = Card(color, CardRank.QUEEN)
+        fun jack(color: CardColor) = Card(color, CardRank.JACK)
+        fun ten(color: CardColor) = Card(color, CardRank.TEN)
+        fun nine(color: CardColor) = Card(color, CardRank.NINE)
+        fun eight(color: CardColor) = Card(color, CardRank.EIGHT)
+        fun seven(color: CardColor) = Card(color, CardRank.SEVEN)
+        fun six(color: CardColor) = Card(color, CardRank.SIX)
+        fun five(color: CardColor) = Card(color, CardRank.FIVE)
+        fun four(color: CardColor) = Card(color, CardRank.FOUR)
+        fun three(color: CardColor) = Card(color, CardRank.THREE)
+        fun two(color: CardColor) = Card(color, CardRank.TWO)
     }
 
     fun isHearts() = color == CardColor.HEARTS

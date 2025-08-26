@@ -4,8 +4,7 @@ import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 import com.cards.game.klaverjassen.Game
 import com.cards.game.klaverjassen.TableSide
-import com.cards.game.klaverjassen.Trick
-import com.cards.game.klaverjassen.toRankNumberTrump
+import com.cards.game.klaverjassen.legalPlayable
 
 open class Player(
     val tableSide: TableSide,
@@ -46,42 +45,6 @@ open class Player(
         else
             getCardsInHand()
                 .legalPlayable(game.getCurrentRound().getTrickOnTable(), game.getCurrentRound().getTrumpColor())
-    }
-
-    private fun List<Card>.legalPlayable(trick: Trick, trumpColor: CardColor): List<Card> {
-        val cardsPlayed = trick.getCardsPlayed()
-        if (cardsPlayed.isEmpty())
-            return this
-
-        val leadColor = cardsPlayed.first().color
-        if (this.any {card -> card.color == leadColor}) {
-            return if (trumpColor == leadColor) {
-                this.legalTrumpCardsToPlay(cardsPlayed, trumpColor).ifEmpty { this }
-            } else {
-                this.filter { card -> card.color == leadColor }.ifEmpty { this }
-            }
-        }
-
-        if (this.any {card -> card.color == trumpColor}) {
-            return this.legalTrumpCardsToPlay(cardsPlayed, trumpColor)
-        }
-
-        return this
-    }
-
-    private fun highestTrumpCard(cardsPlayed: List<Card>, trumpColor: CardColor) : Card? {
-        return cardsPlayed
-            .filter{ cardPlayed -> cardPlayed.color == trumpColor }
-            .maxByOrNull { cardPlayed -> cardPlayed.toRankNumberTrump() }
-    }
-
-    private fun List<Card>.legalTrumpCardsToPlay(cardsPlayed: List<Card>, trumpColor: CardColor):List<Card> {
-        val highestTrumpCard = highestTrumpCard(cardsPlayed, trumpColor)
-        val maxTrumpCardRank = highestTrumpCard?.toRankNumberTrump() ?: Int.MAX_VALUE
-
-        return this
-            .filter { card -> (card.color == trumpColor) && card.toRankNumberTrump() > maxTrumpCardRank }
-            .ifEmpty { this.filter { card -> card.color == trumpColor } }
     }
 
 

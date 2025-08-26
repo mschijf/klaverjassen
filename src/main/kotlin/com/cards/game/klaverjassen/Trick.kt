@@ -65,9 +65,9 @@ class Trick (
         }
     }
 
-    fun getScore(): ScoreKlaverjassen {
+    fun getScore(incompleteTrickALlowed: Boolean = false): ScoreKlaverjassen {
         val lastTrickPoints = if (lastTrickInRound) 10 else 0
-        return if (!isComplete()) {
+        return if (!isComplete() && !incompleteTrickALlowed) {
             ScoreKlaverjassen.ZERO
         } else {
             ScoreKlaverjassen.scoreForPlayer(

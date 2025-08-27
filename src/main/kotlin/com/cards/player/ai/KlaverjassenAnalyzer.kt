@@ -1,6 +1,7 @@
 package com.cards.player.ai
 
 import com.cards.game.card.*
+import com.cards.game.klaverjassen.Round
 import com.cards.game.klaverjassen.TableSide
 import com.cards.game.klaverjassen.Trick
 import com.cards.game.klaverjassen.beats
@@ -11,30 +12,52 @@ import com.cards.player.Player
 class KlaverjassenAnalyzer(
     private val playerForWhichWeAnalyse: Player) {
 
-    private var currentRound = playerForWhichWeAnalyse.game.getCurrentRound()
-    private var trumpColor = currentRound.getTrumpColor()
+    companion object {
+        var t: Long = 0
+    }
+
+    private lateinit var currentRound: Round
+    private lateinit var trumpColor: CardColor
 
     private val allSides = TableSide.values().toSet()
     private val mySide = playerForWhichWeAnalyse.tableSide
     private val otherSides = allSides - mySide
+    private val allCards = CARDDECK.baseDeckCardsSevenAndHigher
+    private val cardsPlayedDuringAnalysis = mutableSetOf<Card>()
 
     private val playerCanHave: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
     private val playerSureHas: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
     private val playerProbablyHas: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
     private val playerProbablyHasNot: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
 
-    private val cardsPlayedDuringAnalysis = mutableSetOf<Card>()
-
     fun playerCanHaveCards(side: TableSide): Set<Card> = playerCanHave[side]!!
     fun playerSureHasCards(side: TableSide): Set<Card> = playerSureHas[side]!!
-    fun cardsInPlay() = CARDDECK.baseDeckCardsSevenAndHigher - cardsPlayedDuringAnalysis
+    fun cardsInPlay() = allCards - cardsPlayedDuringAnalysis
     fun cardsInPlayOtherPlayers() = cardsInPlay() - playerForWhichWeAnalyse.getCardsInHand()
 
     fun refreshAnalysis(): KlaverjassenAnalyzer {
+        t++
+
+        initGlobals()
         determinePlayerCanHaveCards()
         updateAfterAnalysis()
         return this
     }
+
+    private fun initGlobals() {
+        currentRound = playerForWhichWeAnalyse.game.getCurrentRound()
+        trumpColor = currentRound.getTrumpColor()
+        cardsPlayedDuringAnalysis.clear()
+
+        playerCanHave.values.forEach { it.clear() }
+        playerSureHas.values.forEach { it.clear() }
+        playerProbablyHas.values.forEach { it.clear() }
+        playerProbablyHasNot.values.forEach { it.clear() }
+
+        val cardsInOtherHands = allCards - playerForWhichWeAnalyse.getCardsInHand()
+        otherSides.forEach { other -> playerCanHave[other]!!.addAll(cardsInOtherHands) }
+    }
+
 
     private fun updateAfterAnalysis() {
 
@@ -105,9 +128,6 @@ class KlaverjassenAnalyzer(
     //-----------------------------------------------------------------------------------------------------------------
 
     private fun processCard(trick: Trick, cardPlayed: Card, highestTrumpUpTillNow: Card?) {
-
-        val allCards = CARDDECK.baseDeckCardsSevenAndHigher
-
         val sideThatPlayed = trick.getSideThatPlayedCard(cardPlayed)!!
 
         otherSides.forEach {
@@ -152,21 +172,6 @@ class KlaverjassenAnalyzer(
     }
 
     private fun determinePlayerCanHaveCards() {
-        currentRound = playerForWhichWeAnalyse.game.getCurrentRound()
-        trumpColor = currentRound.getTrumpColor()
-        cardsPlayedDuringAnalysis.clear()
-
-        playerCanHave.values.forEach { it.clear() }
-        playerSureHas.values.forEach { it.clear() }
-        playerProbablyHas.values.forEach { it.clear() }
-        playerProbablyHasNot.values.forEach { it.clear() }
-
-        val allCards = CARDDECK.baseDeckCardsSevenAndHigher
-
-        otherSides.forEach { otherSide ->
-            playerCanHave[otherSide]!!.addAll(allCards - playerForWhichWeAnalyse.getCardsInHand())
-        }
-
         val allTricks = currentRound.getTrickList()
         allTricks.filterNot { trick -> trick.hasNotStarted() }.forEach { trick ->
             processTrick(trick)
@@ -285,7 +290,7 @@ class KlaverjassenAnalyzer(
         (cardsPlayedDuringAnalysis.count { it.color == trumpColor } == 0)
 
     private fun highestOfColorStillAvailable(cardColor: CardColor): Card? {
-        val cardsStillAvailable = (CARDDECK.baseDeckCardsSevenAndHigher - cardsPlayedDuringAnalysis)
+        val cardsStillAvailable = (allCards - cardsPlayedDuringAnalysis)
         return if (cardColor == trumpColor)
             cardsStillAvailable.filter { it.color == cardColor }.maxByOrNull { it.toRankNumberTrump() }
         else
@@ -293,7 +298,7 @@ class KlaverjassenAnalyzer(
     }
 
     private fun secondHighestOfColorStillAvailable(cardColor: CardColor): Card? {
-        val cardsStillAvailable = (CARDDECK.baseDeckCardsSevenAndHigher - cardsPlayedDuringAnalysis)
+        val cardsStillAvailable = (allCards - cardsPlayedDuringAnalysis)
         val sortedCards = if (cardColor == trumpColor)
             cardsStillAvailable.filter { it.color == cardColor }.sortedByDescending { it.toRankNumberTrump() }
         else

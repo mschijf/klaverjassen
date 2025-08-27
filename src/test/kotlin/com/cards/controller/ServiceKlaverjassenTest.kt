@@ -7,6 +7,7 @@ import com.cards.game.klaverjassen.TableSide
 import com.cards.player.Player
 import com.cards.player.PlayerGroup
 import com.cards.player.ai.GeniusPlayerKlaverjassen
+import com.cards.player.ai.KlaverjassenAnalyzer
 import com.cards.tools.RANDOMIZER
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -67,14 +68,15 @@ class ServiceKlaverjassenTest {
         println("number of wins: %10d %10d".format(winsNS,winsEW))
         val total = serie.reduce { acc, score -> acc.plus(score) }
         println("Points          %10d %10d".format(total.getNorthSouthTotal(), total.getEastWestTotal()))
+        println("Cards examined during analysis: ${KlaverjassenAnalyzer.t}")
 
-        println()
-        println("----------------------------------------------------------------")
-        println("EXPECTED:")
-        println("----------------------------------------------------------------")
-        println("%7d runs           WIJ        ZIJ".format(1000))
-        println("number of wins: %10d %10d".format(978, 22))
-        println("Points          %10d %10d".format(2124123, 1059727))
+//        println()
+//        println("----------------------------------------------------------------")
+//        println("EXPECTED:")
+//        println("----------------------------------------------------------------")
+//        println("%7d runs           WIJ        ZIJ".format(1000))
+//        println("number of wins: %10d %10d".format(978, 22))
+//        println("Points          %10d %10d".format(2124123, 1059727))
     }
 
     private fun testOneGame(game: Game, playerGroup: PlayerGroup): ScoreKlaverjassen {

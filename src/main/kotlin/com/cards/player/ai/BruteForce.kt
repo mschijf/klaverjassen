@@ -5,6 +5,8 @@ import com.cards.game.klaverjassen.GameStatus
 import com.cards.player.Player
 import com.cards.player.PlayerGroup
 import com.cards.tools.CardCombinations
+import kotlin.math.max
+import kotlin.math.min
 
 class BruteForce(
     val playerForWhichWeAnalyze: GeniusPlayerKlaverjassen) {
@@ -43,14 +45,14 @@ class BruteForce(
         val result = mutableListOf<CardValue>()
         playerForWhichWeAnalyze.getCardsInHand().forEach { card ->
             playCard(playerForWhichWeAnalyze, card)
-            val value = tryRestOfGame()
+            val value = tryRestOfGame(Int.MIN_VALUE, Int.MAX_VALUE)
             takeCardBack(playerForWhichWeAnalyze, card)
             result.add(CardValue(card, value))
         }
         return result
     }
 
-    private fun tryRestOfGame(): Int {
+    private fun tryRestOfGame(alfa: Int, beta: Int): Int {
         val sideToMove = game.getSideToMove()
         if (game.getCurrentRound().isComplete()) {
             return game.getCurrentRound().getScore().getDeltaForPlayer(tableSide = playerForWhichWeAnalyze.tableSide)
@@ -61,10 +63,12 @@ class BruteForce(
             var best = Int.MIN_VALUE
             playerToMove.getLegalPlayableCards().forEach { card ->
                 playCard(playerToMove, card)
-                val v = tryRestOfGame()
+                val v = tryRestOfGame(max(alfa, best), beta)
                 takeCardBack(playerToMove, card)
                 if (v > best)
                     best = v
+                if (v >= beta)
+                    return v
             }
             return best
 
@@ -72,10 +76,12 @@ class BruteForce(
             var best = Int.MAX_VALUE
             playerToMove.getLegalPlayableCards().forEach { card ->
                 playCard(playerToMove, card)
-                val v = tryRestOfGame()
+                val v = tryRestOfGame(alfa, min(beta, best))
                 takeCardBack(playerToMove, card)
                 if (v < best)
                     best = v
+                if (v <= alfa)
+                    return v
             }
             return best
         }

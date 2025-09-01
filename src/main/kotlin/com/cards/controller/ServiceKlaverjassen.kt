@@ -4,6 +4,7 @@ import com.cards.controller.model.*
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
+import com.cards.game.klaverjassen.GAME_START_PLAYER
 import com.cards.game.klaverjassen.Game
 import com.cards.game.klaverjassen.GameStatus
 import com.cards.game.klaverjassen.ScoreType
@@ -141,7 +142,7 @@ class ServiceKlaverjassen {
         else
             null
 
-        val nextSideToPlay = gameKlaverjassen.getSideToMove()
+        val nextSideToPlay = if (gameStatus.gameFinished) GAME_START_PLAYER else gameKlaverjassen.getSideToMove()
 
         return CardPlayedModel(
             playerToMove.tableSide,
@@ -213,7 +214,7 @@ class ServiceKlaverjassen {
         return player.getLegalPlayableCards().contains(card)
     }
 
-    fun playCard(card: Card): GameStatus {
+    private fun playCard(card: Card): GameStatus {
         val playerToMove = playerGroup.getPlayer(gameKlaverjassen.getSideToMove())
         playerToMove.removeCard(card)
         val gameStatus = gameKlaverjassen.playCard(card)

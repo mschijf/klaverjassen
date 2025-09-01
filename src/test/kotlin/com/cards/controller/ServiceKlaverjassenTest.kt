@@ -51,6 +51,7 @@ class ServiceKlaverjassenTest {
         val numberOfTests = 1000
 
         val serie = (1..numberOfTests).map {
+//            println(it)
             val game = Game()
             val playerGroup = PlayerGroup(
                 listOf(Player(TableSide.WEST, game), GeniusPlayerKlaverjassen(TableSide.NORTH, game),

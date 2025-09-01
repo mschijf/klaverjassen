@@ -9,7 +9,8 @@ import kotlin.math.max
 import kotlin.math.min
 
 class BruteForce(
-    val playerForWhichWeAnalyze: GeniusPlayerKlaverjassen) {
+    val playerForWhichWeAnalyze: GeniusPlayerKlaverjassen,
+    val analyzer: KlaverjassenAnalyzer) {
 
     private val player1 = playerForWhichWeAnalyze.tableSide.clockwiseNext()
     private val player2 = player1.clockwiseNext()
@@ -18,8 +19,6 @@ class BruteForce(
     private val game = playerForWhichWeAnalyze.game
     private val fakeGroup = createFakeGroup()
     private val combiClass = CardCombinations()
-
-    private val analyzer = KlaverjassenAnalyzer(playerForWhichWeAnalyze).refreshAnalysis()
 
     fun mostValuableCardToPlay(): Card {
         val combinations = getCombinations()

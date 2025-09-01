@@ -71,7 +71,6 @@ fun Card.toBonusRankNumber() : Int {
 }
 
 fun List<Card>.bonusValue(trumpColor: CardColor): Int {
-    assert(this.size == 4)
     return CardColor.values().sumOf { color -> bonusValueForColor(this, color, trumpColor) } +
             bonusValueForfourEqualRanks(this)
 }

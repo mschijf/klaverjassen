@@ -3,6 +3,7 @@ package com.cards.tools
 import com.cards.game.card.Card
 
 class CardCombinations {
+
     fun getPossibleCardCombinations(countPlayer1: Int, countPlayer2: Int, countPlayer3: Int,
                                     canHavePlayer1:Set<Card>, canHavePlayer2:Set<Card>, canHavePlayer3:Set<Card>,
                                     sureHasPlayer1:Set<Card>, sureHasPlayer2:Set<Card>, sureHasPlayer3:Set<Card>,): List<Triple<List<Card>, List<Card>, List<Card>>> {
@@ -39,8 +40,10 @@ class CardCombinations {
     }
 
     fun combinationsChatGPT(a: Int, b: Int, c: Int): List<Triple<List<Int>, List<Int>, List<Int>>> {
-        val n = a + b + c
+        if (cache.containsKey(Triple(a,b,c)))
+            return cache[Triple(a,b,c)]!!
 
+        val n = a + b + c
         val result = mutableListOf<Triple<List<Int>, List<Int>, List<Int>>>()
         val elements = (0 until n).toList()
 
@@ -64,6 +67,11 @@ class CardCombinations {
             }
         }
 
+        cache[Triple(a,b,c)] = result
         return result
+    }
+
+    companion object {
+        private val cache = mutableMapOf<Triple<Int, Int, Int>, List<Triple<List<Int>, List<Int>, List<Int>>>>()
     }
 }

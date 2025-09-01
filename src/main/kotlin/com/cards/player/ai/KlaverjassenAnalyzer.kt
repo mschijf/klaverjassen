@@ -332,4 +332,24 @@ class KlaverjassenAnalyzer(
         return numberOfCardsInHandOtherPlayer
     }
 
+    fun printAnalyzer() {
+        TableSide.values().forEach {
+            val playerCanHaveCards = this.playerCanHaveCards(it)
+            print(String.format("%-5s ", it.toString().lowercase()))
+            print(String.format("(%2d): ", playerCanHaveCards.size))
+            CardColor.values().forEach { color ->
+                print(String.format("%-8s: %-25s  ", color, playerCanHaveCards.filter{card->card.color == color}.map { card -> card.rank.rankString }))
+            }
+            println()
+            val playerSureHasCards = this.playerSureHasCards(it)
+            print(String.format("%-5s ", it.toString().lowercase()))
+            print(String.format("(%2d): ", playerSureHasCards.size))
+            CardColor.values().forEach { color ->
+                print(String.format("%-8s: %-25s  ", " ", playerSureHasCards.filter{card->card.color == color}.map { card -> card.rank.rankString }))
+            }
+            println()
+        }
+    }
+
+
 }

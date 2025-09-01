@@ -8,13 +8,11 @@ import com.cards.game.klaverjassen.Trick
 import com.cards.game.klaverjassen.legalPlayable
 import com.cards.player.Player
 
-abstract class AbstractPlayerInTrick(protected val player: Player) {
+abstract class AbstractPlayerInTrick(protected val player: Player,
+                                     val analyzer: KlaverjassenAnalyzer) {
     abstract fun chooseCard(): Card
 
-    protected val analyzer = KlaverjassenAnalyzer(player).refreshAnalysis()
     protected val game = player.game
-    protected val trick = game.getCurrentRound().getTrickOnTable()
-    protected val legalCards = player.getLegalPlayableCards()
 
     protected fun canFollow() = player.getCardsInHand().any{game.getCurrentRound().getTrickOnTable().isLeadColor(it.color)}
     protected fun hasTroef() = hasColor(trump())
@@ -31,6 +29,7 @@ abstract class AbstractPlayerInTrick(protected val player: Player) {
     protected fun isLeadPlayer() = game.getCurrentRound().getTrickOnTable().isSideToLead(player.tableSide)
     protected fun isContractOwner() = game.getCurrentRound().isContractOwningSide(player.tableSide)
     protected fun isContractOwnersPartner() = game.getCurrentRound().isContractOwningSide(player.tableSide.opposite())
+    protected fun TableSide.isPartner() = this.opposite() == player.tableSide
 
     protected fun trump() = game.getCurrentRound().getTrumpColor()
 
@@ -46,7 +45,9 @@ abstract class AbstractPlayerInTrick(protected val player: Player) {
     protected fun List<Card>.hasTen(color: CardColor? = null) = this.any{it.rank == CardRank.TEN && (if (color != null) it.color == color else true)}
     protected fun List<Card>.hasKing(color: CardColor? = null) = this.any{it.rank == CardRank.KING && (if (color != null) it.color == color else true)}
 
-    private val dummyCard = Card(CardColor.CLUBS, CardRank.TWO)
+    //------------------------------------------------------------------------------------------------------------------
+
+    private val dummyCard = Card(CardColor.CLUBS, CardRank.THREE)
 
     fun cardGivingHighestValue(trick: Trick, sideToMove: TableSide): CardValue {
         if (trick.isComplete())

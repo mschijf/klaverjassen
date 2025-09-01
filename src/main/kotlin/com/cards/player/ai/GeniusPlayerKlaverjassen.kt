@@ -10,41 +10,25 @@ class GeniusPlayerKlaverjassen(
     tableSide: TableSide,
     game: Game) : Player(tableSide, game) {
 
-    fun printAnalyzer(analyzer: KlaverjassenAnalyzer) {
+    val analyzer = KlaverjassenAnalyzer(this)
+
+    fun printAnalyzer() {
         if (game.newRoundToBeStarted())
             return
-//        val analyzer = KlaverjassenAnalyzer(this)
-//        analyzer.refreshAnalysis()
-        TableSide.values().forEach {
-            val playerCanHaveCards = analyzer.playerCanHaveCards(it)
-            print(String.format("%-5s ", it.toString().lowercase()))
-            print(String.format("(%2d): ", playerCanHaveCards.size))
-            CardColor.values().forEach { color ->
-                print(String.format("%-8s: %-25s  ", color, playerCanHaveCards.filter{card->card.color == color}.map { card -> card.rank.rankString }))
-            }
-            println()
-            val playerSureHasCards = analyzer.playerSureHasCards(it)
-            print(String.format("%-5s ", it.toString().lowercase()))
-            print(String.format("(%2d): ", playerSureHasCards.size))
-            CardColor.values().forEach { color ->
-                print(String.format("%-8s: %-25s  ", " ", playerSureHasCards.filter{card->card.color == color}.map { card -> card.rank.rankString }))
-            }
-            println()
-        }
+        analyzer.printAnalyzer()
     }
 
     override fun chooseCard(): Card {
         if (getLegalPlayableCards().size == 1)
             return getLegalPlayableCards().first()
 
-        if (getNumberOfCardsInHand() == 2)
-            return BruteForce(this).mostValuableCardToPlay()
+        analyzer.refreshAnalysis()
+        if (getNumberOfCardsInHand() <= 2)
+            return BruteForce(this, analyzer).mostValuableCardToPlay()
 
         return when(game.getCurrentRound().getTrickOnTable().getCardsPlayed().size) {
-            0 -> FirstPlayerInTrick(this).chooseCard()
-            1 -> SecondPlayerInTrick(this).chooseCard()
-            2 -> ThirdPlayerInTrick(this).chooseCard()
-            3 -> FourthPlayerInTrick(this).chooseCard()
+            0 -> LeadPlayerInTrick(this, analyzer).chooseCard()
+            1,2,3 -> FollowPlayerInTrick(this, analyzer).chooseCard()
             else -> throw IllegalStateException("There is no such player")
         }
     }

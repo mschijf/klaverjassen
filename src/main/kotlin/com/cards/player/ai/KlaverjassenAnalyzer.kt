@@ -30,18 +30,34 @@ class KlaverjassenAnalyzer(
     private val playerProbablyHas: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
     private val playerProbablyHasNot: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
 
-    fun playerCanHaveCards(side: TableSide): Set<Card> = playerCanHave[side]!!
-    fun playerSureHasCards(side: TableSide): Set<Card> = playerSureHas[side]!!
-    fun cardsInPlay() = allCards - cardsPlayedDuringAnalysis
-    fun cardsInPlayOtherPlayers() = cardsInPlay() - playerForWhichWeAnalyse.getCardsInHand()
+    private fun cardsInHandForSide(side: TableSide): Int {
+        if (side == mySide)
+            return playerForWhichWeAnalyse.getCardsInHand().size
 
-    fun refreshAnalysis(): KlaverjassenAnalyzer {
+        val playersPlayedInLastTrick = currentRound.getTrickOnTable().getSidesPlayed()
+        val numberOfCardsInHandOtherPlayer = playerForWhichWeAnalyse.getCardsInHand().size - if (side in playersPlayedInLastTrick) 1 else 0
+        return numberOfCardsInHandOtherPlayer
+    }
+
+    fun refreshAnalysis(): KlaverjassenAnalysisResult {
         t++
 
         initGlobals()
         determinePlayerCanHaveCards()
         updateAfterAnalysis()
-        return this
+
+        return KlaverjassenAnalysisResult(
+            game = playerForWhichWeAnalyse.game,
+            currentRound= playerForWhichWeAnalyse.game.getCurrentRound(),
+            currentTrick = playerForWhichWeAnalyse.game.getCurrentRound().getTrickOnTable(),
+            mySide = playerForWhichWeAnalyse.tableSide,
+            cardsInHand = playerForWhichWeAnalyse.getCardsInHand(),
+            legalCards = playerForWhichWeAnalyse.getLegalPlayableCards(),
+            playerCanHave = playerCanHave,
+            playerSureHas = playerSureHas,
+            playerProbablyHas = playerProbablyHas,
+            playerProbablyHasNot = playerProbablyHasNot,
+        )
     }
 
     private fun initGlobals() {
@@ -322,34 +338,5 @@ class KlaverjassenAnalyzer(
         playerProbablyHas[side]!! -= cardList
         playerProbablyHasNot[side]!! += cardList
     }
-
-    fun cardsInHandForSide(side: TableSide): Int {
-        if (side == mySide)
-            return playerForWhichWeAnalyse.getCardsInHand().size
-
-        val playersPlayedInLastTrick = currentRound.getTrickOnTable().getSidesPlayed()
-        val numberOfCardsInHandOtherPlayer = playerForWhichWeAnalyse.getCardsInHand().size - if (side in playersPlayedInLastTrick) 1 else 0
-        return numberOfCardsInHandOtherPlayer
-    }
-
-    fun printAnalyzer() {
-        TableSide.values().forEach {
-            val playerCanHaveCards = this.playerCanHaveCards(it)
-            print(String.format("%-5s ", it.toString().lowercase()))
-            print(String.format("(%2d): ", playerCanHaveCards.size))
-            CardColor.values().forEach { color ->
-                print(String.format("%-8s: %-25s  ", color, playerCanHaveCards.filter{card->card.color == color}.map { card -> card.rank.rankString }))
-            }
-            println()
-            val playerSureHasCards = this.playerSureHasCards(it)
-            print(String.format("%-5s ", it.toString().lowercase()))
-            print(String.format("(%2d): ", playerSureHasCards.size))
-            CardColor.values().forEach { color ->
-                print(String.format("%-8s: %-25s  ", " ", playerSureHasCards.filter{card->card.color == color}.map { card -> card.rank.rankString }))
-            }
-            println()
-        }
-    }
-
 
 }

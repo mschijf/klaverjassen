@@ -10,11 +10,7 @@ import kotlin.math.min
 
 class BruteForce(
     val playerForWhichWeAnalyze: GeniusPlayerKlaverjassen,
-    val analyzer: KlaverjassenAnalyzer) {
-
-    private val player1 = playerForWhichWeAnalyze.tableSide.clockwiseNext()
-    private val player2 = player1.clockwiseNext()
-    private val player3 = player2.clockwiseNext()
+    val analysis: KlaverjassenAnalysisResult) {
 
     private val game = playerForWhichWeAnalyze.game
     private val fakeGroup = createFakeGroup()
@@ -23,9 +19,9 @@ class BruteForce(
     fun mostValuableCardToPlay(): Card {
         val combinations = getCombinations()
         val cardValueList = combinations.map { combination ->
-            fakeGroup.getPlayer(player1).setCardsInHand(combination.first)
-            fakeGroup.getPlayer(player2).setCardsInHand(combination.second)
-            fakeGroup.getPlayer(player3).setCardsInHand(combination.third)
+            fakeGroup.getPlayer(analysis.player1).setCardsInHand(combination.first)
+            fakeGroup.getPlayer(analysis.player2).setCardsInHand(combination.second)
+            fakeGroup.getPlayer(analysis.player3).setCardsInHand(combination.third)
             val valuePerCard = tryCard()
 //            println("$combination    -->  %-3s %4d %-3s %4d ".format(valuePerCard[0].card, valuePerCard[0].value, valuePerCard[1].card, valuePerCard[1].value))
             valuePerCard
@@ -58,7 +54,7 @@ class BruteForce(
         }
 
         val playerToMove = fakeGroup.getPlayer(sideToMove)
-        if (sideToMove == playerForWhichWeAnalyze.tableSide || sideToMove == playerForWhichWeAnalyze.tableSide.opposite()) {
+        if (sideToMove == playerForWhichWeAnalyze.tableSide || sideToMove == analysis.partner) {
             var best = Int.MIN_VALUE
             playerToMove.getLegalPlayableCards().forEach { card ->
                 playCard(playerToMove, card)
@@ -101,25 +97,25 @@ class BruteForce(
         return PlayerGroup(
             listOf(
                 playerForWhichWeAnalyze,
-                Player(player1, game),
-                Player(player2, game),
-                Player(player3, game))
+                Player(analysis.player1, game),
+                Player(analysis.player2, game),
+                Player(analysis.player3, game))
             )
     }
 
     private fun getCombinations(): List<Triple<List<Card>, List<Card>, List<Card>>> {
         val yy = combiClass.getPossibleCardCombinations(
-            analyzer.cardsInHandForSide(player1),
-            analyzer.cardsInHandForSide(player2),
-            analyzer.cardsInHandForSide(player3),
+            analysis.numberOfCardsInHandForSide(analysis.player1),
+            analysis.numberOfCardsInHandForSide(analysis.player2),
+            analysis.numberOfCardsInHandForSide(analysis.player3),
 
-            analyzer.playerCanHaveCards(player1),
-            analyzer.playerCanHaveCards(player2),
-            analyzer.playerCanHaveCards(player3),
+            analysis.playerCanHaveCards(analysis.player1),
+            analysis.playerCanHaveCards(analysis.player2),
+            analysis.playerCanHaveCards(analysis.player3),
 
-            analyzer.playerSureHasCards(player1),
-            analyzer.playerSureHasCards(player2),
-            analyzer.playerSureHasCards(player3))
+            analysis.playerSureHasCards(analysis.player1),
+            analysis.playerSureHasCards(analysis.player2),
+            analysis.playerSureHasCards(analysis.player3))
 
         return yy
     }

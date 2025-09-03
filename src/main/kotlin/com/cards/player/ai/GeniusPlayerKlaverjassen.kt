@@ -12,23 +12,17 @@ class GeniusPlayerKlaverjassen(
 
     val analyzer = KlaverjassenAnalyzer(this)
 
-    fun printAnalyzer() {
-        if (game.newRoundToBeStarted())
-            return
-        analyzer.printAnalyzer()
-    }
-
     override fun chooseCard(): Card {
         if (getLegalPlayableCards().size == 1)
             return getLegalPlayableCards().first()
 
-        analyzer.refreshAnalysis()
+        val analysis = analyzer.refreshAnalysis()
         if (getNumberOfCardsInHand() <= 2)
-            return BruteForce(this, analyzer).mostValuableCardToPlay()
+            return BruteForce(this, analysis).mostValuableCardToPlay()
 
         return when(game.getCurrentRound().getTrickOnTable().getCardsPlayed().size) {
-            0 -> LeadPlayerInTrick(this, analyzer).chooseCard()
-            1,2,3 -> FollowPlayerInTrick(this, analyzer).chooseCard()
+            0 -> LeadPlayerInTrick(this, analysis).chooseCard()
+            1,2,3 -> FollowPlayerInTrick(this, analysis).chooseCard()
             else -> throw IllegalStateException("There is no such player")
         }
     }

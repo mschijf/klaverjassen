@@ -53,4 +53,8 @@ data class Card(val color: CardColor, val rank: CardRank) {
     fun isQueen(cardColor: CardColor? = null) = rank == CardRank.QUEEN && (if(cardColor != null) cardColor == color else true)
     fun isKing(cardColor: CardColor? = null) = rank == CardRank.KING && (if(cardColor != null) cardColor == color else true)
     fun isAce(cardColor: CardColor? = null) = rank == CardRank.ACE && (if(cardColor != null) cardColor == color else true)
+
+    fun isFaceCard() = (rank == CardRank.JACK) || (rank == CardRank.QUEEN) || (rank == CardRank.KING)
+    fun isLowCard() = (rank <= CardRank.NINE)
+    fun isNumberCard() = (rank <= CardRank.TEN)
 }

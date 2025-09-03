@@ -11,9 +11,10 @@ class BruteForceTest {
     @Test
     fun mostValuableCardToPlayDifferentChoiceOmdatWeNatGaan() {
         val player = prepareGameAndPlayer2()
-        val analyzer = KlaverjassenAnalyzer(player).refreshAnalysis()
+        val analyzer = KlaverjassenAnalyzer(player)
+        val analysis = analyzer.refreshAnalysis()
 
-        val bf = BruteForce(player, analyzer)
+        val bf = BruteForce(player, analysis)
 
         println( bf.mostValuableCardToPlay())
     }
@@ -21,9 +22,10 @@ class BruteForceTest {
     @Test
     fun mostValuableCardToPlay() {
         val player = prepareGameAndPlayer1()
-        val analyzer = KlaverjassenAnalyzer(player).refreshAnalysis()
+        val analyzer = KlaverjassenAnalyzer(player)
+        val analysis = analyzer.refreshAnalysis()
 
-        val bf = BruteForce(player, analyzer)
+        val bf = BruteForce(player, analysis)
 
         println( bf.mostValuableCardToPlay())
 

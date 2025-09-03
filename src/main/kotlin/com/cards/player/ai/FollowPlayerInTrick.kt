@@ -1,11 +1,12 @@
 package com.cards.player.ai
 
 import com.cards.game.card.Card
-import com.cards.game.klaverjassen.Trick
-import com.cards.game.klaverjassen.bonusValue
-import com.cards.game.klaverjassen.cardValue
+import com.cards.game.card.CardColor
+import com.cards.game.card.CardRank
+import com.cards.game.klaverjassen.*
 import tool.mylambdas.collectioncombination.mapCombinedItems
-import kotlin.math.absoluteValue
+import kotlin.math.max
+import kotlin.math.sign
 
 /*
 
@@ -129,135 +130,348 @@ kleur bijlopen, slag aan maat, en blijft aan maat, eerste ronde van die kleur
 
 
 
-class FollowPlayerInTrick(player: GeniusPlayerKlaverjassen, analyzer: KlaverjassenAnalyzer): AbstractPlayerInTrick(player, analyzer) {
+class FollowPlayerInTrick(player: GeniusPlayerKlaverjassen, analysisResult: KlaverjassenAnalysisResult): AbstractPlayerInTrick(player, analysisResult) {
 
-    private val leadColor = leadColor()!!
+    private val leadColor = analysis.leadColor
 
-    private val player1 = player.tableSide.clockwiseNext(1)
-    private val player2 = player.tableSide.clockwiseNext(2)
-    private val player3 = player.tableSide.clockwiseNext(3)
+    private val currentTrick = player.game.getCurrentRound().getTrickOnTable()
 
-    private val iAmSecondPlayer = player.game.getCurrentRound().getTrickOnTable().getCardsPlayed().size == 1
-    private val iAmThirdPlayer = player.game.getCurrentRound().getTrickOnTable().getCardsPlayed().size == 2
-    private val iAmFourthPlayer = player.game.getCurrentRound().getTrickOnTable().getCardsPlayed().size == 3
+    private val legalCards = analysis.legalCards
+    private val legalCardsByColor = analysis.legalCardsByColor
+    private val partnerCardColors = analysis.partnerCardColors
 
-    private val trick = game.getCurrentRound().getTrickOnTable()
-    private val legalCards = player.getLegalPlayableCards()
+    private fun Card.isKaal() = legalCardsByColor[this.color]!!.size == 1
+    private fun Card.isVrij() = analysis.cardsInPlayOtherPlayers().none { it.color == this.color }
+    private fun Card.isHighestInPlay() = analysis.cardsInPlayOtherPlayers().none { it.color == this.color && it.beats(this, analysis.trump)}
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    private fun ikHebGeenLeadColorEnGeenTroef() = legalCards.none{it.color == leadColor} && legalCards.none{it.color == analysis.trump }
+    private fun ikHebGeenLeadColorMaarWelTroef() = legalCards.none{it.color == leadColor} && legalCards.any{it.color == analysis.trump }
+    private fun ikHebWelLeadColorEnDatIsTroef() = legalCards.any{it.color == leadColor} && leadColor == analysis.trump
+    private fun ikHebWelLeadColorEnDatIsGeenTroef() = legalCards.any{it.color == leadColor} && leadColor != analysis.trump
 
     override fun chooseCard(): Card {
-        if (canFollow() && !leadColor.isTrump()) {
-            if (!trick.getWinningCard()!!.color.isTrump()) { //no trump in trick
-                return when {
-                    legalCards.hasAce() -> canFollowAceHighNoTrumpInTrick()
-                    legalCards.hasTen() -> canFollowTenHighNoTrumpInTrick()
-                    else -> canFollowOtherNoTrumpInTrick()
+        return when {
+            ikHebGeenLeadColorEnGeenTroef() -> rulesForIkHebGeenLeadColorEnGeenTroef()
+            ikHebGeenLeadColorMaarWelTroef() -> rulesForIkHebGeenLeadColorMaarWelTroef()
+            ikHebWelLeadColorEnDatIsTroef() -> rulesForIkHebWelLeadColorEnDatIsTroef()
+            ikHebWelLeadColorEnDatIsGeenTroef() -> rulesForIkHebWelLeadColorEnDatIsGeenTroef()
+            else -> playFallbackCard("Main level follow player in trick")
+        }
+    }
+
+//    ======================================
+//    IK KAN NIET BIJLOPEN EN HEB GEEN TROEF
+//    ======================================
+
+    /*
+    *** Slag aan tegenstander - kon geen onze slag worden (ik ben speler 3 of 4)
+        ==> gooi kale kaart bij, als weinig punten
+        ==> gooi lage kaart bij van > 2 aanwezig van kleur, roem ontwijkend voor volgende slag
+        bijvoorbeeld 7,8,9 -> gooi 9
+        b,v,h --> gooi b
+        ==> maar maak 10 niet kaal! (aas liever ook niet)
+        ==> vbd 7,v,a  en 9,b (beide kleuren nog niet gespeeld). Dan 7 (want aas in handen van die kleur, en bij andere kleur speel je jezelf kaal en geef je kans op roem weg)
+        ==> b,v,9 ==> hoge kans op roem kaarten, 8,h mid-kans op roem, 7: kleine kans op roem
+        Dus: minste punten, kale kaart, 10 niet kaal maken, huidge roem ontwijkend, toekomstige roem ontwijkend
+
+    *** Slag aan maat (en andere partij gaat) en zeker weten dat slag aan maat blijft:
+        ==> gooi kale kaart op, die niet hoogste is en kans op slag halen met die kaart is aanwezig
+        ==> of laag als je wilt seinen (maar dan moet troef op zijn (of kleiner dan 1)
+        ==> gooi 10 op (als geen aas)
+        ==> gooi aas op (als wel 10 en >= 3 van de kleur)
+
+
+    *** Slag aan maat (en maat gaat) en niet zeker dat slag aan maat blijft
+        ==> hou 10 gedekt
+        ==> seinen?
+        ==> hou aas vast
+        ==> als kans groot dat slag naar tegenstander gaat, dan 9,8,7, b,v,h, 10,a
+        ==> als kans groot dat slag bij maat blijft dan b,h,v, 9,8,7 , 10,a
+        (let wel: gedekte 10 van niet gespeelde kleur is meer waard dan vrije aas.)
+
+    *** Slag aan maat en maat gaat en slag blijft bij maat
+        ==> als meerdere kleuren en hoogste van een kleur en maat heeft die kleur ook, dan seinen (lage kaart vd kleur)
+        ==> als meerdere kleuren en hoogste van een kleur en maat heeft die kleur ook, dan seinen (hoogste kaart vd kleur, als ook een na hoogste en 'lange kaart', of meerdere hoogste kleuren)
+        ==> als niks te seinen: kale of dubbel gedekte 10, tenzij 10 de hoogste is en kans op een slag halen met die 10 nog kan
+        : zoveel mogelijk punten
+        : toekomstig roem ontwijkend
+        :
+
+    */
+
+    private fun rulesForIkHebGeenLeadColorEnGeenTroef(): Card {
+        if (currentTrick.getWinningSide()!!.isPartner()){
+            if (partnerWillWinThisTrick()) {
+                if (analysis.theyOwnContract) {
+//                    Slag aan maat (en andere partij gaat) en zeker weten dat slag aan maat blijft:
+//                    ==> gooi kale kaart op, tenzij die de hoogste is en kans op slag halen met die kaart is nog aanwezig
+//                    ==> of laag als je wilt seinen (maar dan moet troef op zijn (of kleiner dan 1)
+//                    ==> gooi 10 op (als zelf geen aas en niet hoogste)
+//                    ==> gooi aas op (als wel 10 en >= 3(?) van de kleur in hand) afhankelijk hoe ver in spel
+
+
+                    //(1a)
+                    val bareTenCardCandidates = legalCards.filter { it.isKaal() && it.isTen() && !it.isHighestInPlay() }
+                    if (bareTenCardCandidates.isNotEmpty())
+                        return bareTenCardCandidates.last()
+
+                    //(3)
+                    val tenCardCandidates = legalCards.filter { it.isTen() && !it.isHighestInPlay() }
+                    if (tenCardCandidates.isNotEmpty())
+                        return tenCardCandidates.maxByOrNull { legalCardsByColor[it.color]!!.size }!!
+
+                    //(4a): note: aas opgooien is ook seinen
+                    val aceCardColors = legalCards.filter { it.isAce() }.map { it.color }.toSet()
+                    val aceCardCandidates = legalCards.filter { it.color in aceCardColors && !it.isAce() && it.isHighestInPlay() }
+                    if (aceCardCandidates.isNotEmpty())
+                        return aceCardCandidates.maxByOrNull { legalCardsByColor[it.color]!!.size }!!
+
+                    //(4b)
+                    val tenCardColors = legalCards.filter { it.color !in aceCardColors && it.isTen() && it.isHighestInPlay() }.map { it.color }.toSet()
+                    val tenCardHighCandidates = legalCards.filter { it.color in tenCardColors && !it.isTen() && it.isHighestInPlay() }
+                    if (tenCardHighCandidates.isNotEmpty())
+                        return tenCardHighCandidates.maxByOrNull { legalCardsByColor[it.color]!!.size }!!
+
+//                    //(2) todo: seinen!!
+//                    val highCardColors = legalCards.filter { !it.isKaal() && it.isHighestInPlay() }.map { it.color }.toSet()
+//                    val signalCandidates = legalCards.filter { it.color in highCardColors && it.isLowCard() }
+//                    if (signalCandidates.isNotEmpty()) //sein kortste kaart (of beter langste kaart?)
+//                        return signalCandidates.minByOrNull { legalCardsByColor[it.color]!!.size }!!
+
+                    //(1b)
+                    val bareCardsNotHighest = legalCards.filter { it.isKaal() && !it.isHighestInPlay() }
+                    val bareCardCandidates = bareCardsNotHighest.sortedBy{ 10 * it.cardValue(analysis.trump) + if (it.isVrij()) 0 else 1 }
+                    if (bareCardCandidates.isNotEmpty())
+                        return bareCardCandidates.last() //let op, je gooit evt nu een kale 7 weg
+
+                    return playFallbackCard("Slag aan maat (en andere partij gaat) en zeker weten dat slag aan maat blijft:")
+
+                } else {
+//                    Slag aan maat (en maat gaat) en slag blijft bij maat
+//                    ==> als meerdere kleuren en hoogste van een kleur en maat heeft die kleur ook, dan seinen (hoogste kaart vd kleur, als ook een na hoogste en 'lange kaart', of meerdere hoogste kleuren)
+//                    ==> als meerdere kleuren en hoogste van een kleur en maat heeft die kleur ook, dan seinen (lage kaart vd kleur)
+//                    ==> als niks te seinen:
+//                         ==> kale 10, tenzij 10 de hoogste is en kans op een slag halen met die 10 nog kan
+//                             of dubbel gedekte 10, tenzij 10 de hoogste is en kans op een slag halen met die 10 nog kan
+//                         ==> zoveel mogelijk punten
+//                         ==> toekomstig roem ontwijkend
+
+                    val highestInPlayColors = legalCards.filter { it.isHighestInPlay() }.map { it.color }.toSet()
+                    val seinCards = legalCards.filter { it.color in partnerCardColors && it.color in highestInPlayColors }
+
+                    //(1a)
+                    val aceCardColors = seinCards.filter { it.isAce()  }.map { it.color }.toSet()
+                    val aceCardCandidates = seinCards.filter { it.color in aceCardColors && !it.isAce() && it.isHighestInPlay() }
+                    if (aceCardCandidates.isNotEmpty())
+                        return aceCardCandidates.maxByOrNull { legalCardsByColor[it.color]!!.size }!!
+
+                    //(1b)
+                    val tenCardColors = seinCards.filter { it.color !in aceCardColors && it.isTen() && it.isHighestInPlay() && it.color in partnerCardColors }.map { it.color }.toSet()
+                    val tenCardHighCandidates = seinCards.filter { it.color in tenCardColors && !it.isTen() && it.isHighestInPlay() }
+                    if (tenCardHighCandidates.isNotEmpty())
+                        return tenCardHighCandidates.maxByOrNull { legalCardsByColor[it.color]!!.size }!!
+
+                    //(2)
+                    val highCardColors = seinCards.filter { !it.isKaal() && it.isHighestInPlay() }.map { it.color }.toSet()
+                    val signalCandidates = seinCards.filter { it.color in highCardColors && it.isLowCard() }
+                    if (signalCandidates.isNotEmpty()) //sein kortste kaart (of beter langste kaart?)
+                        return signalCandidates.minByOrNull { legalCardsByColor[it.color]!!.size }!!
+
+                    //(3a)
+                    val bareTenCardCandidates = legalCards.filter { it.isKaal() && it.isTen() && !it.isHighestInPlay() }
+                    if (bareTenCardCandidates.isNotEmpty())
+                        return bareTenCardCandidates.last()
+
+                    //(3b)
+                    val coveredTenCardCandidates = legalCards.filter { !it.isKaal() && it.isTen() && !it.isHighestInPlay() && legalCardsByColor[it.color]!!.size >= 3 }
+                    if (coveredTenCardCandidates.isNotEmpty())
+                        return coveredTenCardCandidates.last()
+
+                    return legalCards.filter{ !it.isAce() && !it.isTen() }.maxByOrNull { card ->
+                        2 * card.cardValue(analysis.trump) +
+                                -1 * card.kaalMakendeKaartPenalty() +
+                                 1 * roemSureThisTrickByCandidate(card) +
+                                 1 * (if (roemPossibleThisTrickByCandidate(card) > 0) 10 else 0) +
+                                -1 * (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                    } ?: playFallbackCard("Slag aan maat (en maat gaat) en slag blijft bij maat")
                 }
-            } else { //er is ingetroefd
-                return canFollowButTrumpInTrick()
+            } else { //partner has contract, has currently winning card, but not sure that we keep it that way (dus ik ben 3e speler en next kan hogere hebben of gaat treoven)
+
+//                Slag aan maat (en maat gaat) en niet zeker dat slag aan maat blijft
+//                    ==> hou 10 gedekt
+//                    ==> seinen?
+//                    ==> hou aas vast
+//                    ==> als kans groot dat slag naar tegenstander gaat, dan 9,8,7, b,v,h, 10,a
+//                    ==> als kans groot dat slag bij maat blijft dan b,h,v, 9,8,7 , 10,a
+//                    (let wel: gedekte 10 van niet gespeelde kleur is meer waard dan vrije aas.)
+
+                val evaluationRankOrder = listOf(CardRank.NINE, CardRank.EIGHT, CardRank.SEVEN, CardRank.JACK, CardRank.QUEEN, CardRank.KING, CardRank.TEN, CardRank.ACE)
+                return legalCards.minBy { card ->
+                            2 * evaluationRankOrder.indexOf(card.rank)
+                            1 * card.kaalMakendeKaartPenalty() +
+                            1 * roemSureThisTrickByCandidate(card) +
+                            1 * (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                }
             }
         } else {
-            //trump is lead color
-        }
+            if (weCannotWinThisTrick()) {
+//                Slag aan tegenstander - kon geen onze slag worden (ik ben speler 3 of 4)
+//                     ==> gooi kale kaart bij, als weinig punten
+//                     ==> gooi lage kaart bij van > 2 aanwezig van kleur, roem ontwijkend voor volgende slag
+//                     bijvoorbeeld 7,8,9 -> gooi 9
+//                     b,v,h --> gooi b
+//                     ==> maar maak 10 niet kaal! (aas liever ook niet)
+//                     ==> vbd 7,v,a  en 9,b (beide kleuren nog niet gespeeld). Dan 7 (want aas in handen van die kleur,
+//                          en bij andere kleur speel je jezelf kaal en geef je kans op roem weg)
+//                     ==> b,v,9 ==> hoge kans op roem kaarten, 8,h mid-kans op roem, 7: kleine kans op roem
+//                     Dus: minste punten, kale kaart, 10 niet kaal maken, huidige roem ontwijkend, toekomstige roem ontwijkend
+//
+//                     to loose values:
+//                     initially: value of card (i.e. 0,2,3,4,10,11) * 2
+//                     extra: maak 10 kaal en aas in spel en aas kan bij tegenstander: +10 * 2
+//                     extra maak aas kaal: +5
+//                     extra maak b,v,h kaal: + 2,3,4
+//                     extra direct roem makende kaart deze trick: + 20
+//                     extra kans op roem makende kaart deze trick: + 10
+//                     extra kans op roem achtergebleven kaart volgende trick: +5
 
+                return legalCards.minBy { card ->
+                    2 * card.cardValue(analysis.trump) +
+                            card.kaalMakendeKaartPenalty() +
+                            roemSureThisTrickByCandidate(card) +
+                            (if (roemPossibleThisTrickByCandidate(card) > 0) 10 else 0) +
+                            (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                }
+
+            } else {
+//                Slag aan tegenstander - maar we kunnen deze slag nog winnen (i am 2,3 or 4)
+                return playFallbackCard()
+            }
+        }
+    }
+
+    //    Slag aan tegenstander - kon geen onze slag worden (ik ben speler 3 of 4)
+    private fun weCannotWinThisTrick() = currentTrick.getWinningSide()!!.isOtherParty() && (analysis.iAmThirdPlayer || analysis.iAmFourthPlayer)
+
+    //    Slag aan maat en zeker weten dat slag aan maat blijft:
+    private fun partnerWillWinThisTrick() =
+        currentTrick.getWinningSide()!!.isPartner() &&
+                when {
+                    analysis.iAmSecondPlayer ->
+                        throw Exception("i am second player and partner has winning card is not possible")
+                    analysis.iAmThirdPlayer ->
+                        analysis.otherPlayerCanHaveLegalCards(analysis.player1)
+                            .none { it.beats(currentTrick.getWinningCard()!!, analysis.trump) }
+                    analysis.iAmFourthPlayer ->
+                        true
+                    else ->
+                        false
+                }
+
+    private fun Card.kaalMakendeKaartPenalty(): Int {
+        val kaleKaart = (legalCards - this).singleOrNull { it.color == this.color }
+        return if (kaleKaart != null) {
+            if (!kaleKaart.isHighestInPlay()) {
+                when (kaleKaart.rank) {
+                    CardRank.TEN -> 2*10
+                    else -> kaleKaart.cardValue(analysis.trump)
+                }
+            } else {
+                0
+            }
+        } else {
+            0
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    private fun rulesForIkHebGeenLeadColorMaarWelTroef(): Card {
+        return playFallbackCard()
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    private fun rulesForIkHebWelLeadColorEnDatIsTroef(): Card {
+        return playFallbackCard()
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    private fun rulesForIkHebWelLeadColorEnDatIsGeenTroef(): Card {
+        return playFallbackCard()
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    private fun playFallbackCard(info: String? = null): Card {
+//        if (info != null)
+//            println("FALL BACK NOTE: Fallback card info: $info")
         return legalCards.first()
     }
 
-
-
-
     //------------------------------------------------------------------------------------------------------------------
 
-    private fun canFollowAceHighNoTrumpInTrick(): Card {
-        val ace = ace(leadColor)
-        val plentyForNextRound = analyzer.cardsInPlayOtherPlayers().count{ it.color == leadColor } >= 4
+    //todo: als dubbele kans op roem, dan die anders beoordelen, dan enkele kans op roem
+    //      bijv. 7,9 ==> dan is er met 8 kans op 20 roem
+    //            8,9 ==> dan is er met 7 en 10 kans op 20 roem
 
-        val (candidateCard, candidateValue) = (legalCards - ace(leadColor)).cardGivingHighestValue(trick)
-        val valueAce = ace.trickValueAfterPlayed(trick)
-
-        return if (valueAce - candidateValue > ace.cardValue(trump()) - candidateCard.cardValue(trump()) )
-            ace
-        else if (plentyForNextRound)
-            candidateCard
-        else
-            ace
+    private fun roemSureThisTrickByCandidate(candidate: Card): Int {
+        return (currentTrick.getCardsPlayed() + candidate).bonusValue(analysis.trump)
     }
 
-    private fun canFollowTenHighNoTrumpInTrick(): Card {
+    private fun roemPossibleThisTrickByCandidate(candidate: Card): Int {
 
-        val ten = ten(leadColor)
-        if (trick.getWinningCard()!!.isAce()) {
-            if (player.tableSide.opposite() == trick.getWinningSide()) {
-                val (candidateCard, candidateValue) = (legalCards - ten(leadColor)).cardGivingHighestValue(trick)
-                val valueTen = ten.trickValueAfterPlayed(trick)
-                return if (valueTen - candidateValue > ten.cardValue(trump()) - candidateCard.cardValue(trump()) )
-                    ten
-                else
-                    candidateCard
-            } else {
-                return legalCards.cardGivingHighestValue(trick).card
-            }
-        } else {
-            return legalCards.cardGivingHighestValue(trick).card
-        }
-    }
-
-    private fun canFollowOtherNoTrumpInTrick(): Card {
-        return legalCards.cardGivingHighestValue(trick).card
-    }
-
-    private fun canFollowButTrumpInTrick(): Card {
-        if (player.tableSide.opposite() != trick.getWinningSide())
-            return legalCards.cardGivingHighestValue(trick).card
-
-        if (legalCards.hasAce()) {
-            val plentyForNextRound = analyzer.cardsInPlayOtherPlayers().count{ it.color == leadColor } >= 4
-            val noMoreTrumpInOtherHands = analyzer.cardsInPlayOtherPlayers().count{ it.color == trump() } == 0
-            val noMoreOfColorInOtherHands = analyzer.cardsInPlayOtherPlayers().count{ it.color == leadColor } == 0
-            return when {
-                noMoreOfColorInOtherHands -> legalCards.cardGivingHighestValue(trick).card
-                noMoreTrumpInOtherHands -> (legalCards - ace(leadColor)).cardGivingHighestValue(trick).card
-                plentyForNextRound  -> (legalCards - ace(leadColor)).cardGivingHighestValue(trick).card
-                else -> legalCards.cardGivingHighestValue(trick).card
-            }
-        } else if (legalCards.hasTen()) {
-            return legalCards.cardGivingHighestValue(trick).card
-        } else {
-            return legalCards.cardGivingHighestValue(trick).card
-        }
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    private fun roemSureThisTrickByCandidate(trick: Trick, candidate: Card): Int {
-        return (trick.getCardsPlayed() + candidate).bonusValue(trump())
-    }
-
-    private fun roemPossibleThisTrickByCandidate(trick: Trick, candidate: Card): Int {
-
-        val listOfTrickPossibilities = if (iAmSecondPlayer) {
-            val cardsPlayer1 = (analyzer.playerSureHasCards(player1) + analyzer.playerCanHaveCards(player1)).filter { it.color == leadColor }
-            val cardsPlayer2 = (analyzer.playerSureHasCards(player2) + analyzer.playerCanHaveCards(player2)).filter { it.color == leadColor }
+        val listOfTrickPossibilities = if (analysis.iAmSecondPlayer) {
+            val cardsPlayer1 = analysis.otherPlayerCanHaveLegalCards(analysis.player1)
+            val cardsPlayer2 = analysis.otherPlayerCanHaveLegalCards(analysis.player2)
             if (cardsPlayer1.isNotEmpty() && cardsPlayer2.isNotEmpty()) {
-                (cardsPlayer1 + cardsPlayer2).mapCombinedItems { card1, card2 -> (trick.getCardsPlayed() + candidate + card1 + card2) }
+                (cardsPlayer1 + cardsPlayer2).mapCombinedItems { card1, card2 -> (currentTrick.getCardsPlayed() + candidate + card1 + card2) }
             } else {
-                (cardsPlayer1 + cardsPlayer2).map { card1 -> (trick.getCardsPlayed() + candidate + card1) }
+                (cardsPlayer1 + cardsPlayer2).map { card1 -> (currentTrick.getCardsPlayed() + candidate + card1) }
             }
-        } else if (iAmThirdPlayer) {
-            val cardsPlayer1 = (analyzer.playerSureHasCards(player1) + analyzer.playerCanHaveCards(player1)).filter { it.color == leadColor }
-            (cardsPlayer1).map { card1 -> (trick.getCardsPlayed() + candidate + card1) }
-        } else { //fourthPlayer
-            listOf((trick.getCardsPlayed() + candidate))
+        } else if (analysis.iAmThirdPlayer) {
+            val cardsPlayer1 = analysis.otherPlayerCanHaveLegalCards(analysis.player1)
+            (cardsPlayer1).map { card1 -> (currentTrick.getCardsPlayed() + candidate + card1) }
+        } else { //iAmFourthPlayer
+            listOf((currentTrick.getCardsPlayed() + candidate))
         }
-        return listOfTrickPossibilities.maxOf { poss -> poss.bonusValue(trump()) }
+        return listOfTrickPossibilities.maxOf { poss -> poss.bonusValue(analysis.trump) }
+    }
+
+    private fun isRoemPossibleNextTrick(candidate: Card): Boolean {
+        val p1 = analysis.playerAssumptionCards(analysis.player1).filterTo(HashSet()) { it.color == candidate.color }
+        val p2 = analysis.playerAssumptionCards(analysis.player2).filterTo(HashSet()) { it.color == candidate.color }
+        val p3 = analysis.playerAssumptionCards(analysis.player3).filterTo(HashSet()) { it.color == candidate.color }
+        val doHave = p1.size.sign + p2.size.sign + p3.size.sign
+        if (doHave <= 1)
+            return false
+        val all = p1 + p2 + p3
+
+        var currentSequence = 0
+        var maxSequence = 0
+        var lastCardRank = -1000
+        all.sortedBy { card -> card.rank }.forEach { c ->
+            if (c.toBonusRankNumber() == lastCardRank+1) {
+                currentSequence++
+            } else {
+                maxSequence = max(maxSequence, currentSequence)
+                currentSequence = 1
+            }
+            lastCardRank = c.toBonusRankNumber()
+        }
+        return (maxSequence > 2)
     }
 
     //------------------------------------------------------------------------------------------------------------------
 
-    private fun List<Card>.cardGivingHighestValue(trick: Trick): CardValue {
+    private fun List<Card>.cardGivingBestValue(): CardValue {
         var best = Int.MIN_VALUE
         var bestCard: Card? = null
         this.forEach { card ->
-            val v = card.trickValueAfterPlayed(trick)
+            val v = card.trickValueAfterPlayed()
             if (v > best) {
                 best = v
                 bestCard = card
@@ -266,12 +480,48 @@ class FollowPlayerInTrick(player: GeniusPlayerKlaverjassen, analyzer: Klaverjass
         return CardValue(bestCard!!, best)
     }
 
-    private fun Card.trickValueAfterPlayed(trick: Trick): Int {
-        trick.addCard(this)
-        val v = trick.getScore().getDeltaForPlayer(player.tableSide)
-        trick.removeLastCard()
+    private fun Card.trickValueAfterPlayed(): Int {
+        currentTrick.addCard(this)
+        val v = currentTrick.getScore().getDeltaForPlayer(player.tableSide)
+        currentTrick.removeLastCard()
         return v
     }
 
+
+    private val dummyCard = Card(CardColor.CLUBS, CardRank.THREE)
+    private fun cardGivingBestValueByPlayingFullTrick(trick: Trick, sideToMove: TableSide): CardValue {
+        if (trick.isComplete())
+            return CardValue(dummyCard, trick.getScore().getDeltaForPlayer(player.tableSide))
+
+        val checkCards = if (sideToMove == player.tableSide) {
+            player.getLegalPlayableCards()
+        }  else {
+            (analysis.playerAssumptionCards(sideToMove) - trick.getCardsPlayed())
+                .toList()
+                .legalPlayable(trick, analysis.trump)
+        }
+
+        if (sideToMove == player.tableSide || sideToMove.opposite() == player.tableSide) {
+            var best = CardValue(dummyCard, Int.MIN_VALUE)
+            checkCards.forEach { card ->
+                trick.addCard(card)
+                val cv = cardGivingBestValueByPlayingFullTrick(trick, sideToMove.clockwiseNext())
+                trick.removeLastCard()
+                if (cv.value > best.value)
+                    best = CardValue(card, cv.value)
+            }
+            return best
+        } else {
+            var best = CardValue(dummyCard, Int.MAX_VALUE)
+            checkCards.forEach { card ->
+                trick.addCard(card)
+                val cv = cardGivingBestValueByPlayingFullTrick(trick, sideToMove.clockwiseNext())
+                trick.removeLastCard()
+                if (cv.value < best.value)
+                    best = CardValue(card, cv.value)
+            }
+            return best
+        }
+    }
 
 }

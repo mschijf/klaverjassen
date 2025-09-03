@@ -108,17 +108,17 @@ private fun bonusValueForColor(cardList: List<Card>, forCardColor: CardColor, tr
 
 //----------------------------------------------------------------------------------------------------------------------
 
-fun List<Card>.legalPlayable(trick: Trick, trumpColor: CardColor): List<Card> {
+fun Collection<Card>.legalPlayable(trick: Trick, trumpColor: CardColor): List<Card> {
     val cardsPlayed = trick.getCardsPlayed()
     if (cardsPlayed.isEmpty())
-        return this
+        return this.toList()
 
     val leadColor = cardsPlayed.first().color
     if (this.any {card -> card.color == leadColor}) {
         return if (trumpColor == leadColor) {
-            this.legalTrumpCardsToPlay(cardsPlayed, trumpColor).ifEmpty { this }
+            this.legalTrumpCardsToPlay(cardsPlayed, trumpColor).ifEmpty { this.toList() }
         } else {
-            this.filter { card -> card.color == leadColor }.ifEmpty { this }
+            this.filter { card -> card.color == leadColor }.ifEmpty { this.toList() }
         }
     }
 
@@ -126,7 +126,7 @@ fun List<Card>.legalPlayable(trick: Trick, trumpColor: CardColor): List<Card> {
         return this.legalTrumpCardsToPlay(cardsPlayed, trumpColor)
     }
 
-    return this
+    return this.toList()
 }
 
 private fun highestTrumpCard(cardsPlayed: List<Card>, trumpColor: CardColor) : Card? {
@@ -135,7 +135,7 @@ private fun highestTrumpCard(cardsPlayed: List<Card>, trumpColor: CardColor) : C
         .maxByOrNull { cardPlayed -> cardPlayed.toRankNumberTrump() }
 }
 
-private fun List<Card>.legalTrumpCardsToPlay(cardsPlayed: List<Card>, trumpColor: CardColor):List<Card> {
+private fun Collection<Card>.legalTrumpCardsToPlay(cardsPlayed: List<Card>, trumpColor: CardColor):List<Card> {
     val highestTrumpCard = highestTrumpCard(cardsPlayed, trumpColor)
     val maxTrumpCardRank = highestTrumpCard?.toRankNumberTrump() ?: Int.MAX_VALUE
 

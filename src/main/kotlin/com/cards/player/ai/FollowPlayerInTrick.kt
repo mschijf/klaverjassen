@@ -130,26 +130,26 @@ kleur bijlopen, slag aan maat, en blijft aan maat, eerste ronde van die kleur
 
 
 
-class FollowPlayerInTrick(player: GeniusPlayerKlaverjassen, analysisResult: KlaverjassenAnalysisResult): AbstractPlayerInTrick(player, analysisResult) {
+class FollowPlayerInTrick(player: GeniusPlayerKlaverjassen, analysisResult: Brain): AbstractPlayerInTrick(player, analysisResult) {
 
-    private val leadColor = analysis.leadColor
+    private val leadColor = brain.leadColor
 
     private val currentTrick = player.game.getCurrentRound().getTrickOnTable()
 
-    private val legalCards = analysis.legalCards
-    private val legalCardsByColor = analysis.legalCardsByColor
-    private val partnerCardColors = analysis.partnerCardColors
+    private val legalCards = brain.myLegalCards
+    private val legalCardsByColor = brain.legalCardsByColor
+    private val partnerCardColors = brain.partnerCardColors
 
     private fun Card.isKaal() = legalCardsByColor[this.color]!!.size == 1
-    private fun Card.isVrij() = analysis.cardsInPlayOtherPlayers().none { it.color == this.color }
-    private fun Card.isHighestInPlay() = analysis.cardsInPlayOtherPlayers().none { it.color == this.color && it.beats(this, analysis.trump)}
+    private fun Card.isVrij() = brain.cardsInPlayOtherPlayers().none { it.color == this.color }
+    private fun Card.isHighestInPlay() = brain.cardsInPlayOtherPlayers().none { it.color == this.color && it.beats(this, brain.trump)}
 
     //------------------------------------------------------------------------------------------------------------------
 
-    private fun ikHebGeenLeadColorEnGeenTroef() = legalCards.none{it.color == leadColor} && legalCards.none{it.color == analysis.trump }
-    private fun ikHebGeenLeadColorMaarWelTroef() = legalCards.none{it.color == leadColor} && legalCards.any{it.color == analysis.trump }
-    private fun ikHebWelLeadColorEnDatIsTroef() = legalCards.any{it.color == leadColor} && leadColor == analysis.trump
-    private fun ikHebWelLeadColorEnDatIsGeenTroef() = legalCards.any{it.color == leadColor} && leadColor != analysis.trump
+    private fun ikHebGeenLeadColorEnGeenTroef() = legalCards.none{it.color == leadColor} && legalCards.none{it.color == brain.trump }
+    private fun ikHebGeenLeadColorMaarWelTroef() = legalCards.none{it.color == leadColor} && legalCards.any{it.color == brain.trump }
+    private fun ikHebWelLeadColorEnDatIsTroef() = legalCards.any{it.color == leadColor} && leadColor == brain.trump
+    private fun ikHebWelLeadColorEnDatIsGeenTroef() = legalCards.any{it.color == leadColor} && leadColor != brain.trump
 
     override fun chooseCard(): Card {
         return when {
@@ -204,7 +204,7 @@ class FollowPlayerInTrick(player: GeniusPlayerKlaverjassen, analysisResult: Klav
     private fun rulesForIkHebGeenLeadColorEnGeenTroef(): Card {
         if (currentTrick.getWinningSide()!!.isPartner()){
             if (partnerWillWinThisTrick()) {
-                if (analysis.theyOwnContract) {
+                if (brain.theyOwnContract) {
 //                    Slag aan maat (en andere partij gaat) en zeker weten dat slag aan maat blijft:
 //                    ==> gooi kale kaart op, tenzij die de hoogste is en kans op slag halen met die kaart is nog aanwezig
 //                    ==> of laag als je wilt seinen (maar dan moet troef op zijn (of kleiner dan 1)
@@ -242,7 +242,7 @@ class FollowPlayerInTrick(player: GeniusPlayerKlaverjassen, analysisResult: Klav
 
                     //(1b)
                     val bareCardsNotHighest = legalCards.filter { it.isKaal() && !it.isHighestInPlay() }
-                    val bareCardCandidates = bareCardsNotHighest.sortedBy{ 10 * it.cardValue(analysis.trump) + if (it.isVrij()) 0 else 1 }
+                    val bareCardCandidates = bareCardsNotHighest.sortedBy{ 10 * it.cardValue(brain.trump) + if (it.isVrij()) 0 else 1 }
                     if (bareCardCandidates.isNotEmpty())
                         return bareCardCandidates.last() //let op, je gooit evt nu een kale 7 weg
 
@@ -290,7 +290,7 @@ class FollowPlayerInTrick(player: GeniusPlayerKlaverjassen, analysisResult: Klav
                         return coveredTenCardCandidates.last()
 
                     return legalCards.filter{ !it.isAce() && !it.isTen() }.maxByOrNull { card ->
-                        2 * card.cardValue(analysis.trump) +
+                        2 * card.cardValue(brain.trump) +
                                 -1 * card.kaalMakendeKaartPenalty() +
                                  1 * roemSureThisTrickByCandidate(card) +
                                  1 * (if (roemPossibleThisTrickByCandidate(card) > 0) 10 else 0) +
@@ -338,7 +338,7 @@ class FollowPlayerInTrick(player: GeniusPlayerKlaverjassen, analysisResult: Klav
 //                     extra kans op roem achtergebleven kaart volgende trick: +5
 
                 return legalCards.minBy { card ->
-                    2 * card.cardValue(analysis.trump) +
+                    2 * card.cardValue(brain.trump) +
                             card.kaalMakendeKaartPenalty() +
                             roemSureThisTrickByCandidate(card) +
                             (if (roemPossibleThisTrickByCandidate(card) > 0) 10 else 0) +
@@ -353,18 +353,18 @@ class FollowPlayerInTrick(player: GeniusPlayerKlaverjassen, analysisResult: Klav
     }
 
     //    Slag aan tegenstander - kon geen onze slag worden (ik ben speler 3 of 4)
-    private fun weCannotWinThisTrick() = currentTrick.getWinningSide()!!.isOtherParty() && (analysis.iAmThirdPlayer || analysis.iAmFourthPlayer)
+    private fun weCannotWinThisTrick() = currentTrick.getWinningSide()!!.isOtherParty() && (brain.iAmThirdPlayer || brain.iAmFourthPlayer)
 
     //    Slag aan maat en zeker weten dat slag aan maat blijft:
     private fun partnerWillWinThisTrick() =
         currentTrick.getWinningSide()!!.isPartner() &&
                 when {
-                    analysis.iAmSecondPlayer ->
+                    brain.iAmSecondPlayer ->
                         throw Exception("i am second player and partner has winning card is not possible")
-                    analysis.iAmThirdPlayer ->
-                        analysis.otherPlayerCanHaveLegalCards(analysis.player1)
-                            .none { it.beats(currentTrick.getWinningCard()!!, analysis.trump) }
-                    analysis.iAmFourthPlayer ->
+                    brain.iAmThirdPlayer ->
+                        brain.player1.legalCards
+                            .none { it.beats(currentTrick.getWinningCard()!!, brain.trump) }
+                    brain.iAmFourthPlayer ->
                         true
                     else ->
                         false
@@ -376,7 +376,7 @@ class FollowPlayerInTrick(player: GeniusPlayerKlaverjassen, analysisResult: Klav
             if (!kaleKaart.isHighestInPlay()) {
                 when (kaleKaart.rank) {
                     CardRank.TEN -> 2*10
-                    else -> kaleKaart.cardValue(analysis.trump)
+                    else -> kaleKaart.cardValue(brain.trump)
                 }
             } else {
                 0
@@ -419,32 +419,32 @@ class FollowPlayerInTrick(player: GeniusPlayerKlaverjassen, analysisResult: Klav
     //            8,9 ==> dan is er met 7 en 10 kans op 20 roem
 
     private fun roemSureThisTrickByCandidate(candidate: Card): Int {
-        return (currentTrick.getCardsPlayed() + candidate).bonusValue(analysis.trump)
+        return (currentTrick.getCardsPlayed() + candidate).bonusValue(brain.trump)
     }
 
     private fun roemPossibleThisTrickByCandidate(candidate: Card): Int {
 
-        val listOfTrickPossibilities = if (analysis.iAmSecondPlayer) {
-            val cardsPlayer1 = analysis.otherPlayerCanHaveLegalCards(analysis.player1)
-            val cardsPlayer2 = analysis.otherPlayerCanHaveLegalCards(analysis.player2)
+        val listOfTrickPossibilities = if (brain.iAmSecondPlayer) {
+            val cardsPlayer1 = brain.player1.legalCards
+            val cardsPlayer2 = brain.player2.legalCards
             if (cardsPlayer1.isNotEmpty() && cardsPlayer2.isNotEmpty()) {
-                (cardsPlayer1 + cardsPlayer2).mapCombinedItems { card1, card2 -> (currentTrick.getCardsPlayed() + candidate + card1 + card2) }
+                (cardsPlayer1 + cardsPlayer2).toList().mapCombinedItems { card1, card2 -> (currentTrick.getCardsPlayed() + candidate + card1 + card2) }
             } else {
                 (cardsPlayer1 + cardsPlayer2).map { card1 -> (currentTrick.getCardsPlayed() + candidate + card1) }
             }
-        } else if (analysis.iAmThirdPlayer) {
-            val cardsPlayer1 = analysis.otherPlayerCanHaveLegalCards(analysis.player1)
+        } else if (brain.iAmThirdPlayer) {
+            val cardsPlayer1 = brain.player1.legalCards
             (cardsPlayer1).map { card1 -> (currentTrick.getCardsPlayed() + candidate + card1) }
         } else { //iAmFourthPlayer
             listOf((currentTrick.getCardsPlayed() + candidate))
         }
-        return listOfTrickPossibilities.maxOf { poss -> poss.bonusValue(analysis.trump) }
+        return listOfTrickPossibilities.maxOf { poss -> poss.bonusValue(brain.trump) }
     }
 
     private fun isRoemPossibleNextTrick(candidate: Card): Boolean {
-        val p1 = analysis.playerAssumptionCards(analysis.player1).filterTo(HashSet()) { it.color == candidate.color }
-        val p2 = analysis.playerAssumptionCards(analysis.player2).filterTo(HashSet()) { it.color == candidate.color }
-        val p3 = analysis.playerAssumptionCards(analysis.player3).filterTo(HashSet()) { it.color == candidate.color }
+        val p1 = brain.player1.allAssumeCards.filterTo(HashSet()) { it.color == candidate.color }
+        val p2 = brain.player2.allAssumeCards.filterTo(HashSet()) { it.color == candidate.color }
+        val p3 = brain.player3.allAssumeCards.filterTo(HashSet()) { it.color == candidate.color }
         val doHave = p1.size.sign + p2.size.sign + p3.size.sign
         if (doHave <= 1)
             return false
@@ -496,9 +496,9 @@ class FollowPlayerInTrick(player: GeniusPlayerKlaverjassen, analysisResult: Klav
         val checkCards = if (sideToMove == player.tableSide) {
             player.getLegalPlayableCards()
         }  else {
-            (analysis.playerAssumptionCards(sideToMove) - trick.getCardsPlayed())
+            (brain.player(sideToMove).allAssumeCards - trick.getCardsPlayed())
                 .toList()
-                .legalPlayable(trick, analysis.trump)
+                .legalPlayable(trick, brain.trump)
         }
 
         if (sideToMove == player.tableSide || sideToMove.opposite() == player.tableSide) {

@@ -39,25 +39,17 @@ class KlaverjassenAnalyzer(
         return numberOfCardsInHandOtherPlayer
     }
 
-    fun refreshAnalysis(): KlaverjassenAnalysisResult {
+    fun refreshAnalysis(): Brain {
         t++
 
         initGlobals()
         determinePlayerCanHaveCards()
         updateAfterAnalysis()
 
-        return KlaverjassenAnalysisResult(
-            game = playerForWhichWeAnalyse.game,
-            currentRound= playerForWhichWeAnalyse.game.getCurrentRound(),
-            currentTrick = playerForWhichWeAnalyse.game.getCurrentRound().getTrickOnTable(),
-            mySide = playerForWhichWeAnalyse.tableSide,
-            cardsInHand = playerForWhichWeAnalyse.getCardsInHand(),
-            legalCards = playerForWhichWeAnalyse.getLegalPlayableCards(),
-            playerCanHave = playerCanHave,
-            playerSureHas = playerSureHas,
-            playerProbablyHas = playerProbablyHas,
-            playerProbablyHasNot = playerProbablyHasNot,
-        )
+        return Brain.reset(
+            playerForWhichWeAnalyse,
+            playerCanHave, playerSureHas,
+            playerProbablyHas, playerProbablyHasNot)
     }
 
     private fun initGlobals() {

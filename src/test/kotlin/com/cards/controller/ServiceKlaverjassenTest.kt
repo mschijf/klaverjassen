@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test
 class ServiceKlaverjassenTest {
     @Test
     fun runTest() {
+        val startTime = System.currentTimeMillis()
+
         RANDOMIZER.unsetSeed()
         RANDOMIZER.setFixedSequence(true)
         val numberOfTests = 1000
@@ -37,6 +39,9 @@ class ServiceKlaverjassenTest {
         val total = serie.reduce { acc, score -> acc.plus(score) }
         println("Points          %10d %10d".format(total.getNorthSouthTotal(), total.getEastWestTotal()))
 
+        val timePassed = System.currentTimeMillis() - startTime
+        print("%d.%03d sec".format(timePassed / 1000, timePassed % 1000))
+
         assertEquals(501, winsNS)
         assertEquals(498, winsEW)
         assertEquals(1, equal)
@@ -46,6 +51,9 @@ class ServiceKlaverjassenTest {
 
     @Test
     fun runTestGenius() {
+
+        val startTime = System.currentTimeMillis()
+
         RANDOMIZER.unsetSeed()
         RANDOMIZER.setFixedSequence(true)
         val numberOfTests = 1000
@@ -70,6 +78,9 @@ class ServiceKlaverjassenTest {
         val total = serie.reduce { acc, score -> acc.plus(score) }
         println("Points          %10d %10d".format(total.getNorthSouthTotal(), total.getEastWestTotal()))
         println("Cards examined during analysis: ${KlaverjassenAnalyzer.t}")
+
+        val timePassed = System.currentTimeMillis() - startTime
+        print("%d.%03d sec".format(timePassed / 1000, timePassed % 1000))
 
 //        println()
 //        println("----------------------------------------------------------------")

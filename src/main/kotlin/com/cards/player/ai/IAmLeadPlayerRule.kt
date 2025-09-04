@@ -2,9 +2,9 @@ package com.cards.player.ai
 
 import com.cards.game.card.Card
 
-class LeadPlayerInTrick(player: GeniusPlayerKlaverjassen, analysisResult: Brain): AbstractPlayerInTrick(player, analysisResult) {
+class IkBenLeadPlayerRule(player: GeniusPlayerKlaverjassen, analysisResult: BrainDump): AbstractPlayerRules(player, analysisResult) {
     override fun chooseCard(): Card {
-        if (brain.iAmContractOwner && hasCard(trumpJack()) )
+        if (brainDump.iAmContractOwner && hasCard(trumpJack()) )
             return trumpJack()
 
         return playFallbackCard()

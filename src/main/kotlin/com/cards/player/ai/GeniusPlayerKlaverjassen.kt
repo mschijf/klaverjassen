@@ -12,17 +12,36 @@ class GeniusPlayerKlaverjassen(
 
     val analyzer = KlaverjassenAnalyzer(this)
 
+    private fun leadColor() = game.getCurrentRound().getTrickOnTable().getLeadColor()
+    private fun trump() = game.getCurrentRound().getTrumpColor()
+
+    private fun ikHebGeenLeadColorEnGeenTroef() = getLegalPlayableCards().none{it.color == leadColor() || it.color == trump()}
+    private fun ikHebGeenLeadColorMaarWelTroef() = getLegalPlayableCards().none{it.color == leadColor()} && getLegalPlayableCards().any{it.color == trump() }
+    private fun ikHebWelLeadColorEnDatIsTroef() = leadColor() == trump() && getLegalPlayableCards().any{it.color == leadColor()}
+    private fun ikHebWelLeadColorEnDatIsGeenTroef() = leadColor() != trump() && getLegalPlayableCards().any{it.color == leadColor()}
+
     override fun chooseCard(): Card {
         if (getLegalPlayableCards().size == 1)
             return getLegalPlayableCards().first()
 
-        val analysis = analyzer.refreshAnalysis()
+        val brainDump = analyzer.refreshAnalysis()
         if (getNumberOfCardsInHand() <= 2)
-            return BruteForce(this, analysis).mostValuableCardToPlay()
+            return BruteForce(this, brainDump).mostValuableCardToPlay()
 
         return when(game.getCurrentRound().getTrickOnTable().getCardsPlayed().size) {
-            0 -> LeadPlayerInTrick(this, analysis).chooseCard()
-            1,2,3 -> FollowPlayerInTrick(this, analysis).chooseCard()
+            0 -> IkBenLeadPlayerRule(this, brainDump).chooseCard()
+            1,2,3 -> when {
+                ikHebGeenLeadColorEnGeenTroef() ->
+                    IkHebGeenLeadColorEnGeenTroefRule(this, brainDump).chooseCard()
+                ikHebGeenLeadColorMaarWelTroef() ->
+                    IkHebGeenLeadColorMaarWelTroefRule(this, brainDump).chooseCard()
+                ikHebWelLeadColorEnDatIsTroef() ->
+                    IkHebWelLeadColorEnDatIsTroefRule(this, brainDump).chooseCard()
+                ikHebWelLeadColorEnDatIsGeenTroef() ->
+                    IkHebWelLeadColorEnDatIsGeenTroefRule(this, brainDump).chooseCard()
+                else ->
+                    playFallbackCard("Fall back for main level 'follow player in trick'")
+            }
             else -> throw IllegalStateException("There is no such player")
         }
     }
@@ -35,5 +54,10 @@ class GeniusPlayerKlaverjassen(
         }
     }
 
+    protected fun playFallbackCard(info: String? = null): Card {
+        if (info != null)
+            println("FALL BACK NOTE: Fallback card info: $info")
+        return getLegalPlayableCards().first()
+    }
 
 }

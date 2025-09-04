@@ -39,14 +39,14 @@ class KlaverjassenAnalyzer(
         return numberOfCardsInHandOtherPlayer
     }
 
-    fun refreshAnalysis(): Brain {
+    fun refreshAnalysis(): BrainDump {
         t++
 
         initGlobals()
         determinePlayerCanHaveCards()
         updateAfterAnalysis()
 
-        return Brain.reset(
+        return BrainDump.create(
             playerForWhichWeAnalyse,
             playerCanHave, playerSureHas,
             playerProbablyHas, playerProbablyHasNot)

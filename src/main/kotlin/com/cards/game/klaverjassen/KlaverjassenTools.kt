@@ -4,6 +4,7 @@ import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
 import kotlin.collections.ifEmpty
+import kotlin.math.max
 
 const val NUMBER_OF_TRICKS_PER_ROUND = 8
 const val NUMBER_OF_ROUNDS_PER_GAME = 16
@@ -144,3 +145,41 @@ private fun Collection<Card>.legalTrumpCardsToPlay(cardsPlayed: List<Card>, trum
         .ifEmpty { this.filter { card -> card.color == trumpColor } }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+fun Collection<Card>.maxSequenceUsing(usingCard:Card): Int {
+    var currentSequence = 0
+    var maxSequence = 0
+    var lastCardRank = -1000
+    var usingCardUsed = false
+    this.sortedBy { it.toBonusRankNumber() }.forEach { card ->
+        if (card.toBonusRankNumber() == lastCardRank+1) {
+            currentSequence++
+            if (card == usingCard)
+                usingCardUsed = true
+        } else {
+            currentSequence = 1
+            usingCardUsed = card == usingCard
+        }
+        if (usingCardUsed)
+            maxSequence = max(maxSequence, currentSequence)
+        lastCardRank = card.toBonusRankNumber()
+    }
+    return maxSequence
+}
+
+fun Collection<Card>.maxSequence(): Int {
+    var currentSequence = 0
+    var maxSequence = 0
+    var lastCardRank = -1000
+    this.sortedBy { it.toBonusRankNumber() }.forEach { card ->
+        if (card.toBonusRankNumber() == lastCardRank+1) {
+            currentSequence++
+        } else {
+            currentSequence = 1
+        }
+        maxSequence = max(maxSequence, currentSequence)
+        lastCardRank = card.toBonusRankNumber()
+    }
+    return maxSequence
+}

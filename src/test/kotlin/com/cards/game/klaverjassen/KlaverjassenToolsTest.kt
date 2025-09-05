@@ -119,4 +119,65 @@ class KlaverjassenToolsTest {
         assertEquals(true, thisCard.beats(otherCard, CardColor.DIAMONDS))
         assertEquals(true, otherCard.beats(thisCard, CardColor.DIAMONDS))
     }
+
+    @Test
+    fun maxSequenceTestAll() {
+        val cardList = Card.ofList("7C 8C 9C 10C JC QC KC AC")
+        assertEquals(8, cardList.maxSequence())
+    }
+
+    @Test
+    fun maxSequenceTestLast() {
+        val cardList = Card.ofList("7C 8C 9C JC QC KC AC")
+        assertEquals(4, cardList.maxSequence())
+    }
+
+    @Test
+    fun maxSequenceTestFirst() {
+        val cardList = Card.ofList("7C 8C 9C 10C  QC KC AC")
+        assertEquals(4, cardList.maxSequence())
+    }
+
+    @Test
+    fun maxSequenceTestEmpty() {
+        val cardList = emptyList<Card>()
+        assertEquals(0, cardList.maxSequence())
+    }
+
+    @Test
+    fun maxSequenceTestOne() {
+        val cardList = Card.ofList("7C")
+        assertEquals(1, cardList.maxSequence())
+    }
+
+    @Test
+    fun maxSequenceTestUsingCardAll() {
+        val cardList = Card.ofList("7C 8C 9C 10C JC QC KC AC")
+        assertEquals(8, cardList.maxSequenceUsing(Card.queen(CardColor.CLUBS)))
+    }
+
+    @Test
+    fun maxSequenceTestUsingCardLast() {
+        val cardList = Card.ofList("7C 8C 10C JC QC")
+        assertEquals(3, cardList.maxSequenceUsing(Card.queen(CardColor.CLUBS)))
+    }
+
+    @Test
+    fun maxSequenceTestUsingCardFirst() {
+        val cardList = Card.ofList("7C 8C 9C JC QC KC AC")
+        assertEquals(3, cardList.maxSequenceUsing(Card.seven(CardColor.CLUBS)))
+    }
+
+    @Test
+    fun maxSequenceTestUsingCardLastOfShorterSequence() {
+        val cardList = Card.ofList("7C 8C 9C JC QC KC AC")
+        assertEquals(3, cardList.maxSequenceUsing(Card.nine(CardColor.CLUBS)))
+    }
+
+    @Test
+    fun maxSequenceTestUsingCardMiddletOfShorterSequence() {
+        val cardList = Card.ofList("7C 8C 9C JC QC KC AC")
+        assertEquals(3, cardList.maxSequenceUsing(Card.eight(CardColor.CLUBS)))
+    }
+
 }

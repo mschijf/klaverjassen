@@ -3,12 +3,6 @@ package com.cards.player.ai
 import com.cards.game.card.Card
 import com.cards.game.card.CardRank
 import com.cards.game.klaverjassen.beats
-import com.cards.game.klaverjassen.bonusValue
-import com.cards.game.klaverjassen.cardValue
-import com.cards.game.klaverjassen.toBonusRankNumber
-import tool.mylambdas.collectioncombination.mapCombinedItems
-import kotlin.math.max
-import kotlin.math.sign
 
 /*
 
@@ -100,24 +94,24 @@ class IkHebGeenLeadColorEnGeenTroefRule(player: GeniusPlayerKlaverjassen, brainD
 
 
         //(1a)
-        val bareTenCardCandidates = myLegalCards.filter { it.isKaal() && it.isTen() && !it.isHighestInPlay() }
+        val bareTenCardCandidates = myLegalCards.filter { it.isKaal() && it.isTen() && !it.isHigherThanOtherInPlay() }
         if (bareTenCardCandidates.isNotEmpty())
             return bareTenCardCandidates.last()
 
         //(3)
-        val tenCardCandidates = myLegalCards.filter { it.isTen() && !it.isHighestInPlay() }
+        val tenCardCandidates = myLegalCards.filter { it.isTen() && !it.isHigherThanOtherInPlay() }
         if (tenCardCandidates.isNotEmpty())
             return tenCardCandidates.maxByOrNull { myLegalCardsByColor[it.color]!!.size }!!
 
         //(4a): note: aas opgooien is ook seinen
         val aceCardColors = myLegalCards.filter { it.isAce() }.map { it.color }.toSet()
-        val aceCardCandidates = myLegalCards.filter { it.color in aceCardColors && !it.isAce() && it.isHighestInPlay() }
+        val aceCardCandidates = myLegalCards.filter { it.color in aceCardColors && !it.isAce() && it.isHigherThanOtherInPlay() }
         if (aceCardCandidates.isNotEmpty())
             return aceCardCandidates.maxByOrNull { myLegalCardsByColor[it.color]!!.size }!!
 
         //(4b)
-        val tenCardColors = myLegalCards.filter { it.color !in aceCardColors && it.isTen() && it.isHighestInPlay() }.map { it.color }.toSet()
-        val tenCardHighCandidates = myLegalCards.filter { it.color in tenCardColors && !it.isTen() && it.isHighestInPlay() }
+        val tenCardColors = myLegalCards.filter { it.color !in aceCardColors && it.isTen() && it.isHigherThanOtherInPlay() }.map { it.color }.toSet()
+        val tenCardHighCandidates = myLegalCards.filter { it.color in tenCardColors && !it.isTen() && it.isHigherThanOtherInPlay() }
         if (tenCardHighCandidates.isNotEmpty())
             return tenCardHighCandidates.maxByOrNull { myLegalCardsByColor[it.color]!!.size }!!
 
@@ -128,8 +122,8 @@ class IkHebGeenLeadColorEnGeenTroefRule(player: GeniusPlayerKlaverjassen, brainD
 //                        return signalCandidates.minByOrNull { legalCardsByColor[it.color]!!.size }!!
 
         //(1b)
-        val bareCardsNotHighest = myLegalCards.filter { it.isKaal() && !it.isHighestInPlay() }
-        val bareCardCandidates = bareCardsNotHighest.sortedBy{ 10 * it.cardValue(brainDump.trump) + if (it.isVrij()) 0 else 1 }
+        val bareCardsNotHighest = myLegalCards.filter { it.isKaal() && !it.isHigherThanOtherInPlay() }
+        val bareCardCandidates = bareCardsNotHighest.sortedBy{ 10 * it.cardValue() + if (it.isVrij()) 0 else 1 }
         if (bareCardCandidates.isNotEmpty())
             return bareCardCandidates.last() //let op, je gooit evt nu een kale 7 weg
 
@@ -147,39 +141,39 @@ class IkHebGeenLeadColorEnGeenTroefRule(player: GeniusPlayerKlaverjassen, brainD
 //                         ==> zoveel mogelijk punten
 //                         ==> toekomstig roem ontwijkend
 
-        val highestInPlayColors = myLegalCards.filter { it.isHighestInPlay() }.map { it.color }.toSet()
+        val highestInPlayColors = myLegalCards.filter { it.isHigherThanOtherInPlay() }.map { it.color }.toSet()
         val seinCards = myLegalCards.filter { it.color in brainDump.partnerCardColors && it.color in highestInPlayColors }
 
         //(1a)
         val aceCardColors = seinCards.filter { it.isAce()  }.map { it.color }.toSet()
-        val aceCardCandidates = seinCards.filter { it.color in aceCardColors && !it.isAce() && it.isHighestInPlay() }
+        val aceCardCandidates = seinCards.filter { it.color in aceCardColors && !it.isAce() && it.isHigherThanOtherInPlay() }
         if (aceCardCandidates.isNotEmpty())
             return aceCardCandidates.maxByOrNull { myLegalCardsByColor[it.color]!!.size }!!
 
         //(1b)
-        val tenCardColors = seinCards.filter { it.color !in aceCardColors && it.isTen() && it.isHighestInPlay() && it.color in brainDump.partnerCardColors }.map { it.color }.toSet()
-        val tenCardHighCandidates = seinCards.filter { it.color in tenCardColors && !it.isTen() && it.isHighestInPlay() }
+        val tenCardColors = seinCards.filter { it.color !in aceCardColors && it.isTen() && it.isHigherThanOtherInPlay() && it.color in brainDump.partnerCardColors }.map { it.color }.toSet()
+        val tenCardHighCandidates = seinCards.filter { it.color in tenCardColors && !it.isTen() && it.isHigherThanOtherInPlay() }
         if (tenCardHighCandidates.isNotEmpty())
             return tenCardHighCandidates.maxByOrNull { myLegalCardsByColor[it.color]!!.size }!!
 
         //(2)
-        val highCardColors = seinCards.filter { !it.isKaal() && it.isHighestInPlay() }.map { it.color }.toSet()
+        val highCardColors = seinCards.filter { !it.isKaal() && it.isHigherThanOtherInPlay() }.map { it.color }.toSet()
         val signalCandidates = seinCards.filter { it.color in highCardColors && it.isLowCard() }
         if (signalCandidates.isNotEmpty()) //sein kortste kaart (of beter langste kaart?)
             return signalCandidates.minByOrNull { myLegalCardsByColor[it.color]!!.size }!!
 
         //(3a)
-        val bareTenCardCandidates = myLegalCards.filter { it.isKaal() && it.isTen() && !it.isHighestInPlay() }
+        val bareTenCardCandidates = myLegalCards.filter { it.isKaal() && it.isTen() && !it.isHigherThanOtherInPlay() }
         if (bareTenCardCandidates.isNotEmpty())
             return bareTenCardCandidates.last()
 
         //(3b)
-        val coveredTenCardCandidates = myLegalCards.filter { !it.isKaal() && it.isTen() && !it.isHighestInPlay() && myLegalCardsByColor[it.color]!!.size >= 3 }
+        val coveredTenCardCandidates = myLegalCards.filter { !it.isKaal() && it.isTen() && !it.isHigherThanOtherInPlay() && myLegalCardsByColor[it.color]!!.size >= 3 }
         if (coveredTenCardCandidates.isNotEmpty())
             return coveredTenCardCandidates.last()
 
         return myLegalCards.filter{ !it.isAce() && !it.isTen() }.maxByOrNull { card ->
-            2 * card.cardValue(brainDump.trump) +
+            2 * card.cardValue() +
                     -1 * card.kaalMakendeKaartPenalty() +
                     1 * roemSureThisTrickByCandidate(card) +
                     1 * (if (roemPossibleThisTrickByCandidate(card) > 0) 10 else 0) +
@@ -227,7 +221,7 @@ class IkHebGeenLeadColorEnGeenTroefRule(player: GeniusPlayerKlaverjassen, brainD
 //                     extra kans op roem achtergebleven kaart volgende trick: +5
 
         return myLegalCards.minBy { card ->
-            2 * card.cardValue(brainDump.trump) +
+            2 * card.cardValue() +
                     card.kaalMakendeKaartPenalty() +
                     roemSureThisTrickByCandidate(card) +
                     (if (roemPossibleThisTrickByCandidate(card) > 0) 10 else 0) +
@@ -240,10 +234,10 @@ class IkHebGeenLeadColorEnGeenTroefRule(player: GeniusPlayerKlaverjassen, brainD
     private fun Card.kaalMakendeKaartPenalty(): Int {
         val kaleKaart = (myLegalCards - this).singleOrNull { it.color == this.color }
         return if (kaleKaart != null) {
-            if (!kaleKaart.isHighestInPlay()) {
+            if (!kaleKaart.isHigherThanOtherInPlay()) {
                 when (kaleKaart.rank) {
                     CardRank.TEN -> 2*10
-                    else -> kaleKaart.cardValue(brainDump.trump)
+                    else -> kaleKaart.cardValue()
                 }
             } else {
                 0
@@ -251,59 +245,6 @@ class IkHebGeenLeadColorEnGeenTroefRule(player: GeniusPlayerKlaverjassen, brainD
         } else {
             0
         }
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    //todo: als dubbele kans op roem, dan die anders beoordelen, dan enkele kans op roem
-    //      bijv. 7,9 ==> dan is er met 8 kans op 20 roem
-    //            8,9 ==> dan is er met 7 en 10 kans op 20 roem
-
-    private fun roemSureThisTrickByCandidate(candidate: Card): Int {
-        return (currentTrick.getCardsPlayed() + candidate).bonusValue(brainDump.trump)
-    }
-
-    private fun roemPossibleThisTrickByCandidate(candidate: Card): Int {
-
-        val listOfTrickPossibilities = if (brainDump.iAmSecondPlayer) {
-            val cardsPlayer1 = brainDump.player1.legalCards
-            val cardsPlayer2 = brainDump.player2.legalCards
-            if (cardsPlayer1.isNotEmpty() && cardsPlayer2.isNotEmpty()) {
-                (cardsPlayer1 + cardsPlayer2).toList().mapCombinedItems { card1, card2 -> (currentTrick.getCardsPlayed() + candidate + card1 + card2) }
-            } else {
-                (cardsPlayer1 + cardsPlayer2).map { card1 -> (currentTrick.getCardsPlayed() + candidate + card1) }
-            }
-        } else if (brainDump.iAmThirdPlayer) {
-            val cardsPlayer1 = brainDump.player1.legalCards
-            (cardsPlayer1).map { card1 -> (currentTrick.getCardsPlayed() + candidate + card1) }
-        } else { //iAmFourthPlayer
-            listOf((currentTrick.getCardsPlayed() + candidate))
-        }
-        return listOfTrickPossibilities.maxOf { poss -> poss.bonusValue(brainDump.trump) }
-    }
-
-    private fun isRoemPossibleNextTrick(candidate: Card): Boolean {
-        val p1 = brainDump.player1.allAssumeCards.filterTo(HashSet()) { it.color == candidate.color }
-        val p2 = brainDump.player2.allAssumeCards.filterTo(HashSet()) { it.color == candidate.color }
-        val p3 = brainDump.player3.allAssumeCards.filterTo(HashSet()) { it.color == candidate.color }
-        val doHave = p1.size.sign + p2.size.sign + p3.size.sign
-        if (doHave <= 1)
-            return false
-        val all = p1 + p2 + p3
-
-        var currentSequence = 0
-        var maxSequence = 0
-        var lastCardRank = -1000
-        all.sortedBy { card -> card.rank }.forEach { c ->
-            if (c.toBonusRankNumber() == lastCardRank+1) {
-                currentSequence++
-            } else {
-                maxSequence = max(maxSequence, currentSequence)
-                currentSequence = 1
-            }
-            lastCardRank = c.toBonusRankNumber()
-        }
-        return (maxSequence > 2)
     }
 
     //------------------------------------------------------------------------------------------------------------------

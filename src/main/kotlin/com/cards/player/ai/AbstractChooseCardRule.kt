@@ -3,9 +3,10 @@ package com.cards.player.ai
 import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
-import com.cards.game.klaverjassen.TableSide
-import com.cards.game.klaverjassen.beats
+import com.cards.game.klaverjassen.*
 import com.cards.player.Player
+import tool.mylambdas.collectioncombination.mapCombinedItems
+import kotlin.math.sign
 
 abstract class AbstractPlayerRules(protected val player: Player,
                                    val brainDump: BrainDump) {
@@ -24,14 +25,20 @@ abstract class AbstractPlayerRules(protected val player: Player,
 
     protected fun TableSide.isPartner() = this == brainDump.partner
     protected fun TableSide.isOtherParty() = this == brainDump.p1 || this == brainDump.p3
+    protected fun TableSide.isContractOwner() = this == brainDump.contractOwner
 
     protected fun Card.isKaal() = myLegalCardsByColor[this.color]!!.size == 1
     protected fun Card.isVrij() = brainDump.cardsInPlayOtherPlayers.none { it.color == this.color }
-    protected fun Card.isHighestInPlay() = brainDump.cardsInPlayOtherPlayers.none { it.color == this.color && it.beats(this, brainDump.trump)}
+    protected fun Card.isHigherThanOtherInPlay() = brainDump.cardsInPlayOtherPlayers.none { it.color == this.color && it.beats(this, brainDump.trump)}
+    protected fun Card.isHigherThanAllInPlay() = brainDump.allCardsInPlay.none { it.color == this.color && it.beats(this, brainDump.trump)}
 
+    protected fun Card.cardValue() = this.cardValue(brainDump.trump)
     protected fun hasCard(card: Card) = card in player.getCardsInHand()
-    protected fun trumpJack() = Card(brainDump.trump, CardRank.JACK)
-    protected fun trumpNine() = Card(brainDump.trump, CardRank.NINE)
+
+    protected val trumpJack = Card(brainDump.trump, CardRank.JACK)
+    protected val trumpNine = Card(brainDump.trump, CardRank.NINE)
+    protected val trumpAce = Card(brainDump.trump, CardRank.ACE)
+    protected val trumpTen = Card(brainDump.trump, CardRank.ACE)
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -41,7 +48,47 @@ abstract class AbstractPlayerRules(protected val player: Player,
         return myLegalCards.first()
     }
 
+    //------------------------------------------------------------------------------------------------------------------
 
+    //todo: als dubbele kans op roem, dan die anders beoordelen, dan enkele kans op roem
+    //      bijv. 7,9 ==> dan is er met 8 kans op 20 roem
+    //            8,9 ==> dan is er met 7 en 10 kans op 20 roem
+
+    protected fun roemSureThisTrickByCandidate(candidate: Card): Int {
+        return (currentTrick.getCardsPlayed() + candidate).bonusValue(brainDump.trump)
+    }
+
+    protected fun roemPossibleThisTrickByCandidate(candidate: Card): Int {
+
+        val listOfTrickPossibilities = if (brainDump.iAmSecondPlayer) {
+            val cardsPlayer1 = brainDump.player1.legalCards
+            val cardsPlayer2 = brainDump.player2.legalCards
+            if (cardsPlayer1.size > 1 && cardsPlayer2.size > 1) {
+                (cardsPlayer1 + cardsPlayer2).toList().mapCombinedItems { card1, card2 -> (currentTrick.getCardsPlayed() + candidate + card1 + card2) }
+            } else {
+                (cardsPlayer1 + cardsPlayer2).map { card1 -> (currentTrick.getCardsPlayed() + candidate + card1) }
+            }
+        } else if (brainDump.iAmThirdPlayer) {
+            val cardsPlayer1 = brainDump.player1.legalCards
+            (cardsPlayer1).map { card1 -> (currentTrick.getCardsPlayed() + candidate + card1) }
+        } else { //iAmFourthPlayer
+            listOf((currentTrick.getCardsPlayed() + candidate))
+        }
+        return listOfTrickPossibilities.maxOf { poss -> poss.bonusValue(brainDump.trump) }
+    }
+
+    protected fun isRoemPossibleNextTrick(candidate: Card): Boolean {
+        val p1 = brainDump.player1.allAssumeCards.filterTo(HashSet()) { it.color == candidate.color }
+        val p2 = brainDump.player2.allAssumeCards.filterTo(HashSet()) { it.color == candidate.color }
+        val p3 = brainDump.player3.allAssumeCards.filterTo(HashSet()) { it.color == candidate.color }
+        val doHave = p1.size.sign + p2.size.sign + p3.size.sign
+        if (doHave <= 1)
+            return false
+        val all = p1 + p2 + p3 + candidate
+        if (all.size <= 2)
+            return false
+        return all.maxSequenceUsing(candidate) >=3
+    }
 
 //------------------------------------------------------------------------------------------------------------------
 //    private fun List<Card>.cardGivingBestValue(): CardValue {

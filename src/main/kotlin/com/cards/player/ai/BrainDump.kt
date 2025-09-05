@@ -23,7 +23,8 @@ data class BrainDump(
 
     val player1: OtherPlayer,
     val player2: OtherPlayer,
-    val player3: OtherPlayer, ) {
+    val player3: OtherPlayer,
+    val numberOfTricksWonByUs: Int,) {
 
     private val playerMap = mapOf(p1 to player1, p2 to player2, p3 to player3)
     fun player(side: TableSide) = playerMap[side]?:throw Exception("asked for wrong player")
@@ -65,17 +66,21 @@ data class BrainDump(
                     .toSet()
             }
 
+            val us = setOf(player.tableSide, player.tableSide.opposite())
+            val numberOfTricksWonByUs = player.game.getCurrentRound().getTrickList().filter{it.isComplete()}.count {it.getWinningSide() in us }
 
             return BrainDump (
-                cardsInPlayOtherPlayers = allCardsInPlay - myCards,
                 allCardsInPlay = allCardsInPlay,
+                cardsInPlayOtherPlayers = allCardsInPlay - myCards,
                 p1 = p1,
                 p2 = p2,
                 p3 = p3,
                 partner = p2,
                 contractOwner = player.game.getCurrentRound().getContractOwningSide(),
+
                 trump = player.game.getCurrentRound().getTrumpColor(),
                 leadColor = currentTrick.getLeadColor(),
+
                 iAmFirstPlayer = nTrickCardsPlayed == 0,
                 iAmSecondPlayer = nTrickCardsPlayed == 1,
                 iAmThirdPlayer = nTrickCardsPlayed == 2,
@@ -83,7 +88,9 @@ data class BrainDump(
 
                 player1 = OtherPlayer(numberOfCardsInHandForSide(p1), playerCanHave[p1]!!, playerSureHas[p1]!!, otherPlayerCanHaveLegalCards(p1)),
                 player2 = OtherPlayer(numberOfCardsInHandForSide(p2), playerCanHave[p2]!!, playerSureHas[p2]!!, otherPlayerCanHaveLegalCards(p2)),
-                player3 = OtherPlayer(numberOfCardsInHandForSide(p3), playerCanHave[p3]!!, playerSureHas[p3]!!, otherPlayerCanHaveLegalCards(p3))
+                player3 = OtherPlayer(numberOfCardsInHandForSide(p3), playerCanHave[p3]!!, playerSureHas[p3]!!, otherPlayerCanHaveLegalCards(p3)),
+
+                numberOfTricksWonByUs
             )
         }
 

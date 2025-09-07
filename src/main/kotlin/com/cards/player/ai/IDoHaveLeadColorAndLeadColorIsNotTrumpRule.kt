@@ -223,9 +223,10 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: GeniusPlayerKlaverjasse
         val myHighest = currentTrick.getLeadColor()!!.myHighest()!!
 
         if (brainDump.iAmSecondPlayer || brainDump.iAmThirdPlayer ) {
-            var highestRoemCandidate: Card? = null
-            var mostRoem = 0
             if (brainDump.player1.hasColorProbabilityPercentage(currentTrick.getLeadColor()!!) > 0.49) { //kans dat volgende speler meeloopt is groot
+                var highestRoemCandidate: Card? = null
+                var mostRoem = 0
+
                 myLegalCards.forEach { candidate ->
                     val roemPossible = roemPossibleThisTrickByCandidate(candidate)
                     if (roemPossible > mostRoem && !weCanLooseThisTrickIfIPlayCard(candidate)) {

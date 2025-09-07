@@ -3,6 +3,7 @@ package com.cards.player.ai
 import com.cards.game.card.Card
 import com.cards.game.card.CardRank
 import com.cards.game.klaverjassen.beats
+import com.cards.player.Player
 
 /*
 
@@ -45,7 +46,7 @@ import com.cards.game.klaverjassen.beats
 
  */
 
-class IDontHaveLeadColorNorTrumpRule(player: GeniusPlayerKlaverjassen): AbstractChooseCardFollowerRule(player) {
+class IDontHaveLeadColorNorTrumpRule(player: Player): AbstractChooseCardFollowerRule(player) {
 
     override fun chooseCard(): Card {
         if (winningSide.isPartner()){

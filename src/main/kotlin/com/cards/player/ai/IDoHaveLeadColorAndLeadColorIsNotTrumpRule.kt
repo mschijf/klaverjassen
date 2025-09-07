@@ -5,6 +5,7 @@ import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
 import com.cards.game.klaverjassen.beats
 import com.cards.game.klaverjassen.legalPlayable
+import com.cards.player.Player
 
 /*
 
@@ -61,7 +62,7 @@ KLEUR BIJLOPEN
 
  */
 
-class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: GeniusPlayerKlaverjassen): AbstractChooseCardFollowerRule(player) {
+class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChooseCardFollowerRule(player) {
 
     private val leadColorAce = Card(leadColor, CardRank.ACE)
     private val leadColorTen = Card(leadColor, CardRank.TEN)

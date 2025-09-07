@@ -3,6 +3,7 @@ package com.cards.player.ai
 import com.cards.game.card.Card
 import com.cards.game.klaverjassen.beats
 import com.cards.game.klaverjassen.toRankNumberTrump
+import com.cards.player.Player
 
 /*
 
@@ -31,7 +32,7 @@ TROEF BIJLOPEN
 
  */
 
-class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: GeniusPlayerKlaverjassen): AbstractChooseCardFollowerRule(player) {
+class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: Player): AbstractChooseCardFollowerRule(player) {
 
     override fun chooseCard(): Card {
         if (contractOwner.isOtherParty() && currentTrick.getSideToLead().isContractOwner() && trump.playedBefore()  ) {

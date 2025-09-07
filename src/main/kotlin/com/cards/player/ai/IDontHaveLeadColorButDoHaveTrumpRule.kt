@@ -3,6 +3,7 @@ package com.cards.player.ai
 import com.cards.game.card.Card
 import com.cards.game.klaverjassen.beats
 import com.cards.game.klaverjassen.toRankNumberTrump
+import com.cards.player.Player
 
 /*
 
@@ -22,7 +23,7 @@ anders
 
  */
 
-class IDontHaveLeadColorButDoHaveTrumpRule(player: GeniusPlayerKlaverjassen): AbstractChooseCardFollowerRule(player) {
+class IDontHaveLeadColorButDoHaveTrumpRule(player: Player): AbstractChooseCardFollowerRule(player) {
 
 
     //------------------------------------------------------------------------------------------------------------------

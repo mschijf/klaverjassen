@@ -25,10 +25,10 @@ class KlaverjassenAnalyzer(
     private val allCards = CARDDECK.baseDeckCardsSevenAndHigher
     private val cardsPlayedDuringAnalysis = mutableSetOf<Card>()
 
-    private val playerCanHave: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
-    private val playerSureHas: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
-    private val playerProbablyHas: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
-    private val playerProbablyHasNot: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
+    val playerCanHave: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
+    val playerSureHas: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
+    val playerProbablyHas: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
+    val playerProbablyHasNot: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
 
     private fun cardsInHandForSide(side: TableSide): Int {
         if (side == mySide)
@@ -39,17 +39,12 @@ class KlaverjassenAnalyzer(
         return numberOfCardsInHandOtherPlayer
     }
 
-    fun refreshAnalysis(): BrainDump {
+    fun refreshAnalysis()  {
         t++
 
         initGlobals()
         determinePlayerCanHaveCards()
         updateAfterAnalysis()
-
-        return BrainDump.create(
-            playerForWhichWeAnalyse,
-            playerCanHave, playerSureHas,
-            playerProbablyHas, playerProbablyHasNot)
     }
 
     private fun initGlobals() {

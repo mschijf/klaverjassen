@@ -31,16 +31,14 @@ TROEF BIJLOPEN
 
  */
 
-class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: GeniusPlayerKlaverjassen, brainDump: BrainDump): AbstractChooseCardFollowerRule(player, brainDump) {
-
-    //------------------------------------------------------------------------------------------------------------------
+class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: GeniusPlayerKlaverjassen): AbstractChooseCardFollowerRule(player) {
 
     override fun chooseCard(): Card {
-        if (brainDump.contractOwner.isOtherParty() && currentTrick.getSideToLead().isContractOwner() && brainDump.trump.playedBefore()  ) {
+        if (contractOwner.isOtherParty() && currentTrick.getSideToLead().isContractOwner() && trump.playedBefore()  ) {
             val myHighest = myLegalCards.highestTrumpCard()!!
-            if (myHighest.isHigherThanOtherInPlay() && myHighest.beats(winningCard, brainDump.trump)) {
+            if (myHighest.isHigherThanOtherInPlay() && myHighest.beats(winningCard, trump)) {
                 val secondHighest = (myLegalCards-myHighest).highestTrumpCard()!!
-                if (brainDump.cardsInPlayOtherPlayers.count { it.color.isTrump() && it.beats(secondHighest, brainDump.trump)} == 1) {
+                if (memory.cardsInPlayOtherPlayers.count { it.isTrump() && it.beats(secondHighest, trump)} == 1) {
                     return secondHighest
                 } else {
                     return myLegalCards.minBy { it.toRankNumberTrump() }
@@ -48,12 +46,12 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: GeniusPlayerKlaverjassen, 
             }
         }
 
-        if (brainDump.contractOwner.isOtherParty() && brainDump.iAmFourthPlayer && myLegalCards.first().beats(currentTrick.getWinningCard(), brainDump.trump)) {
-            if (trumpNine in myLegalCards && trumpJack in brainDump.cardsInPlayOtherPlayers)
+        if (contractOwner.isOtherParty() && iAmFourthPlayer && myLegalCards.first().beats(currentTrick.getWinningCard(), trump)) {
+            if (trumpNine in myLegalCards && trumpJack in memory.cardsInPlayOtherPlayers)
                 return trumpNine
-            if (trumpAce in myLegalCards && (trumpJack in brainDump.cardsInPlayOtherPlayers || trumpNine in brainDump.cardsInPlayOtherPlayers))
+            if (trumpAce in myLegalCards && (trumpJack in memory.cardsInPlayOtherPlayers || trumpNine in memory.cardsInPlayOtherPlayers))
                 return trumpAce
-            if (trumpTen in myLegalCards && (trumpJack in brainDump.cardsInPlayOtherPlayers || trumpNine in brainDump.cardsInPlayOtherPlayers || trumpAce in brainDump.cardsInPlayOtherPlayers))
+            if (trumpTen in myLegalCards && (trumpJack in memory.cardsInPlayOtherPlayers || trumpNine in memory.cardsInPlayOtherPlayers || trumpAce in memory.cardsInPlayOtherPlayers))
                 return trumpTen
             return myLegalCards.minBy { it.toRankNumberTrump() }
         }
@@ -80,7 +78,7 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: GeniusPlayerKlaverjassen, 
 
         if (winningSide.isOtherParty() && weCannotWinThisTrick()) {
             val myHighest = myLegalCards.highestTrumpCard()!!
-            val chooseFrom = if (myHighest.beats(brainDump.cardsInPlayOtherPlayers.highestTrumpCard(), brainDump.trump)) {
+            val chooseFrom = if (myHighest.beats(memory.cardsInPlayOtherPlayers.highestTrumpCard(), trump)) {
                 if (keepCardInHandToPreventPit(trumpNine)) myLegalCards-myHighest else myLegalCards
             } else {
                 myLegalCards
@@ -107,15 +105,15 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: GeniusPlayerKlaverjassen, 
         if (!winningSide.isOtherParty())
             return false
 
-        return if (brainDump.iAmThirdPlayer || brainDump.iAmFourthPlayer) {
-            myLegalCards.none { it.beats(winningCard, brainDump.trump) }
+        return if (iAmThirdPlayer || iAmFourthPlayer) {
+            myLegalCards.none { it.beats(winningCard, trump) }
         } else {
-            brainDump.player2.legalCards.none { it.beats(winningCard, brainDump.trump) }
+            player2.legalCards.none { it.beats(winningCard, trump) }
         }
     }
 
 
-    private fun keepCardInHandToPreventPit(card: Card) = (brainDump.numberOfTricksWonByUs == 0) && !denkIkNogEenSlagTeHalenZonder(card)
+    private fun keepCardInHandToPreventPit(card: Card) = (memory.numberOfTricksWonByUs == 0) && !denkIkNogEenSlagTeHalenZonder(card)
 
     private fun denkIkNogEenSlagTeHalenZonder(card: Card): Boolean {
         //tenzij hele slechte kaart (geen azen, aantal troef <= 2 en nog geen troef gespeeld, anders dan in de trick)

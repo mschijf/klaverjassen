@@ -45,12 +45,12 @@ import com.cards.game.klaverjassen.beats
 
  */
 
-class IDontHaveLeadColorNorTrumpRule(player: GeniusPlayerKlaverjassen, brainDump: BrainDump): AbstractChooseCardFollowerRule(player, brainDump) {
+class IDontHaveLeadColorNorTrumpRule(player: GeniusPlayerKlaverjassen): AbstractChooseCardFollowerRule(player) {
 
     override fun chooseCard(): Card {
         if (winningSide.isPartner()){
             if (partnerWillWinThisTrick()) {
-                if (brainDump.theyOwnContract) {
+                if (theyOwnContract) {
                     return slagAanMaatEnAnderePartijGaatEnZekerWetenDatSlagAanMaatBlijft()
                 } else {
                     return slagAanMaatEnMaatGaatEnZekerWetenDatSlagAanMaatBlijft()
@@ -68,16 +68,16 @@ class IDontHaveLeadColorNorTrumpRule(player: GeniusPlayerKlaverjassen, brainDump
         }
     }
 
-    private fun weCannotWinThisTrick() = winningSide.isOtherParty() && (brainDump.iAmThirdPlayer || brainDump.iAmFourthPlayer)
+    private fun weCannotWinThisTrick() = winningSide.isOtherParty() && (iAmThirdPlayer || iAmFourthPlayer)
 
     private fun partnerWillWinThisTrick() =
         winningSide.isPartner() &&
                 when {
-                    brainDump.iAmSecondPlayer ->
+                    iAmSecondPlayer ->
                         throw Exception("i am second player and partner has winning card is not possible")
-                    brainDump.iAmThirdPlayer ->
-                        brainDump.player1.legalCards.none { it.beats(winningCard, brainDump.trump) }
-                    brainDump.iAmFourthPlayer ->
+                    iAmThirdPlayer ->
+                        player1.legalCards.none { it.beats(winningCard, trump) }
+                    iAmFourthPlayer ->
                         true
                     else ->
                         false
@@ -142,7 +142,7 @@ class IDontHaveLeadColorNorTrumpRule(player: GeniusPlayerKlaverjassen, brainDump
 //                         ==> toekomstig roem ontwijkend
 
         val highestInPlayColors = myLegalCards.filter { it.isHigherThanOtherInPlay() }.map { it.color }.toSet()
-        val seinCards = myLegalCards.filter { it.color in brainDump.partnerCardColors && it.color in highestInPlayColors }
+        val seinCards = myLegalCards.filter { it.color in partnerCardColors && it.color in highestInPlayColors }
 
         //(1a)
         val aceCardColors = seinCards.filter { it.isAce()  }.map { it.color }.toSet()
@@ -151,7 +151,7 @@ class IDontHaveLeadColorNorTrumpRule(player: GeniusPlayerKlaverjassen, brainDump
             return aceCardCandidates.maxByOrNull { myLegalCardsByColor[it.color]!!.size }!!
 
         //(1b)
-        val tenCardColors = seinCards.filter { it.color !in aceCardColors && it.isTen() && it.isHigherThanOtherInPlay() && it.color in brainDump.partnerCardColors }.map { it.color }.toSet()
+        val tenCardColors = seinCards.filter { it.color !in aceCardColors && it.isTen() && it.isHigherThanOtherInPlay() && it.color in partnerCardColors }.map { it.color }.toSet()
         val tenCardHighCandidates = seinCards.filter { it.color in tenCardColors && !it.isTen() && it.isHigherThanOtherInPlay() }
         if (tenCardHighCandidates.isNotEmpty())
             return tenCardHighCandidates.maxByOrNull { myLegalCardsByColor[it.color]!!.size }!!

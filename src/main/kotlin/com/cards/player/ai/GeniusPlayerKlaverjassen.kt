@@ -10,8 +10,6 @@ class GeniusPlayerKlaverjassen(
     tableSide: TableSide,
     game: Game) : Player(tableSide, game) {
 
-    val analyzer = KlaverjassenAnalyzer(this)
-
     private fun leadColor() = game.getCurrentRound().getTrickOnTable().getLeadColor()
     private fun trump() = game.getCurrentRound().getTrumpColor()
 
@@ -25,27 +23,27 @@ class GeniusPlayerKlaverjassen(
         if (getLegalPlayableCards().size == 1)
             return getLegalPlayableCards().first()
 
-        val brainDump = analyzer.refreshAnalysis()
         if (getNumberOfCardsInHand() <= 2)
-            return BruteForceRule(this, brainDump).chooseCard()
+            return BruteForceRule(this).chooseCard()
 
         return when {
-            brainDump.iAmFirstPlayer -> IAmLeadPlayerRule(this, brainDump).chooseCard()
+            game.getCurrentRound().getTrickOnTable().hasNotStarted() ->
+                IAmLeadPlayerRule(this).chooseCard()
             else -> when {
                 troefGevraagdEnDieHebIkNiet() ->
-                    IDontHaveLeadColorNorTrumpRule(this, brainDump).chooseCard()
+                    IDontHaveLeadColorNorTrumpRule(this).chooseCard()
 
                 troefGevraagdEnIkKanVolgen() ->
-                    IDoHaveLeadColorAndLeadColorIsTrumpRule(this, brainDump).chooseCard()
+                    IDoHaveLeadColorAndLeadColorIsTrumpRule(this).chooseCard()
 
                 kleurGevraagdEnDieHebIkNietEnKanNietTroeven() ->
-                    IDontHaveLeadColorNorTrumpRule(this, brainDump).chooseCard()
+                    IDontHaveLeadColorNorTrumpRule(this).chooseCard()
 
                 kleurGevraagdEnDieHebIkNietEnKanWelTroeven() ->
-                    IDontHaveLeadColorButDoHaveTrumpRule(this, brainDump).chooseCard()
+                    IDontHaveLeadColorButDoHaveTrumpRule(this).chooseCard()
 
                 kleurGevraagdEnDieHebIkWel() ->
-                    IDoHaveLeadColorAndLeadColorIsNotTrumpRule(this, brainDump).chooseCard()
+                    IDoHaveLeadColorAndLeadColorIsNotTrumpRule(this).chooseCard()
 
                 else ->
                     playFallbackCard("Fall back for main level 'follow player in trick'")

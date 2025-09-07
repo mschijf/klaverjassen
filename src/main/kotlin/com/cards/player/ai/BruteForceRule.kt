@@ -8,7 +8,7 @@ import com.cards.tools.CardCombinations
 import kotlin.math.max
 import kotlin.math.min
 
-class BruteForceRule(player: Player, brainDump: BrainDump): AbstractChooseCardRule(player, brainDump) {
+class BruteForceRule(player: Player): AbstractChooseCardRule(player) {
 
     private val fakeGroup = createFakeGroup()
     private val combiClass = CardCombinations()
@@ -16,9 +16,9 @@ class BruteForceRule(player: Player, brainDump: BrainDump): AbstractChooseCardRu
     override fun chooseCard(): Card {
         val combinations = getCombinations()
         val cardValueList = combinations.map { combination ->
-            fakeGroup.getPlayer(brainDump.p1).setCardsInHand(combination.first)
-            fakeGroup.getPlayer(brainDump.p2).setCardsInHand(combination.second)
-            fakeGroup.getPlayer(brainDump.p3).setCardsInHand(combination.third)
+            fakeGroup.getPlayer(p1).setCardsInHand(combination.first)
+            fakeGroup.getPlayer(p2).setCardsInHand(combination.second)
+            fakeGroup.getPlayer(p3).setCardsInHand(combination.third)
             val valuePerCard = tryCard()
 //            println("$combination    -->  %-3s %4d %-3s %4d ".format(valuePerCard[0].card, valuePerCard[0].value, valuePerCard[1].card, valuePerCard[1].value))
             valuePerCard
@@ -50,7 +50,7 @@ class BruteForceRule(player: Player, brainDump: BrainDump): AbstractChooseCardRu
         }
 
         val playerToMove = fakeGroup.getPlayer(sideToMove)
-        if (sideToMove == mySide || sideToMove == brainDump.partner) {
+        if (sideToMove == mySide || sideToMove == partner) {
             var best = Int.MIN_VALUE
             playerToMove.getLegalPlayableCards().forEach { card ->
                 playCard(playerToMove, card)
@@ -93,24 +93,24 @@ class BruteForceRule(player: Player, brainDump: BrainDump): AbstractChooseCardRu
         return PlayerGroup(
             listOf(
                 player,
-                Player(brainDump.p1, currentGame),
-                Player(brainDump.p2, currentGame),
-                Player(brainDump.p3, currentGame))
+                Player(p1, currentGame),
+                Player(p2, currentGame),
+                Player(p3, currentGame))
             )
     }
 
     private fun getCombinations(): List<Triple<List<Card>, List<Card>, List<Card>>> {
         return combiClass.getPossibleCardCombinations(
-            brainDump.player1.numberOfCardsInHand,
-            brainDump.player2.numberOfCardsInHand,
-            brainDump.player3.numberOfCardsInHand,
+            player1.numberOfCardsInHand,
+            player2.numberOfCardsInHand,
+            player3.numberOfCardsInHand,
 
-            brainDump.player1.canHave,
-            brainDump.player2.canHave,
-            brainDump.player3.canHave,
+            player1.canHave,
+            player2.canHave,
+            player3.canHave,
 
-            brainDump.player1.sureHas,
-            brainDump.player2.sureHas,
-            brainDump.player3.sureHas,)
+            player1.sureHas,
+            player2.sureHas,
+            player3.sureHas,)
     }
 }

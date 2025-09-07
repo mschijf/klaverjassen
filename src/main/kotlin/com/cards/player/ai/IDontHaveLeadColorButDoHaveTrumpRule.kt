@@ -22,7 +22,7 @@ anders
 
  */
 
-class IDontHaveLeadColorButDoHaveTrumpRule(player: GeniusPlayerKlaverjassen, brainDump: BrainDump): AbstractChooseCardFollowerRule(player, brainDump) {
+class IDontHaveLeadColorButDoHaveTrumpRule(player: GeniusPlayerKlaverjassen): AbstractChooseCardFollowerRule(player) {
 
 
     //------------------------------------------------------------------------------------------------------------------
@@ -31,17 +31,17 @@ class IDontHaveLeadColorButDoHaveTrumpRule(player: GeniusPlayerKlaverjassen, bra
         if (trumpJack in myLegalCards) {
             return if (trumpNine in myLegalCards) {
                 myLegalCards
-                    .filter{ trumpAce.beats(it, brainDump.trump)}
+                    .filter{ trumpAce.beats(it, trump)}
                     .maxByOrNull { it.cardValue() }
                     ?:trumpNine
             } else {
-                val highestAtOthers = brainDump.cardsInPlayOtherPlayers
+                val highestAtOthers = memory.cardsInPlayOtherPlayers
                     .filter { it.isTrump() }
                     .maxByOrNull { it.toRankNumberTrump() }
 
                 if (highestAtOthers != null) {
                     myLegalCards
-                        .filter { highestAtOthers.beats(it, brainDump.trump) }
+                        .filter { highestAtOthers.beats(it, trump) }
                         .maxByOrNull { it.cardValue() }
                         ?:myLegalCards
                             .filter { !it.
@@ -54,12 +54,12 @@ class IDontHaveLeadColorButDoHaveTrumpRule(player: GeniusPlayerKlaverjassen, bra
             }
         }
 
-        if (trumpJack in brainDump.cardsInPlayOtherPlayers) {
+        if (trumpJack in memory.cardsInPlayOtherPlayers) {
             if (trumpNine in myLegalCards) {
                 if (myLegalCards.size == 2)
                     return trumpNine
                 if (myLegalCards.size >= 3) //hoogste onder de nel
-                    return myLegalCards.filter{ trumpNine.beats(it, brainDump.trump)}.maxBy { it.cardValue() }
+                    return myLegalCards.filter{ trumpNine.beats(it, trump)}.maxBy { it.cardValue() }
             }
         }
 

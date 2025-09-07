@@ -63,8 +63,8 @@ KLEUR BIJLOPEN
 
 class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: GeniusPlayerKlaverjassen, brainDump: BrainDump): AbstractChooseCardFollowerRule(player, brainDump) {
 
-    private val leadColorAce = Card(currentTrick.getLeadColor()!!, CardRank.ACE)
-    private val leadColorTen = Card(currentTrick.getLeadColor()!!, CardRank.TEN)
+    private val leadColorAce = Card(leadColor, CardRank.ACE)
+    private val leadColorTen = Card(leadColor, CardRank.TEN)
 
     private fun Collection<Card>.hasAce() = this.contains(leadColorAce)
     private fun Collection<Card>.hasTen() = this.contains(leadColorTen)
@@ -79,22 +79,22 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: GeniusPlayerKlaverjasse
         if (weCannotWinThisTrick())
             return playWeCannotWinThisTrick()
 
-        if (currentTrick.getLeadColor()!!.playedForFirstTime()) {
-            if (currentTrick.getLeadColor()!!.iHaveHighest())
+        if (leadColor.playedForFirstTime()) {
+            if (leadColor.iHaveHighest())
                 return playColorForFirstTimeAndIHaveHighest()
 
-            if (currentTrick.getWinningSide()!!.isPartner() && currentTrick.getWinningCard()!!.isHigherThanAllInPlayIncludingMine())
+            if (winningSide.isPartner() && winningCard.isHigherThanAllInPlayIncludingMine())
                 playColorForFirstTimeAndPartnerHasHighestAndIHaveNotHigher()
 
-            if (currentTrick.getWinningCard()!! != currentTrick.getLeadColor()!!.highestInPlayOrOnTable())
+            if (winningCard != leadColor.highestInPlayOrOnTable())
                 return playColorForFirstTimeAndIDoNotHaveHighestAndIHighestStillInPlay()
         }
 
-        if (currentTrick.getLeadColor()!!.playedForSecondTime())
-            if (currentTrick.getLeadColor()!!.iHaveHighest())
+        if (leadColor.playedForSecondTime())
+            if (leadColor.iHaveHighest())
                 return playColorSecondTimeAndIHaveHighest()
 
-        if (currentTrick.getWinningSide()!!.isPartner() && myLegalCards.all{it.isVrij()})
+        if (winningSide.isPartner() && myLegalCards.all{it.isVrij()})
             playNoMoreOfColorAndPartnerIsWinning()
 
         return playFallbackCard()
@@ -121,8 +121,8 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: GeniusPlayerKlaverjasse
 //    ==> als 3 kaarten in hand en maat is gekomen, dan gooi aas
 //    ==> vbd trick 7,v   zelf:8,a  dan toch aas niet duiken, zelfs bij allereerste slag, vooral als maat is gekomen.
 
-        val myHighest = currentTrick.getLeadColor()!!.myHighest()!!
-        val duikenOptie = currentTrick.getLeadColor()!!.playedForFirstTime()
+        val myHighest = leadColor.myHighest()!!
+        val duikenOptie = leadColor.playedForFirstTime()
                 && myLegalCards.hasAce()
                 && (brainDump.player1.allAssumeCards.hasTen() || brainDump.player3.allAssumeCards.hasTen())
 
@@ -137,7 +137,7 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: GeniusPlayerKlaverjasse
             }
             if (myLegalCards.size >= 3)
                 return myHighest
-            if (currentTrick.getLeadColor()!!.playedBefore())
+            if (leadColor.playedBefore())
                 return myHighest
             return (myLegalCards - myHighest).first()
         }
@@ -154,7 +154,7 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: GeniusPlayerKlaverjasse
         }
 
         if (myLegalCards.size >= 4)
-            return currentTrick.getLeadColor()!!.myHighest()!!
+            return leadColor.myHighest()!!
 
         return playFallbackCard()
     }
@@ -176,7 +176,7 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: GeniusPlayerKlaverjasse
 
         val playSafe = true
 
-        if (!currentTrick.getLeadColor()!!.highestInPlayOrOnTable()!!.isAce()) {
+        if (!leadColor.highestInPlayOrOnTable()!!.isAce()) {
             return myLegalCards.minBy { card ->
                 2 * card.cardValue() +
                         roemSureThisTrickByCandidate(card) +
@@ -220,10 +220,10 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: GeniusPlayerKlaverjasse
 //                        vrij zeker dat 10 bij voorloper is (niet in de achterhand)
 //                                       de rule hiervoor is: voorloper is eerder met deze kleur uitgekomen.
 
-        val myHighest = currentTrick.getLeadColor()!!.myHighest()!!
+        val myHighest = leadColor.myHighest()!!
 
         if (brainDump.iAmSecondPlayer || brainDump.iAmThirdPlayer ) {
-            if (brainDump.player1.hasColorProbabilityPercentage(currentTrick.getLeadColor()!!) > 0.49) { //kans dat volgende speler meeloopt is groot
+            if (brainDump.player1.hasColorProbabilityPercentage(leadColor) > 0.49) { //kans dat volgende speler meeloopt is groot
                 var highestRoemCandidate: Card? = null
                 var mostRoem = 0
 
@@ -313,10 +313,9 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: GeniusPlayerKlaverjasse
     //------------------------------------------------------------------------------------------------------------------
 
     private fun weCannotWinThisTrick(): Boolean {
-        if (!currentTrick.getWinningSide()!!.isOtherParty())
+        if (!winningSide.isOtherParty())
             return false
 
-        val winningCard = currentTrick.getWinningCard()!!
         return if (brainDump.iAmThirdPlayer || brainDump.iAmFourthPlayer) {
             myLegalCards.none { it.beats(winningCard, brainDump.trump) }
         } else {
@@ -348,31 +347,31 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: GeniusPlayerKlaverjasse
                 return true
             }
             brainDump.iAmThirdPlayer ->
-                if (currentTrick.getWinningSide()!!.isOtherParty()) {
-                    if (card.beats(currentTrick.getWinningCard()!!, brainDump.trump)) {
+                if (winningSide.isOtherParty()) {
+                    if (card.beats(winningCard, brainDump.trump)) {
                         if (brainDump.player3.allAssumeCards.legalPlayable(currentTrick, brainDump.trump).none { it.beats(card, brainDump.trump) })
                             return false
                     }
                     return true
                 } else {
-                    val highestTrickCard = if (card.beats(currentTrick.getWinningCard()!!, brainDump.trump)) card else currentTrick.getWinningCard()!!
+                    val highestTrickCard = if (card.beats(winningCard, brainDump.trump)) card else winningCard
                     if (brainDump.player3.allAssumeCards.legalPlayable(currentTrick, brainDump.trump).none { it.beats(highestTrickCard, brainDump.trump) })
                         return false
                     return true
                 }
 
             brainDump.iAmFourthPlayer ->
-                return currentTrick.getWinningSide()!!.isOtherParty() &&
-                        !card.beats(currentTrick.getWinningCard()!!, brainDump.trump)
+                return winningSide.isOtherParty() &&
+                        !card.beats(winningCard, brainDump.trump)
             else ->
                 throw Exception("Not Possible")
         }
     }
 
     private fun Card.weWinThisTrickIfIPlayCardAsFourthPlayer(): Boolean {
-        if (currentTrick.getWinningSide()!!.isPartner())
+        if (winningSide.isPartner())
             return true
-        if (currentTrick.getWinningCard()!!.isTrump())
+        if (winningCard.isTrump())
             return false
         return currentTrick.getCardsPlayed().none{it.beats(this, brainDump.trump)}
     }

@@ -17,8 +17,9 @@ abstract class AbstractChooseCardRule(protected val player: Player,
     val mySide = player.tableSide
     val myLegalCardsByColor = myLegalCards.groupBy { it.color }
 
-    val currentRound = player.game.getCurrentRound()
-    val currentTrick = currentRound.getTrickOnTable()
+    protected val currentGame = player.game
+    protected val currentRound = currentGame.getCurrentRound()
+    protected val currentTrick = currentRound.getTrickOnTable()
 
     private val colorPlayed = brainDump.cardsPlayed.groupingBy { it.color }.eachCount()
     protected fun CardColor.colorPlayedCount() = colorPlayed[this]?:0

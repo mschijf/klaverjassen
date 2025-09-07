@@ -27,7 +27,7 @@ class GeniusPlayerKlaverjassen(
 
         val brainDump = analyzer.refreshAnalysis()
         if (getNumberOfCardsInHand() <= 2)
-            return BruteForce(this, brainDump).mostValuableCardToPlay()
+            return BruteForceRule(this, brainDump).chooseCard()
 
         return when {
             brainDump.iAmFirstPlayer -> IAmLeadPlayerRule(this, brainDump).chooseCard()

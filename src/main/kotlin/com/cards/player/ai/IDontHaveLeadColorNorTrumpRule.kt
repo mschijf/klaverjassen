@@ -48,7 +48,7 @@ import com.cards.game.klaverjassen.beats
 class IDontHaveLeadColorNorTrumpRule(player: GeniusPlayerKlaverjassen, brainDump: BrainDump): AbstractChooseCardFollowerRule(player, brainDump) {
 
     override fun chooseCard(): Card {
-        if (currentTrick.getWinningSide()!!.isPartner()){
+        if (winningSide.isPartner()){
             if (partnerWillWinThisTrick()) {
                 if (brainDump.theyOwnContract) {
                     return slagAanMaatEnAnderePartijGaatEnZekerWetenDatSlagAanMaatBlijft()
@@ -68,15 +68,15 @@ class IDontHaveLeadColorNorTrumpRule(player: GeniusPlayerKlaverjassen, brainDump
         }
     }
 
-    private fun weCannotWinThisTrick() = currentTrick.getWinningSide()!!.isOtherParty() && (brainDump.iAmThirdPlayer || brainDump.iAmFourthPlayer)
+    private fun weCannotWinThisTrick() = winningSide.isOtherParty() && (brainDump.iAmThirdPlayer || brainDump.iAmFourthPlayer)
 
     private fun partnerWillWinThisTrick() =
-        currentTrick.getWinningSide()!!.isPartner() &&
+        winningSide.isPartner() &&
                 when {
                     brainDump.iAmSecondPlayer ->
                         throw Exception("i am second player and partner has winning card is not possible")
                     brainDump.iAmThirdPlayer ->
-                        brainDump.player1.legalCards.none { it.beats(currentTrick.getWinningCard()!!, brainDump.trump) }
+                        brainDump.player1.legalCards.none { it.beats(winningCard, brainDump.trump) }
                     brainDump.iAmFourthPlayer ->
                         true
                     else ->

@@ -14,9 +14,9 @@ class BruteForceTest {
         val analyzer = KlaverjassenAnalyzer(player)
         val analysis = analyzer.refreshAnalysis()
 
-        val bf = BruteForce(player, analysis)
+        val bf = BruteForceRule(player, analysis)
 
-        println( bf.mostValuableCardToPlay())
+        println( bf.chooseCard())
     }
 
     @Test
@@ -25,9 +25,9 @@ class BruteForceTest {
         val analyzer = KlaverjassenAnalyzer(player)
         val analysis = analyzer.refreshAnalysis()
 
-        val bf = BruteForce(player, analysis)
+        val bf = BruteForceRule(player, analysis)
 
-        println( bf.mostValuableCardToPlay())
+        println( bf.chooseCard())
 
     }
 

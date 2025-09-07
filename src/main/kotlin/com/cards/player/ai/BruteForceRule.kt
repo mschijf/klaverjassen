@@ -8,15 +8,12 @@ import com.cards.tools.CardCombinations
 import kotlin.math.max
 import kotlin.math.min
 
-class BruteForce(
-    val playerForWhichWeAnalyze: GeniusPlayerKlaverjassen,
-    val brainDump: BrainDump) {
+class BruteForceRule(player: Player, brainDump: BrainDump): AbstractChooseCardRule(player, brainDump) {
 
-    private val game = playerForWhichWeAnalyze.game
     private val fakeGroup = createFakeGroup()
     private val combiClass = CardCombinations()
 
-    fun mostValuableCardToPlay(): Card {
+    override fun chooseCard(): Card {
         val combinations = getCombinations()
         val cardValueList = combinations.map { combination ->
             fakeGroup.getPlayer(brainDump.p1).setCardsInHand(combination.first)
@@ -26,35 +23,34 @@ class BruteForce(
 //            println("$combination    -->  %-3s %4d %-3s %4d ".format(valuePerCard[0].card, valuePerCard[0].value, valuePerCard[1].card, valuePerCard[1].value))
             valuePerCard
         }
-        val totalCardValue = playerForWhichWeAnalyze.getCardsInHand().map{card -> card to cardValueList.flatten().filter { it.card == card }.sumOf { it.value }}
+        val totalCardValue = myLegalCards.map{card -> card to cardValueList.flatten().filter { it.card == card }.sumOf { it.value }}
         return totalCardValue.maxBy { it.second }.first
 
         // todo: find out best analytical card playing choice
         //keuze: welke kaart is meeste keren winnaar?
         //       welke kaart levert als som de meeste punten op ('=average')
         //       wat is de modus ('=modus')
-
     }
 
     private fun tryCard(): List<CardValue> {
         val result = mutableListOf<CardValue>()
-        playerForWhichWeAnalyze.getCardsInHand().forEach { card ->
-            playCard(playerForWhichWeAnalyze, card)
+        myLegalCards.forEach { card ->
+            playCard(player, card)
             val value = tryRestOfGame(Int.MIN_VALUE, Int.MAX_VALUE)
-            takeCardBack(playerForWhichWeAnalyze, card)
+            takeCardBack(player, card)
             result.add(CardValue(card, value))
         }
         return result
     }
 
     private fun tryRestOfGame(alfa: Int, beta: Int): Int {
-        val sideToMove = game.getSideToMove()
-        if (game.getCurrentRound().isComplete()) {
-            return game.getCurrentRound().getScore().getDeltaForPlayer(tableSide = playerForWhichWeAnalyze.tableSide)
+        val sideToMove = currentGame.getSideToMove()
+        if (currentRound.isComplete()) {
+            return currentRound.getScore().getDeltaForPlayer(tableSide = mySide)
         }
 
         val playerToMove = fakeGroup.getPlayer(sideToMove)
-        if (sideToMove == playerForWhichWeAnalyze.tableSide || sideToMove == brainDump.partner) {
+        if (sideToMove == mySide || sideToMove == brainDump.partner) {
             var best = Int.MIN_VALUE
             playerToMove.getLegalPlayableCards().forEach { card ->
                 playCard(playerToMove, card)
@@ -84,11 +80,11 @@ class BruteForce(
 
     private fun playCard(player: Player, card: Card): GameStatus {
         player.removeCard(card)
-        return game.playCard(card)
+        return currentGame.playCard(card)
     }
 
     private fun takeCardBack(player: Player, card: Card) {
-        game.takeLastCardBack()
+        currentGame.takeLastCardBack()
         player.addCard(card)
     }
 
@@ -96,10 +92,10 @@ class BruteForce(
 
         return PlayerGroup(
             listOf(
-                playerForWhichWeAnalyze,
-                Player(brainDump.p1, game),
-                Player(brainDump.p2, game),
-                Player(brainDump.p3, game))
+                player,
+                Player(brainDump.p1, currentGame),
+                Player(brainDump.p2, currentGame),
+                Player(brainDump.p3, currentGame))
             )
     }
 

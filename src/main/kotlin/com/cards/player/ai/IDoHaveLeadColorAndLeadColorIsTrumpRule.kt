@@ -38,7 +38,7 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: GeniusPlayerKlaverjassen, 
     override fun chooseCard(): Card {
         if (brainDump.contractOwner.isOtherParty() && currentTrick.getSideToLead().isContractOwner() && brainDump.trump.playedBefore()  ) {
             val myHighest = myLegalCards.highestTrumpCard()!!
-            if (myHighest.isHigherThanOtherInPlay() && myHighest.beats(currentTrick.getWinningCard()!!, brainDump.trump)) {
+            if (myHighest.isHigherThanOtherInPlay() && myHighest.beats(winningCard, brainDump.trump)) {
                 val secondHighest = (myLegalCards-myHighest).highestTrumpCard()!!
                 if (brainDump.cardsInPlayOtherPlayers.count { it.color.isTrump() && it.beats(secondHighest, brainDump.trump)} == 1) {
                     return secondHighest
@@ -59,7 +59,7 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: GeniusPlayerKlaverjassen, 
         }
 
 
-        if (currentTrick.getWinningSide()!!.isOtherParty() && currentTrick.getWinningCard()!!.isJack()) {
+        if (winningSide.isOtherParty() && winningCard.isJack()) {
             return if (trumpNine !in myLegalCards) {
                 myLegalCards.minBy { card ->
                     2 * card.cardValue() +
@@ -78,7 +78,7 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: GeniusPlayerKlaverjassen, 
             }
         }
 
-        if (currentTrick.getWinningSide()!!.isOtherParty() && weCannotWinThisTrick()) {
+        if (winningSide.isOtherParty() && weCannotWinThisTrick()) {
             val myHighest = myLegalCards.highestTrumpCard()!!
             val chooseFrom = if (myHighest.beats(brainDump.cardsInPlayOtherPlayers.highestTrumpCard(), brainDump.trump)) {
                 if (keepCardInHandToPreventPit(trumpNine)) myLegalCards-myHighest else myLegalCards
@@ -104,10 +104,9 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: GeniusPlayerKlaverjassen, 
     }
 
     private fun weCannotWinThisTrick(): Boolean {
-        if (!currentTrick.getWinningSide()!!.isOtherParty())
+        if (!winningSide.isOtherParty())
             return false
 
-        val winningCard = currentTrick.getWinningCard()!!
         return if (brainDump.iAmThirdPlayer || brainDump.iAmFourthPlayer) {
             myLegalCards.none { it.beats(winningCard, brainDump.trump) }
         } else {

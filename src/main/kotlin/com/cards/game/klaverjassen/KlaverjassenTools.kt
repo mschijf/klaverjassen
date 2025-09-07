@@ -39,6 +39,12 @@ fun Card.cardValue(trump: CardColor): Int {
     }
 }
 
+fun Card.toRankNumber (trumpColor: CardColor) =
+    if (this.color == trumpColor)
+        this.toRankNumberTrump()
+    else
+        this.toRankNumberNoTrump()
+
 fun Card.toRankNumberNoTrump () : Int {
     return when(this.rank) {
         CardRank.ACE -> 111

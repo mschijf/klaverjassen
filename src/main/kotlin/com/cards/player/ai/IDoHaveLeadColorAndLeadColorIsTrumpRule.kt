@@ -9,7 +9,7 @@ import com.cards.game.klaverjassen.toRankNumberTrump
 
 TROEF BIJLOPEN
 ==============
-*** troef bijlopen, slag (blijft) aan andere partij:
+*** slag (blijft) aan andere partij:
        ==> zo laag mogelijk, liever geen roem.
                              hoogste vasthouden, tenzij veel roem (>= 50),
                                                  tenzij hele slechte kaart (geen azen, aantal troef <= 2 en nog geen troef gespeeld, anders dan in de trick)
@@ -31,12 +31,12 @@ TROEF BIJLOPEN
 
  */
 
-class TroefGevraagdEnIkKanVolgenRule(player: GeniusPlayerKlaverjassen, brainDump: BrainDump): AbstractPlayerRules(player, brainDump) {
+class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: GeniusPlayerKlaverjassen, brainDump: BrainDump): AbstractChooseCardFollowerRule(player, brainDump) {
 
     //------------------------------------------------------------------------------------------------------------------
 
     override fun chooseCard(): Card {
-        if (brainDump.contractOwner.isOtherParty() && currentTrick.getSideToLead().isContractOwner() && (brainDump.allCardsInPlay + currentTrick.getCardsPlayed()).count{ it.isTrump() } <= 5  ) {
+        if (brainDump.contractOwner.isOtherParty() && currentTrick.getSideToLead().isContractOwner() && brainDump.trump.playedBefore()  ) {
             val myHighest = myLegalCards.highestTrumpCard()!!
             if (myHighest.isHigherThanOtherInPlay() && myHighest.beats(currentTrick.getWinningCard()!!, brainDump.trump)) {
                 val secondHighest = (myLegalCards-myHighest).highestTrumpCard()!!

@@ -1,51 +1,55 @@
 package com.cards.player.ai
 
 import com.cards.game.card.Card
+import com.cards.game.card.CardColor
+import com.cards.game.card.CardRank
+import com.cards.game.klaverjassen.beats
+import com.cards.game.klaverjassen.legalPlayable
 
 /*
 
 KLEUR BIJLOPEN
 ==============
-kleur bijlopen, maar slag is (en blijft) aan tegenstander (bijv hoogste van kleur uitgekomen. kans op troeven door maat is nihil
-  ==> gooi laagste van kleur op die huidige kans op roem zo klein mogelijk maakt
-  ==> vbd a, h, b in trick, zelf: v,10 :: beide kaarten zijn na afloop van trick de hoogste. v veel roem, 10 geen roem, dus 10
-  ==> vbd trick is 7,10  zelf: 9,b ==> dan b, want 9 heeft kans op 50 en b kans op max 20
+*** slag is (en blijft) aan tegenstander (bijv hoogste van kleur uitgekomen. kans op troeven door maat is nihil
+      ==> gooi laagste van kleur op die huidige kans op roem zo klein mogelijk maakt
+      ==> vbd a, h, b in trick, zelf: v,10 :: beide kaarten zijn na afloop van trick de hoogste. v veel roem, 10 geen roem, dus 10
+      ==> vbd trick is 7,10  zelf: 9,b ==> dan b, want 9 heeft kans op 50 en b kans op max 20
 
-kleur bijlopen, maar heb de hoogste van kleur en kleur nog niet gespeeld
-  ==> kans op een tweede troefloze (door tegenstander) ronde aanwezig en 10 nog in spel, dan overweeg duiken
-  ==> tenzij met duiken kans op roem naar tegenstander groot.
-  ==> als 3 kaarten in hand en maat is gekomen, dan gooi aas
-  ==> vbd trick 7,v   zelf:8,a  dan toch aas niet duiken, zelfs bij allereerste slag, vooral als maat is gekomen.
+*** heb de hoogste van kleur en kleur nog niet gespeeld
+      ==> kans op een tweede troefloze (door tegenstander) ronde aanwezig en 10 nog in spel, dan overweeg duiken
+      ==> tenzij met duiken kans op roem naar tegenstander groot.
+      ==> als 3 kaarten in hand en maat is gekomen, dan gooi aas
+      ==> vbd trick 7,v   zelf:8,a  dan toch aas niet duiken, zelfs bij allereerste slag, vooral als maat is gekomen.
 
-kleur bijlopen, maar heb de hoogste van kleur en kleur is wel al gespeeld
-   ==> hoogste kans op roem doen, hoogste kaart, tenzij kans op troeven
-   ==> als kan op nog een keer duiken zou lonen, dan nog een keer duiken
-          voorwaarde: geen troeven meer.
-          vrij zeker dat 10 bij voorloper is (niet in de achterhand)
-              de rule hiervoor is: voorloper is eerder met deze kleur uitgekomen.
+*** heb de hoogste van kleur en kleur is wel al gespeeld
+       ==> hoogste kans op roem doen, hoogste kaart, tenzij kans op troeven
+       ==> als kan op nog een keer duiken zou lonen, dan nog een keer duiken
+              voorwaarde: geen troeven meer.
+              vrij zeker dat 10 bij voorloper is (niet in de achterhand)
+                  de rule hiervoor is: voorloper is eerder met deze kleur uitgekomen.
 
-kleur bijlopen, laatste speler, heb 10, en aas er nog in
-  ==> gooi 10
+*** laatste speler, heb 10, en aas er nog in
+     ==> gooi 10 (beter: gooi kaart die hooste trickwaarde oplevert)
 
- eerste ronde van de kleur, en a, 10 nog niet gegooid en zelf geen A,10 en onduidelijk waar a is
- vbd trick is v :: zelf h,9,8 ==> speel op safe: ontwijk roem (dus 8), speel risky: op de roem (dus h)
-                              ==> complexer: weet je dat je nat gaat,dan ontwijken, als enige kans op niet nat, dan doen
-                              ==> ook: als maat gaan, voorzichtiger zijn.
- vbd trick is b :: 7,8        ==>  maakt niet veel uit. 8 geeft kleine kans op nu roem, maar toekomstige kans op roem is nul door eigen kaart
-                                                        7 geeft geen kans op roem (door eigen toedoen), maar wel toekomstige kans op roem
-                                                        ik zou nu kiezen voor de 8
+ *** eerste ronde van de kleur, en a, 10 nog niet gegooid en zelf geen A,10 en onduidelijk waar a is
+     vbd trick is v :: zelf h,9,8 ==> speel op safe: ontwijk roem (dus 8), speel risky: op de roem (dus h)
+                                  ==> complexer: weet je dat je nat gaat,dan ontwijken, als enige kans op niet nat, dan doen
+                                  ==> ook: als maat gaan, voorzichtiger zijn.
+     vbd trick is b :: 7,8        ==>  maakt niet veel uit. 8 geeft kleine kans op nu roem, maar toekomstige kans op roem is nul door eigen kaart
+                                                            7 geeft geen kans op roem (door eigen toedoen), maar wel toekomstige kans op roem
+                                                            ik zou nu kiezen voor de 8
 
- eerste ronde van de kleur, en a, 10 nog niet gegooid heb zelf geen A, maar wel 10 en onduidelijk waar a is
- zo laag mogelijk, ontwijk roem.
- vbd: trick is h, zelf 10,v ==> toch de v
+ *** eerste ronde van de kleur, en a, 10 nog niet gegooid heb zelf geen A, maar wel 10 en onduidelijk waar a is
+     zo laag mogelijk, ontwijk roem.
+     vbd: trick is h, zelf 10,v ==> toch de v
 
- kleur bijlopen, slag aan maat, naast jouw kaarten alles van die kleur gespeeld:
- ==> gooi hoogste vd kleur, zoveel mogelijk roem
+*** slag aan maat, naast jouw kaarten alles van die kleur gespeeld:
+     ==> gooi hoogste vd kleur, zoveel mogelijk roem
 
-kleur bijlopen, slag aan maat, en blijft aan maat, eerste ronde van die kleur
- ==> gooi hoogste van de kleur, zeker als je daarna de hoogste nog over houdt
- ==> maak kans op roem in huidge trick zo grot mogelijk.
- vbd: trick: a,9    zelf 10,v,h ==> gooi 10 (en hoogste kaart en hoogste roem mogelijkheid)
+*** slag aan maat, en blijft aan maat, eerste ronde van die kleur
+    ==> gooi hoogste van de kleur, zeker als je daarna de hoogste nog over houdt
+    ==> maak kans op roem in huidge trick zo groot mogelijk.
+        vbd: trick: a,9    zelf 10,v,h ==> gooi 10 (en hoogste kaart en hoogste roem mogelijkheid)
 
 
 
@@ -57,14 +61,319 @@ kleur bijlopen, slag aan maat, en blijft aan maat, eerste ronde van die kleur
 
  */
 
-class IkHebWelLeadColorEnDatIsGeenTroefRule(player: GeniusPlayerKlaverjassen, brainDump: BrainDump): AbstractPlayerRules(player, brainDump) {
+class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: GeniusPlayerKlaverjassen, brainDump: BrainDump): AbstractChooseCardFollowerRule(player, brainDump) {
 
+    private val leadColorAce = Card(currentTrick.getLeadColor()!!, CardRank.ACE)
+    private val leadColorTen = Card(currentTrick.getLeadColor()!!, CardRank.TEN)
+
+    private fun Collection<Card>.hasAce() = this.contains(leadColorAce)
+    private fun Collection<Card>.hasTen() = this.contains(leadColorTen)
 
     //------------------------------------------------------------------------------------------------------------------
 
     override fun chooseCard(): Card {
+        if (brainDump.iAmFourthPlayer) {
+            return playFourthPLayer()
+        }
+
+        if (weCannotWinThisTrick())
+            return playWeCannotWinThisTrick()
+
+        if (currentTrick.getLeadColor()!!.playedForFirstTime()) {
+            if (currentTrick.getLeadColor()!!.iHaveHighest())
+                return playColorForFirstTimeAndIHaveHighest()
+
+            if (currentTrick.getWinningSide()!!.isPartner() && currentTrick.getWinningCard()!!.isHigherThanAllInPlayIncludingMine())
+                playColorForFirstTimeAndPartnerHasHighestAndIHaveNotHigher()
+
+            if (currentTrick.getWinningCard()!! != currentTrick.getLeadColor()!!.highestInPlayOrOnTable())
+                return playColorForFirstTimeAndIDoNotHaveHighestAndIHighestStillInPlay()
+        }
+
+        if (currentTrick.getLeadColor()!!.playedForSecondTime())
+            if (currentTrick.getLeadColor()!!.iHaveHighest())
+                return playColorSecondTimeAndIHaveHighest()
+
+        if (currentTrick.getWinningSide()!!.isPartner() && myLegalCards.all{it.isVrij()})
+            playNoMoreOfColorAndPartnerIsWinning()
+
         return playFallbackCard()
     }
 
     //------------------------------------------------------------------------------------------------------------------
+
+    private fun playWeCannotWinThisTrick(): Card {
+//            ==> gooi laagste van kleur op die huidige kans op roem zo klein mogelijk maakt
+//            ==> vbd a, h, b in trick, zelf: v,10 :: beide kaarten zijn na afloop van trick de hoogste. v veel roem, 10 geen roem, dus 10
+//            ==> vbd trick is 7,10  zelf: 9,b ==> dan b, want 9 heeft kans op 50 en b kans op max 20
+        return myLegalCards.minBy { card ->
+            2 * card.cardValue() +
+                    roemSureThisTrickByCandidate(card) +
+                    roemPossibleThisTrickByCandidate(card)/2 +
+                    (if (isRoemPossibleNextTrick(card)) 5 else 0)
+        }
+    }
+
+    //todo: check this routine:: combinatie van weCanLoose en roemSure kan verkeerd uitvallen
+    private fun playColorForFirstTimeAndIHaveHighest(): Card {
+//    ==> kans op een tweede troefloze (door tegenstander) ronde aanwezig en 10 nog in spel, dan overweeg duiken
+//                         tenzij met duiken kans op roem naar tegenstander groot.
+//    ==> als 3 kaarten in hand en maat is gekomen, dan gooi aas
+//    ==> vbd trick 7,v   zelf:8,a  dan toch aas niet duiken, zelfs bij allereerste slag, vooral als maat is gekomen.
+
+        val myHighest = currentTrick.getLeadColor()!!.myHighest()!!
+        val duikenOptie = currentTrick.getLeadColor()!!.playedForFirstTime()
+                && myLegalCards.hasAce()
+                && (brainDump.player1.allAssumeCards.hasTen() || brainDump.player3.allAssumeCards.hasTen())
+
+        if (currentTrick.getSideToLead().isPartner() ) {
+            if ((myLegalCards - myHighest).none { weCanLooseThisTrickIfIPlayCard(it) }) {
+                val best = myLegalCards.maxBy { roemSureThisTrickByCandidate(it) }
+                if (roemSureThisTrickByCandidate(best) > 0)
+                    return best
+                val best2 = myLegalCards.maxBy { roemPossibleThisTrickByCandidate(it) }
+                if (roemSureThisTrickByCandidate(best2) > 0)
+                    return best2
+            }
+            if (myLegalCards.size >= 3)
+                return myHighest
+            if (currentTrick.getLeadColor()!!.playedBefore())
+                return myHighest
+            return (myLegalCards - myHighest).first()
+        }
+
+        if (myLegalCards.size == 2) {
+            val otherCard = (myLegalCards - myHighest).first()
+            if (otherCard.isKing() && duikenOptie)
+                return otherCard
+            if (roemPossibleThisTrickByCandidate(otherCard) > 0 && weCanLooseThisTrickIfIPlayCard(otherCard))
+                return myHighest
+            if (duikenOptie)
+                return otherCard
+            return myHighest
+        }
+
+        if (myLegalCards.size >= 4)
+            return currentTrick.getLeadColor()!!.myHighest()!!
+
+        return playFallbackCard()
+    }
+
+    //todo: meer kijken naar de mogelijkheden met wel of niet roem ontwijken
+    //      H of B bij V leggen is meer kans op roem dan 9 bij V leggen
+    private fun playColorForFirstTimeAndIDoNotHaveHighestAndIHighestStillInPlay(): Card {
+//    eerste ronde van de kleur, en a, 10 nog niet gegooid en zelf geen A,10 en onduidelijk waar a is
+//       vbd trick is v :: zelf h,9,8 ==> speel op safe: ontwijk roem (dus 8), speel risky: op de roem (dus h)
+//       ==> complexer: weet je dat je nat gaat,dan ontwijken, als enige kans op niet nat, dan doen
+//       ==> ook: als maat gaan, voorzichtiger zijn.
+//       vbd trick is b :: 7,8        ==>  maakt niet veel uit. 8 geeft kleine kans op nu roem, maar toekomstige kans op roem is nul door eigen kaart
+//       7 geeft geen kans op roem (door eigen toedoen), maar wel toekomstige kans op roem
+//       ik zou nu kiezen voor de 8
+//
+//    eerste ronde van de kleur, en a, 10 nog niet gegooid heb zelf geen A, maar wel 10 en onduidelijk waar a is
+//    zo laag mogelijk, ontwijk roem.
+//    vbd: trick is h, zelf 10,v ==> toch de v
+
+        val playSafe = true
+
+        if (!currentTrick.getLeadColor()!!.highestInPlayOrOnTable()!!.isAce()) {
+            return myLegalCards.minBy { card ->
+                2 * card.cardValue() +
+                        roemSureThisTrickByCandidate(card) +
+                        roemPossibleThisTrickByCandidate(card)/2 +
+                        (if (isRoemPossibleNextTrick(card)) 5 else 0)
+            }
+        }
+
+        if (myLegalCards.hasTen()) {
+            return myLegalCards.minBy { card ->
+                2 * card.cardValue() +
+                        roemSureThisTrickByCandidate(card) +
+                        roemPossibleThisTrickByCandidate(card)/2 +
+                        (if (isRoemPossibleNextTrick(card)) 5 else 0)
+            }
+        }
+
+        if (playSafe) {
+            return myLegalCards.minBy { card ->
+                2 * card.cardValue() +
+                        roemSureThisTrickByCandidate(card) +
+                        roemPossibleThisTrickByCandidate(card)/2 +
+                        (if (isRoemPossibleNextTrick(card)) 5 else 0)
+            }
+        } else {
+            return myLegalCards.maxBy { card ->
+                2 * card.cardValue() +
+                        roemSureThisTrickByCandidate(card) +
+                        roemPossibleThisTrickByCandidate(card)/2 +
+                        (if (isRoemPossibleNextTrick(card)) 5 else 0)
+            }
+        }
+    }
+
+
+    private fun playColorSecondTimeAndIHaveHighest(): Card {
+//        kleur bijlopen, maar heb de hoogste van kleur en kleur is wel al gespeeld
+//        ==> hoogste kans op roem doen, hoogste kaart, tenzij kans op troeven
+//        ==> als kans op nog een keer duiken zou lonen, dan nog een keer duiken
+//            voorwaarde: geen troeven meer.
+//                        vrij zeker dat 10 bij voorloper is (niet in de achterhand)
+//                                       de rule hiervoor is: voorloper is eerder met deze kleur uitgekomen.
+
+        val myHighest = currentTrick.getLeadColor()!!.myHighest()!!
+
+        if (brainDump.iAmSecondPlayer || brainDump.iAmThirdPlayer ) {
+            var highestRoemCandidate: Card? = null
+            var mostRoem = 0
+            if (brainDump.player1.hasColorProbabilityPercentage(currentTrick.getLeadColor()!!) > 0.49) { //kans dat volgende speler meeloopt is groot
+                myLegalCards.forEach { candidate ->
+                    val roemPossible = roemPossibleThisTrickByCandidate(candidate)
+                    if (roemPossible > mostRoem && !weCanLooseThisTrickIfIPlayCard(candidate)) {
+                        highestRoemCandidate = candidate
+                        mostRoem = roemPossible
+                    }
+                }
+                if (highestRoemCandidate != null)
+                    return highestRoemCandidate!!
+
+                //todo: overweeg nog een keer duiken (alleen als secondPLayer)
+                return myHighest
+            } else if (brainDump.player1.hasColorProbabilityPercentage(brainDump.trump) > 0.32) { //kans op introven te groot
+                return myLegalCards.minBy { card ->
+                    2 * card.cardValue() + roemPossibleThisTrickByCandidate(card)/2
+                }
+            } else { //kans  op introeven klein
+                //todo: overweeg nog een keer duiken (alleen als secondPLayer)
+                return myLegalCards.maxBy { card ->
+                    2 * card.cardValue() + roemPossibleThisTrickByCandidate(card)/2
+                }
+            }
+        }
+
+        return myLegalCards.maxBy { card ->
+            2 * card.cardValue() + roemSureThisTrickByCandidate(card)
+        }
+    }
+
+    private fun playFourthPLayer(): Card {
+        return myLegalCards.maxBy { card ->
+            if (card.weWinThisTrickIfIPlayCardAsFourthPlayer())
+                2 * card.cardValue() + roemSureThisTrickByCandidate(card)
+            else
+                -1 * (2 * card.cardValue() + roemSureThisTrickByCandidate(card))
+
+        }
+    }
+
+    private fun playColorForFirstTimeAndPartnerHasHighestAndIHaveNotHigher(): Card {
+//        slag aan maat, en blijft aan maat, eerste ronde van die kleur
+//            ==> gooi hoogste van de kleur, zeker als je daarna de hoogste nog over houdt
+//            ==> maak kans op roem in huidige trick zo groot mogelijk.
+//            vbd: trick: a,9    zelf 10,v,h ==> gooi 10 (en hoogste kaart en hoogste roem mogelijkheid)
+
+        return myLegalCards.maxBy { card ->
+            2 * card.cardValue() +
+                    roemSureThisTrickByCandidate(card) +
+                    roemPossibleThisTrickByCandidate(card)/2 +
+                    (if (isRoemPossibleNextTrick(card)) 5 else 0)
+        }
+    }
+
+    private fun playNoMoreOfColorAndPartnerIsWinning(): Card {
+//        slag aan maat, naast jouw kaarten alles van die kleur gespeeld:
+//        ==> gooi hoogste vd kleur, zoveel mogelijk roem
+//        (maar check of er nog troef kan komen)
+
+        if (brainDump.iAmFourthPlayer)
+            return myLegalCards.maxBy { card ->
+                2 * card.cardValue() +
+                        roemSureThisTrickByCandidate(card) +
+                        roemPossibleThisTrickByCandidate(card)/2 +
+                        (if (isRoemPossibleNextTrick(card)) 5 else 0)
+            }
+
+        if (brainDump.player1.allAssumeCards.any { it.color == brainDump.trump })
+            return myLegalCards.minBy { card ->
+                2 * card.cardValue() +
+                        roemSureThisTrickByCandidate(card) +
+                        roemPossibleThisTrickByCandidate(card)/2 +
+                        (if (isRoemPossibleNextTrick(card)) 5 else 0)
+            }
+
+        return myLegalCards.maxBy { card ->
+            2 * card.cardValue() +
+                    roemSureThisTrickByCandidate(card) +
+                    roemPossibleThisTrickByCandidate(card)/2 +
+                    (if (isRoemPossibleNextTrick(card)) 5 else 0)
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
+
+    private fun weCannotWinThisTrick(): Boolean {
+        if (!currentTrick.getWinningSide()!!.isOtherParty())
+            return false
+
+        val winningCard = currentTrick.getWinningCard()!!
+        return if (brainDump.iAmThirdPlayer || brainDump.iAmFourthPlayer) {
+            myLegalCards.none { it.beats(winningCard, brainDump.trump) }
+        } else {
+            brainDump.player2.legalCards.none { it.beats(winningCard, brainDump.trump) }
+        }
+    }
+
+    private fun OtherPlayer.hasColorProbabilityPercentage(color: CardColor): Double {
+        if (this.sureHas.count{it.color == color} > 0)
+            return 100.0
+        if (this.canHave.count{it.color == color} == 0)
+            return 0.0
+        val cardCountInPlayAtOthers = 8 - color.colorPlayedCount() + myLegalCards.size
+        val otherPlayersCanHaveThisColor = listOf(brainDump.player1, brainDump.player2, brainDump.player3).count { pl ->
+            pl.allAssumeCards.count {it.color == color} > 0 }
+        return cardCountInPlayAtOthers.toDouble() / otherPlayersCanHaveThisColor
+    }
+
+
+    private fun weCanLooseThisTrickIfIPlayCard(card: Card): Boolean {
+        when {
+            brainDump.iAmSecondPlayer -> {
+                if ( (brainDump.player1.allAssumeCards.count{it.color == currentTrick.getLeadColor()} == 0))
+                    return (brainDump.player1.allAssumeCards.count{it.color == brainDump.trump} > 0)
+
+                if (brainDump.player1.allAssumeCards.legalPlayable(currentTrick, brainDump.trump).any { it.beats(card, brainDump.trump) })
+                    return false
+
+                return true
+            }
+            brainDump.iAmThirdPlayer ->
+                if (currentTrick.getWinningSide()!!.isOtherParty()) {
+                    if (card.beats(currentTrick.getWinningCard()!!, brainDump.trump)) {
+                        if (brainDump.player3.allAssumeCards.legalPlayable(currentTrick, brainDump.trump).none { it.beats(card, brainDump.trump) })
+                            return false
+                    }
+                    return true
+                } else {
+                    val highestTrickCard = if (card.beats(currentTrick.getWinningCard()!!, brainDump.trump)) card else currentTrick.getWinningCard()!!
+                    if (brainDump.player3.allAssumeCards.legalPlayable(currentTrick, brainDump.trump).none { it.beats(highestTrickCard, brainDump.trump) })
+                        return false
+                    return true
+                }
+
+            brainDump.iAmFourthPlayer ->
+                return currentTrick.getWinningSide()!!.isOtherParty() &&
+                        !card.beats(currentTrick.getWinningCard()!!, brainDump.trump)
+            else ->
+                throw Exception("Not Possible")
+        }
+    }
+
+    private fun Card.weWinThisTrickIfIPlayCardAsFourthPlayer(): Boolean {
+        if (currentTrick.getWinningSide()!!.isPartner())
+            return true
+        if (currentTrick.getWinningCard()!!.isTrump())
+            return false
+        return currentTrick.getCardsPlayed().none{it.beats(this, brainDump.trump)}
+    }
+
 }

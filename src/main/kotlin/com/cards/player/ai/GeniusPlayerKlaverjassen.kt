@@ -29,30 +29,27 @@ class GeniusPlayerKlaverjassen(
         if (getNumberOfCardsInHand() <= 2)
             return BruteForce(this, brainDump).mostValuableCardToPlay()
 
-        return when(game.getCurrentRound().getTrickOnTable().getCardsPlayed().size) {
-            0 -> IkBenLeadPlayerRule(this, brainDump).chooseCard()
-            1,
-            2,
-            3 -> when {
+        return when {
+            brainDump.iAmFirstPlayer -> IAmLeadPlayerRule(this, brainDump).chooseCard()
+            else -> when {
                 troefGevraagdEnDieHebIkNiet() ->
-                    IkHebGeenLeadColorEnGeenTroefRule(this, brainDump).chooseCard()
+                    IDontHaveLeadColorNorTrumpRule(this, brainDump).chooseCard()
 
                 troefGevraagdEnIkKanVolgen() ->
-                    TroefGevraagdEnIkKanVolgenRule(this, brainDump).chooseCard()
+                    IDoHaveLeadColorAndLeadColorIsTrumpRule(this, brainDump).chooseCard()
 
                 kleurGevraagdEnDieHebIkNietEnKanNietTroeven() ->
-                    IkHebGeenLeadColorEnGeenTroefRule(this, brainDump).chooseCard()
+                    IDontHaveLeadColorNorTrumpRule(this, brainDump).chooseCard()
 
                 kleurGevraagdEnDieHebIkNietEnKanWelTroeven() ->
-                    IkHebGeenLeadColorMaarWelTroefRule(this, brainDump).chooseCard()
+                    IDontHaveLeadColorButDoHaveTrumpRule(this, brainDump).chooseCard()
 
                 kleurGevraagdEnDieHebIkWel() ->
-                    IkHebWelLeadColorEnDatIsGeenTroefRule(this, brainDump).chooseCard()
+                    IDoHaveLeadColorAndLeadColorIsNotTrumpRule(this, brainDump).chooseCard()
 
                 else ->
                     playFallbackCard("Fall back for main level 'follow player in trick'")
             }
-            else -> throw IllegalStateException("There is no such player")
         }
     }
 

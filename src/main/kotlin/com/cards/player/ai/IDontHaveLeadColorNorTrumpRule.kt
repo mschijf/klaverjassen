@@ -45,7 +45,7 @@ import com.cards.game.klaverjassen.beats
 
  */
 
-class IkHebGeenLeadColorEnGeenTroefRule(player: GeniusPlayerKlaverjassen, brainDump: BrainDump): AbstractPlayerRules(player, brainDump) {
+class IDontHaveLeadColorNorTrumpRule(player: GeniusPlayerKlaverjassen, brainDump: BrainDump): AbstractChooseCardFollowerRule(player, brainDump) {
 
     override fun chooseCard(): Card {
         if (currentTrick.getWinningSide()!!.isPartner()){

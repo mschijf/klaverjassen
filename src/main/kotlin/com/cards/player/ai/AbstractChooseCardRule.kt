@@ -8,8 +8,8 @@ import com.cards.player.Player
 import tool.mylambdas.collectioncombination.mapCombinedItems
 import kotlin.math.sign
 
-abstract class AbstractPlayerRules(protected val player: Player,
-                                   val brainDump: BrainDump) {
+abstract class AbstractChooseCardRule(protected val player: Player,
+                                      val brainDump: BrainDump) {
     abstract fun chooseCard(): Card
 
     val myLegalCards = player.getLegalPlayableCards()
@@ -20,6 +20,9 @@ abstract class AbstractPlayerRules(protected val player: Player,
     val currentRound = player.game.getCurrentRound()
     val currentTrick = currentRound.getTrickOnTable()
 
+    private val colorPlayed = brainDump.cardsPlayed.groupingBy { it.color }.eachCount()
+    protected fun CardColor.colorPlayedCount() = colorPlayed[this]?:0
+
     protected fun CardColor.isTrump() = this == brainDump.trump
     protected fun Card.isTrump() = this.color.isTrump()
 
@@ -29,8 +32,22 @@ abstract class AbstractPlayerRules(protected val player: Player,
 
     protected fun Card.isKaal() = myLegalCardsByColor[this.color]!!.size == 1
     protected fun Card.isVrij() = brainDump.cardsInPlayOtherPlayers.none { it.color == this.color }
+
+    //todo: check all highest algorithms
     protected fun Card.isHigherThanOtherInPlay() = brainDump.cardsInPlayOtherPlayers.none { it.color == this.color && it.beats(this, brainDump.trump)}
-    protected fun Card.isHigherThanAllInPlay() = brainDump.allCardsInPlay.none { it.color == this.color && it.beats(this, brainDump.trump)}
+    protected fun Card.isHigherThanAllInPlayIncludingMine() = brainDump.allCardsInPlay.none { it.color == this.color && it.beats(this, brainDump.trump)}
+
+    protected fun CardColor.highestInPlayOrOnTable() =
+        (brainDump.cardsInPlayOtherPlayers + currentTrick.getCardsPlayed()).filter {it.color == this}.maxByOrNull { it.toRankNumber(brainDump.trump) }
+
+    protected fun CardColor.myHighest() = myLegalCardsByColor[this]?.maxBy { it.toRankNumber(brainDump.trump) }
+    protected fun CardColor.iHaveHighest() = myHighest()?.isHigherThanOtherInPlay()?:false
+
+    protected fun CardColor.playedForFirstTime() = currentTrick.isLeadColor(this) &&
+            player.game.getCurrentRound().getTrickList().dropLast(1).count{it.isLeadColor(this)} == 0
+    protected fun CardColor.playedForSecondTime() = currentTrick.isLeadColor(this) &&
+            player.game.getCurrentRound().getTrickList().dropLast(1).count{it.isLeadColor(this)} == 1
+    protected fun CardColor.playedBefore() = !playedForFirstTime()
 
     protected fun Card.cardValue() = this.cardValue(brainDump.trump)
     protected fun hasCard(card: Card) = card in player.getCardsInHand()
@@ -40,6 +57,7 @@ abstract class AbstractPlayerRules(protected val player: Player,
     protected val trumpAce = Card(brainDump.trump, CardRank.ACE)
     protected val trumpTen = Card(brainDump.trump, CardRank.ACE)
 
+
     //------------------------------------------------------------------------------------------------------------------
 
     protected fun playFallbackCard(info: String? = null): Card {
@@ -48,6 +66,7 @@ abstract class AbstractPlayerRules(protected val player: Player,
         return myLegalCards.first()
     }
 
+    //------------------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------------------
 
     //todo: als dubbele kans op roem, dan die anders beoordelen, dan enkele kans op roem

@@ -7,15 +7,20 @@ import com.cards.game.klaverjassen.*
 import com.cards.player.Player
 
 data class BrainDump(
+    val cardsPlayed: List<Card>,
     val allCardsInPlay: List<Card>,
     val cardsInPlayOtherPlayers: List<Card>,
+
+    //todo::dit naar AbstractPlayer, want direct af te leiden uit laatste round+trick?
     val p1: TableSide,
     val p2: TableSide,
     val p3: TableSide,
+
     val partner: TableSide,
     val contractOwner: TableSide,
     val trump: CardColor,
     val leadColor: CardColor?,
+
     val iAmFirstPlayer: Boolean,
     val iAmSecondPlayer: Boolean,
     val iAmThirdPlayer: Boolean,
@@ -32,6 +37,7 @@ data class BrainDump(
     val partnerCards = player(partner).allAssumeCards
     val partnerCardColors = partnerCards.map {it.color}.toSet()
 
+    //todo::dit naar AbstractPlayer, want direct af te leiden uit laatste round+trick?
     val theyOwnContract = contractOwner == p1 || contractOwner == p3
     val iAmContractOwnersPartner = contractOwner == p2
     val iAmContractOwner = !theyOwnContract && !iAmContractOwnersPartner
@@ -57,7 +63,8 @@ data class BrainDump(
             val p2 = player.tableSide.clockwiseNext(2)
             val p3 = player.tableSide.clockwiseNext(3)
 
-            val allCardsInPlay = CARDDECK.baseDeckCardsSevenAndHigher - player.game.getCurrentRound().getTrickList().flatMap { it.getCardsPlayed() }
+            val cardsPlayed = player.game.getCurrentRound().getTrickList().flatMap { it.getCardsPlayed() }
+            val allCardsInPlay = CARDDECK.baseDeckCardsSevenAndHigher - cardsPlayed
             fun numberOfCardsInHandForSide(side: TableSide) = nCardsInHand - if (side in sidesPlayedInTrick) 1 else 0
 
             fun otherPlayerCanHaveLegalCards(playerSide: TableSide): Set<Card> {
@@ -70,6 +77,7 @@ data class BrainDump(
             val numberOfTricksWonByUs = player.game.getCurrentRound().getTrickList().filter{it.isComplete()}.count {it.getWinningSide() in us }
 
             return BrainDump (
+                cardsPlayed = cardsPlayed,
                 allCardsInPlay = allCardsInPlay,
                 cardsInPlayOtherPlayers = allCardsInPlay - myCards,
                 p1 = p1,

@@ -22,7 +22,7 @@ anders
 
  */
 
-class IkHebGeenLeadColorMaarWelTroefRule(player: GeniusPlayerKlaverjassen, brainDump: BrainDump): AbstractPlayerRules(player, brainDump) {
+class IDontHaveLeadColorButDoHaveTrumpRule(player: GeniusPlayerKlaverjassen, brainDump: BrainDump): AbstractChooseCardFollowerRule(player, brainDump) {
 
 
     //------------------------------------------------------------------------------------------------------------------
@@ -44,7 +44,8 @@ class IkHebGeenLeadColorMaarWelTroefRule(player: GeniusPlayerKlaverjassen, brain
                         .filter { highestAtOthers.beats(it, brainDump.trump) }
                         .maxByOrNull { it.cardValue() }
                         ?:myLegalCards
-                            .filter { !it.isHigherThanOtherInPlay() }
+                            .filter { !it.
+                            isHigherThanOtherInPlay() }
                             .maxByOrNull { it.cardValue() }
                         ?:myLegalCards.first()
                 } else { //ik ben de enige nog met troef, maakt niet uit welke je opgooit

@@ -98,6 +98,8 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
         if (winningSide.isPartner() && myLegalCards.all{it.isVrij()})
             playNoMoreOfColorAndPartnerIsWinning()
 
+        //todo: if weWillWin --> throw highestValue
+        //      if we can loose --> throw lowest
         return playFallbackCard()
     }
 
@@ -154,8 +156,15 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
             return myHighest
         }
 
+        if (myLegalCards.size == 3) {
+            val otherCard = (myLegalCards - myHighest).maxBy { it.cardValue() }
+            if (otherCard.isKing() && duikenOptie)
+                return otherCard
+            return myHighest
+        }
+
         if (myLegalCards.size >= 4)
-            return leadColor.myHighest()!!
+            return myHighest
 
         return playFallbackCard()
     }

@@ -69,7 +69,16 @@ class IDontHaveLeadColorNorTrumpRule(player: Player): AbstractChooseCardFollower
         }
     }
 
-    private fun weCannotWinThisTrick() = winningSide.isOtherParty() && (iAmThirdPlayer || iAmFourthPlayer)
+    private fun weCannotWinThisTrick(): Boolean {
+        if (!winningSide.isOtherParty())
+            return false
+
+        return if (iAmThirdPlayer || iAmFourthPlayer) {
+            return true
+        } else {
+            player2.legalCards.none { it.beats(winningCard, trump) }
+        }
+    }
 
     private fun partnerWillWinThisTrick() =
         winningSide.isPartner() &&

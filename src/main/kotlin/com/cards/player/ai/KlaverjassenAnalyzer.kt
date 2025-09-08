@@ -26,9 +26,10 @@ class KlaverjassenAnalyzer(
     private val cardsPlayedDuringAnalysis = mutableSetOf<Card>()
 
     val playerCanHave: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
-    val playerSureHas: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
+    val playerMustHave: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
     val playerProbablyHas: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
     val playerProbablyHasNot: Map<TableSide, MutableSet<Card>> = allSides.associateWith { mutableSetOf() }
+    val playerHeeftGeseind: MutableMap<TableSide, Card?> = allSides.associateWith { null }.toMutableMap()
 
     private fun cardsInHandForSide(side: TableSide): Int {
         if (side == mySide)
@@ -53,10 +54,10 @@ class KlaverjassenAnalyzer(
         cardsPlayedDuringAnalysis.clear()
 
         playerCanHave.values.forEach { it.clear() }
-        playerSureHas.values.forEach { it.clear() }
+        playerMustHave.values.forEach { it.clear() }
         playerProbablyHas.values.forEach { it.clear() }
         playerProbablyHasNot.values.forEach { it.clear() }
-
+        playerHeeftGeseind.keys.forEach { playerHeeftGeseind[it] = null }
         val cardsInOtherHands = allCards - playerForWhichWeAnalyse.getCardsInHand()
         otherSides.forEach { other -> playerCanHave[other]!!.addAll(cardsInOtherHands) }
     }
@@ -65,13 +66,17 @@ class KlaverjassenAnalyzer(
     private fun updateAfterAnalysis() {
 
         //canHave -- no assumptions
-        //sureHas -- no assumptions (geen overlap met welke canhave dan ook)
+        //mustHave -- no assumptions (geen overlap met welke canhave dan ook)
 
-        //probablyHas -- assumption moet ook in canHave of SureHas zitten
-        //probablyHasNot -- assumption moet ook in canHave of SureHas zitten (en heeft geen overlap met probablyHas)
+        // probablyHas    -- assumption moet ook in canHave maar niet in SureHas zitten
+        // probablyHasNot -- assumption moet ook in canHave maar niet in SureHas zitten
+        //                -- zit niet ook in probablyHas
+        //
+        // als een speler heeft probablyHas, dan andere players hebben probablyHasNot
+        // als twee spelers hebben probablyHas, dan verdwijnen beiden.
 
         // 1. als speler enige is met een kaart in can have, dan is het een sure have
-        //        remove it from canhave and add it to sureHas
+        //        remove it from canhave and add it to mustHave
         // 2. remove all cards in probablys that are not in canhave/surehas
         // 3. if number of canhaves+surehas == cards in hand, then everything = surehas
 
@@ -82,7 +87,7 @@ class KlaverjassenAnalyzer(
 
     private fun updateMine() {
         playerCanHave[mySide]!!.clear()
-        playerSureHas[mySide]!!.addAll(playerForWhichWeAnalyse.getCardsInHand())
+        playerMustHave[mySide]!!.addAll(playerForWhichWeAnalyse.getCardsInHand())
         playerProbablyHas[mySide]!!.clear()
         playerProbablyHasNot[mySide]!!.clear()
     }
@@ -90,51 +95,67 @@ class KlaverjassenAnalyzer(
     private fun equalizeSureHasWithCanHave() {
 
         do {
-            val sumSureHas0 = playerSureHas.values.fold(emptySet<Card>()) { acc, sureHasCards -> acc + sureHasCards }
+            val sumSureHas0 = playerMustHave.values.fold(emptySet<Card>()) { acc, mustHaveCards -> acc + mustHaveCards }
 
-            //update sureHas --> if a player has cards in canhave that all other players don't have, then it becomes a sureHas
+            //update mustHave --> if a player has cards in canhave that all other players don't have, then it becomes a mustHave
             otherSides.forEach { otherSide ->
-                val otherCanHave = (allSides - otherSide).flatMap { playerCanHave[it]!! + playerSureHas[it]!! }.toSet()
+                val otherCanHave = (allSides - otherSide).flatMap { playerCanHave[it]!! + playerMustHave[it]!! }.toSet()
                 val unique = playerCanHave[otherSide]!!.filterNot{card -> card in otherCanHave}
-                playerSureHas[otherSide]!! += unique
+                playerMustHave[otherSide]!! += unique
                 playerCanHave[otherSide]!! -= unique
             }
 
-            //a sureHas can not appear in any other canHaves:
-            val sumSureHas1 = playerSureHas.values.fold(emptySet<Card>()) { acc, sureHasCards -> acc + sureHasCards }
+            //a mustHave can not appear in any other canHaves:
+            val sumSureHas1 = playerMustHave.values.fold(emptySet<Card>()) { acc, mustHaveCards -> acc + mustHaveCards }
             allSides.forEach { player -> playerCanHave[player]!!.removeAll(sumSureHas1) }
 
             //if number of canHave + SureHas == number of cardsInHand
             otherSides.forEach { otherSide ->
                 val numberOfCardsInHandOtherSide = cardsInHandForSide(otherSide)
-                if (playerSureHas[otherSide]!!.size == numberOfCardsInHandOtherSide) {
+                if (playerMustHave[otherSide]!!.size == numberOfCardsInHandOtherSide) {
                     playerCanHave[otherSide]!!.clear()
-                } else if ((playerSureHas[otherSide]!! + playerCanHave[otherSide]!!).size == numberOfCardsInHandOtherSide) {
-                    playerSureHas[otherSide]!! += playerCanHave[otherSide]!!
+                } else if ((playerMustHave[otherSide]!! + playerCanHave[otherSide]!!).size == numberOfCardsInHandOtherSide) {
+                    playerMustHave[otherSide]!! += playerCanHave[otherSide]!!
                     playerCanHave[otherSide]!!.clear()
                 }
             }
-            //a sureHas can not appear in any other canHaves:
-            val sumSureHas2 = playerSureHas.values.fold(emptySet<Card>()) { acc, sureHasCards -> acc + sureHasCards }
+            //a mustHave can not appear in any other canHaves:
+            val sumSureHas2 = playerMustHave.values.fold(emptySet<Card>()) { acc, mustHaveCards -> acc + mustHaveCards }
             allSides.forEach { player -> playerCanHave[player]!!.removeAll(sumSureHas2) }
         } while (sumSureHas0.size != sumSureHas2.size)
     }
 
     private fun removeImpossibles() {
         allSides.forEach { side ->
-            val impossibleCards = playerProbablyHasNot[side]!!.filterNot { card -> card in (playerCanHave[side]!! + playerSureHas[side]!!) }
-            playerProbablyHas[side]!! -= impossibleCards
+            playerProbablyHasNot[side]!! -= playerMustHave[side]!!
+            val impossibleCards = playerProbablyHasNot[side]!!.filter { card -> card !in (playerCanHave[side]!!) }
             playerProbablyHasNot[side]!! -= impossibleCards
         }
+
+        allSides.forEach { side ->
+            playerProbablyHas[side]!! -= playerMustHave[side]!!
+            val impossibleCards = playerProbablyHas[side]!!.filter { card -> card !in (playerCanHave[side]!!) }
+            playerProbablyHas[side]!! -= impossibleCards
+        }
+
+        allSides.forEach { side ->
+            val other = playerProbablyHas[side.clockwiseNext(1)]!! + playerProbablyHas[side.clockwiseNext(2)]!! + playerProbablyHas[side.clockwiseNext(3)]!!
+            val impossibleCards = playerProbablyHas[side]!!.filter { card -> card in other }
+            if (impossibleCards.isNotEmpty())
+                println("komt voor $side --> $impossibleCards")
+        }
+
     }
 
+    //-----------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------
 
     private fun processCard(trick: Trick, cardPlayed: Card, highestTrumpUpTillNow: Card?) {
         val sideThatPlayed = trick.getSideThatPlayedCard(cardPlayed)!!
 
         otherSides.forEach {
-                otherSide -> playerCanHave[otherSide]!! -= cardPlayed
+            otherSide -> playerCanHave[otherSide]!! -= cardPlayed
         }
 
         if (trick.getCardsPlayed().first() != cardPlayed) {
@@ -188,7 +209,7 @@ class KlaverjassenAnalyzer(
         if (trickSoFar.isSideToLead(playerJustMoved) && currentRound.isContractOwningSide(playerJustMoved)) {
             if (noRealTrumpsPlayed()) {
                 if (cardJustPlayed.color == trumpColor) {
-                    if (cardJustPlayed.isJack(trumpColor)) {
+                    if (!cardJustPlayed.isJack(trumpColor)) {
                         if (cardJustPlayed.isNine(trumpColor)) {
                             addProbablyHas(playerJustMoved, Card(trumpColor, CardRank.JACK))
                         } else {
@@ -206,28 +227,34 @@ class KlaverjassenAnalyzer(
         }
 
         //seinen
+        //todo: alleen seinen als het zeker is dat maat de slag haalt
+        val highestCard = highestOfColorStillAvailable(cardJustPlayed.color)
+        var heeftGeseind = false
         if (playerJustMoved.isOppositeOf(trickSoFar.getWinningSide())) {
             if (cardJustPlayed.color != trickSoFar.getLeadColor() && cardJustPlayed.color != trickSoFar.getWinningCard()!!.color && cardJustPlayed.color != trumpColor) {
-                val highestCard = highestOfColorStillAvailable(cardJustPlayed.color)
-                if (cardJustPlayed.toRankNumberNoTrump() <= Card(cardJustPlayed.color, CardRank.NINE).toRankNumberNoTrump()) {
-                    if (highestCard != null)
+                if (highestCard != null && highestCard.toRankNumberNoTrump() >= Card(cardJustPlayed.color, CardRank.NINE).toRankNumberNoTrump()) {
+                    if (cardJustPlayed.toRankNumberNoTrump() <= Card(cardJustPlayed.color, CardRank.NINE).toRankNumberNoTrump()) {
                         addProbablyHas(playerJustMoved, highestCard)
-                } else if (cardJustPlayed == highestCard) {
-                    val secondHighest = secondHighestOfColorStillAvailable(cardJustPlayed.color)
-                    if (secondHighest != null)
-                        addProbablyHas(playerJustMoved, secondHighest)
+                        setHeeftGeseind(playerJustMoved, cardJustPlayed)
+                        heeftGeseind = true
+                    } else if (cardJustPlayed == highestCard) {
+                        val secondHighest = secondHighestOfColorStillAvailable(cardJustPlayed.color)
+                        if (secondHighest != null) {
+                            addProbablyHas(playerJustMoved, secondHighest)
+                            setHeeftGeseind(playerJustMoved, cardJustPlayed)
+                            heeftGeseind = true
+                        }
+                    }
                 }
             }
         }
 
-        if (!trickSoFar.isLeadColor(trumpColor) && trickSoFar.isLeadColor(cardJustPlayed.color) && !playerJustMoved.isOppositeOf(trickSoFar.getWinningSide())) {
-            if (!cardJustPlayed.isTrumpCard() && cardJustPlayed.isTen() )
-                if (playerCanHave[playerJustMoved]!!.count { it.color == cardJustPlayed.color } > 1) {
-                    //kale 10 --> dus heeft die kleur verder niet meer (of roem ontwijken ==> nog checken)
-                    //todo: (of roem ontwijken ==> nog checken)
-                    addProbablyHasNot(playerJustMoved, playerCanHave[playerJustMoved]!!.filter { it.color == cardJustPlayed.color })
-                }
+        //afSeinen
+        if (!heeftGeseind && cardJustPlayed == highestCard) {
+            setHeeftAfGeseind()
         }
+
+        //todo: check op 10 weggegeven --> is die kaal? of noodzaak vanwege roem ontwijken
 
         if (trickSoFar.isComplete()) { //playerToMove is last player in this trick that played a card
             if (trickSoFar.getWinningSide() != playerJustMoved && trickSoFar.getWinningSide() != playerJustMoved.opposite()) {
@@ -321,9 +348,12 @@ class KlaverjassenAnalyzer(
         playerProbablyHas[side]!! -= card
         playerProbablyHasNot[side]!! += card
     }
-    private fun addProbablyHasNot(side: TableSide, cardList: List<Card>) {
-        playerProbablyHas[side]!! -= cardList
-        playerProbablyHasNot[side]!! += cardList
+    private fun setHeeftGeseind(side: TableSide, card: Card) {
+        if (playerHeeftGeseind[side] == null)
+            playerHeeftGeseind[side] = card
+    }
+    private fun setHeeftAfGeseind() {
+        TableSide.values().forEach { playerHeeftGeseind[it] = null }
     }
 
 }

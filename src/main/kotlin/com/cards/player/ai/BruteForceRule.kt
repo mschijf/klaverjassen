@@ -23,13 +23,17 @@ class BruteForceRule(player: Player): AbstractChooseCardRule(player) {
 //            println("$combination    -->  %-3s %4d %-3s %4d ".format(valuePerCard[0].card, valuePerCard[0].value, valuePerCard[1].card, valuePerCard[1].value))
             valuePerCard
         }
+
         val totalCardValue = myLegalCards.map{card -> card to cardValueList.flatten().filter { it.card == card }.sumOf { it.value }}
         return totalCardValue.maxBy { it.second }.first
 
         // todo: find out best analytical card playing choice
-        //keuze: welke kaart is meeste keren winnaar?
+        // keuze: welke kaart is meeste keren winnaar?
         //       welke kaart levert als som de meeste punten op ('=average')
         //       wat is de modus ('=modus')
+        //
+        // als probablyHas bij een combinatie, dan grotere kans dat die combinatie voorkomt
+        // als probablyHasNot bij een combinatie, dan kleinere kans dat die combinatie voorkomt
     }
 
     private fun tryCard(): List<CardValue> {
@@ -109,8 +113,8 @@ class BruteForceRule(player: Player): AbstractChooseCardRule(player) {
             player2.canHave,
             player3.canHave,
 
-            player1.sureHas,
-            player2.sureHas,
-            player3.sureHas,)
+            player1.mustHave,
+            player2.mustHave,
+            player3.mustHave,)
     }
 }

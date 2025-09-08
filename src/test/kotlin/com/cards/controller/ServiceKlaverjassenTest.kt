@@ -56,10 +56,10 @@ class ServiceKlaverjassenTest {
 
         RANDOMIZER.unsetSeed()
         RANDOMIZER.setFixedSequence(true)
-        val numberOfTests = 1000
+        val numberOfTests = 100
 
         val serie = (1..numberOfTests).map {
-//            println(it)
+            println(it)
             val game = Game()
             val playerGroup = PlayerGroup(
                 listOf(Player(TableSide.WEST, game), GeniusPlayerKlaverjassen(TableSide.NORTH, game),
@@ -80,15 +80,12 @@ class ServiceKlaverjassenTest {
         println("Cards examined during analysis: ${KlaverjassenAnalyzer.t}")
 
         val timePassed = System.currentTimeMillis() - startTime
-        print("%d.%03d sec".format(timePassed / 1000, timePassed % 1000))
+        println("Total time passed: %d.%03d sec".format(timePassed / 1000, timePassed % 1000))
 
-//        println()
-//        println("----------------------------------------------------------------")
-//        println("EXPECTED:")
-//        println("----------------------------------------------------------------")
-//        println("%7d runs           WIJ        ZIJ".format(1000))
-//        println("number of wins: %10d %10d".format(978, 22))
-//        println("Points          %10d %10d".format(2124123, 1059727))
+        val avg = GeniusPlayerKlaverjassen.avgTiming()
+        println("avg time choose card: %d.%03d sec".format(avg / 1000, avg  % 1000))
+        val max = GeniusPlayerKlaverjassen.maxTiming
+        println("maxTime choose card: %d.%03d sec".format(max / 1000, max  % 1000))
     }
 
     private fun testOneGame(game: Game, playerGroup: PlayerGroup): ScoreKlaverjassen {

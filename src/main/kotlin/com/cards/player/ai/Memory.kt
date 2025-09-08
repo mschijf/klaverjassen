@@ -34,7 +34,7 @@ data class Memory(
             fun numberOfCardsInHandForSide(side: TableSide) = nCardsInHand - if (side in sidesPlayedInTrick) 1 else 0
 
             fun otherPlayerCanHaveLegalCards(playerSide: TableSide): Set<Card> {
-                return (analyzer.playerCanHave[playerSide]!! + analyzer.playerSureHas[playerSide]!!)
+                return (analyzer.playerCanHave[playerSide]!! + analyzer.playerMustHave[playerSide]!!)
                     .legalPlayable(currentTrick, trump)
                     .toSet()
             }
@@ -45,7 +45,7 @@ data class Memory(
                     playerSide,
                     numberOfCardsInHandForSide(playerSide),
                     analyzer.playerCanHave[playerSide]!!,
-                    analyzer.playerSureHas[playerSide]!!,
+                    analyzer.playerMustHave[playerSide]!!,
                     otherPlayerCanHaveLegalCards(playerSide)
                 )
             }
@@ -83,15 +83,15 @@ data class Memory(
                     )
                 }
                 println()
-                val playerSureHasCards = player.sureHas
+                val playerMustHaveCards = player.mustHave
                 print(String.format("%-5s ", it.toString().lowercase()))
-                print(String.format("(%2d): ", playerSureHasCards.size))
+                print(String.format("(%2d): ", playerMustHaveCards.size))
                 CardColor.values().forEach { color ->
                     print(
                         String.format(
                             "%-8s: %-25s  ",
                             " ",
-                            playerSureHasCards.filter { card -> card.color == color }
+                            playerMustHaveCards.filter { card -> card.color == color }
                                 .map { card -> card.rank.rankString })
                     )
                 }
@@ -106,7 +106,7 @@ data class OtherPlayer(
     val tableSide: TableSide,
     val numberOfCardsInHand: Int,
     val canHave: Set<Card>,
-    val sureHas: Set<Card>,
+    val mustHave: Set<Card>,
     val legalCards: Set<Card>,) {
-    val allAssumeCards = canHave + sureHas
+    val allAssumeCards = canHave + mustHave
 }

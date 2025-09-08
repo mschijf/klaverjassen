@@ -5,6 +5,8 @@ import com.cards.game.card.CardColor
 import com.cards.game.klaverjassen.Game
 import com.cards.game.klaverjassen.TableSide
 import com.cards.player.Player
+import kotlin.math.max
+import kotlin.math.min
 
 class GeniusPlayerKlaverjassen(tableSide: TableSide, game: Game) : Player(tableSide, game) {
 
@@ -23,19 +25,21 @@ class GeniusPlayerKlaverjassen(tableSide: TableSide, game: Game) : Player(tableS
     private fun opponentGaat() = !ikGa() && !partnerGaat()
 
     override fun chooseCard(): Card {
+        val startTime = System.currentTimeMillis()
         if (getLegalPlayableCards().size == 1)
             return getLegalPlayableCards().first()
 
-        if (getNumberOfCardsInHand() <= 2)
+        val useRule = if (getNumberOfCardsInHand() <= 3)
             return BruteForceRule(this).chooseCard()
 
-        val useRule = if (game.getCurrentRound().getTrickOnTable().hasNotStarted()) {
+        else if (game.getCurrentRound().getTrickOnTable().hasNotStarted()) {
             when {
                 ikGa() -> IAmLeadPlayerIOwnContractRule(this)
                 partnerGaat() -> IAmLeadPlayerPartnerOwnsContractRule(this)
                 opponentGaat() -> IAmLeadPlayerTheyOwnContractRule(this)
                 else -> throw Exception("main level leading rule not found")
             }
+
         } else {
             when {
                 troefGevraagdEnDieHebIk() -> IDoHaveLeadColorAndLeadColorIsTrumpRule(this)
@@ -48,13 +52,31 @@ class GeniusPlayerKlaverjassen(tableSide: TableSide, game: Game) : Player(tableS
                 else -> throw Exception("main level follower rule not found")
             }
         }
-        return useRule.chooseCard()
+        val playCard = useRule.chooseCard()
+        val timePassed = System.currentTimeMillis() - startTime
+        addTimePassed(useRule, timePassed)
+
+        return playCard
     }
 
     override fun chooseTrumpColor(cardColorOptions: List<CardColor>): CardColor {
         val trumpChoiceAnalyzer = TrumpChoiceAnalyzer(this.getCardsInHand())
 
         return cardColorOptions.maxBy { cardColor -> trumpChoiceAnalyzer.trumpChoiceValue(cardColor) }
+    }
+
+    companion object {
+        private fun addTimePassed(rule: AbstractChooseCardRule, newTiming: Long) {
+            minTiming = min (newTiming, minTiming)
+            maxTiming = max(newTiming, maxTiming)
+            totalTiming += newTiming
+            timingCount++
+        }
+        var totalTiming = 0L
+        var timingCount = 0L
+        var minTiming = Long.MAX_VALUE
+        var maxTiming = Long.MIN_VALUE
+        fun avgTiming() = totalTiming / timingCount
     }
 
 }

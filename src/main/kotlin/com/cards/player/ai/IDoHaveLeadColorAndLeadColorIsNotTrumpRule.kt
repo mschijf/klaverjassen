@@ -334,7 +334,7 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
     }
 
     private fun OtherPlayer.hasColorProbabilityPercentage(color: CardColor): Double {
-        if (this.sureHas.count{it.color == color} > 0)
+        if (this.mustHave.count{it.color == color} > 0)
             return 100.0
         if (this.canHave.count{it.color == color} == 0)
             return 0.0

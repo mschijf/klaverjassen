@@ -56,10 +56,10 @@ class ServiceKlaverjassenTest {
 
         RANDOMIZER.unsetSeed()
         RANDOMIZER.setFixedSequence(true)
-        val numberOfTests = 100
+        val numberOfTests = 1000
 
         val serie = (1..numberOfTests).map {
-            println(it)
+//            if (it % 10 == 0) println(it)
             val game = Game()
             val playerGroup = PlayerGroup(
                 listOf(Player(TableSide.WEST, game), GeniusPlayerKlaverjassen(TableSide.NORTH, game),
@@ -82,6 +82,10 @@ class ServiceKlaverjassenTest {
         val timePassed = System.currentTimeMillis() - startTime
         println("Total time passed: %d.%03d sec".format(timePassed / 1000, timePassed % 1000))
 
+        val totalTiming = GeniusPlayerKlaverjassen.totalTiming
+        println("total time choose card: %d.%03d sec".format(totalTiming / 1000, totalTiming  % 1000))
+        val timingCount = GeniusPlayerKlaverjassen.timingCount
+        println("total timing count    : %d".format(timingCount))
         val avg = GeniusPlayerKlaverjassen.avgTiming()
         println("avg time choose card: %d.%03d sec".format(avg / 1000, avg  % 1000))
         val max = GeniusPlayerKlaverjassen.maxTiming

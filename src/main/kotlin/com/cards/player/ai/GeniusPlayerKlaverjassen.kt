@@ -25,15 +25,14 @@ class GeniusPlayerKlaverjassen(tableSide: TableSide, game: Game) : Player(tableS
     private fun opponentGaat() = !ikGa() && !partnerGaat()
 
     override fun chooseCard(): Card {
-        val startTime = System.currentTimeMillis()
         if (getLegalPlayableCards().size == 1)
             return getLegalPlayableCards().first()
 
-        val useRule = if (getNumberOfCardsInHand() <= 3)
-            return BruteForceRule(this).chooseCard()
+        val startTime = System.currentTimeMillis()
 
-        else if (game.getCurrentRound().getTrickOnTable().hasNotStarted()) {
+        val useRule = if (game.getCurrentRound().getTrickOnTable().hasNotStarted()) {
             when {
+                getNumberOfCardsInHand() <= 2 -> BruteForceRule(this)
                 ikGa() -> IAmLeadPlayerIOwnContractRule(this)
                 partnerGaat() -> IAmLeadPlayerPartnerOwnsContractRule(this)
                 opponentGaat() -> IAmLeadPlayerTheyOwnContractRule(this)
@@ -42,6 +41,7 @@ class GeniusPlayerKlaverjassen(tableSide: TableSide, game: Game) : Player(tableS
 
         } else {
             when {
+                getNumberOfCardsInHand() <= 2 -> BruteForceRule(this)
                 troefGevraagdEnDieHebIk() -> IDoHaveLeadColorAndLeadColorIsTrumpRule(this)
                 troefGevraagdEnDieHebIkNiet() -> IDontHaveLeadColorNorTrumpRule(this)
 

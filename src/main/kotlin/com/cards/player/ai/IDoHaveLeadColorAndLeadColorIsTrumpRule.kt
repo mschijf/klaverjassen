@@ -1,6 +1,7 @@
 package com.cards.player.ai
 
 import com.cards.game.card.Card
+import com.cards.game.klaverjassen.TableSide
 import com.cards.game.klaverjassen.beats
 import com.cards.game.klaverjassen.toRankNumberTrump
 import com.cards.player.Player

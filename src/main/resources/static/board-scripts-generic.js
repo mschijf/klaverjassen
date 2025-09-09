@@ -220,10 +220,31 @@ function handleGameStatusGeneric(gameStatusGeneric) {
     showPlayerCards("playerWest", gameStatusGeneric.playerWest, true)
     showPlayerCards("playerNorth", gameStatusGeneric.playerNorth, true)
     showPlayerCards("playerEast", gameStatusGeneric.playerEast, true)
+    showTable(gameStatusGeneric.onTable)
     showExtras(gameStatusGeneric)
     showLeader(gameStatusGeneric.leadPlayer)
     showJson("")
     showSeed(gameStatusGeneric.seed)
+}
+
+function showTable(onTable) {
+    if (onTable.south != null) {
+        let tableCardImage = playerModelToTableImage("SOUTH")
+        tableCardImage.src = cardModelToImageURL(onTable.south)
+    }
+    if (onTable.west != null) {
+        let tableCardImage = playerModelToTableImage("WEST")
+        tableCardImage.src = cardModelToImageURL(onTable.west)
+    }
+    if (onTable.north != null) {
+        let tableCardImage = playerModelToTableImage("NORTH")
+        tableCardImage.src = cardModelToImageURL(onTable.north)
+    }
+    if (onTable.east != null) {
+        let tableCardImage = playerModelToTableImage("EAST")
+        tableCardImage.src = cardModelToImageURL(onTable.east)
+    }
+
 }
 
 function handleNextMove(gameStatusGeneric) {

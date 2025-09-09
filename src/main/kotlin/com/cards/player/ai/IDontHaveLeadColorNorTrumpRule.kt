@@ -126,6 +126,10 @@ class IDontHaveLeadColorNorTrumpRule(player: Player): AbstractChooseCardFollower
             return tenCardHighCandidates.maxByOrNull { myLegalCardsByColor[it.color]!!.size }!!
 
 //                    //(2) todo: seinen!!
+//                                let op bij kaart als A,H,V  7,8,10  ::
+//                                                   de V of H is afseinen.
+//                                                   Een 7 of 8 is seinen.
+//                                                   In dit geval de 10 opgooien
 //                    val highCardColors = legalCards.filter { !it.isKaal() && it.isHighestInPlay() }.map { it.color }.toSet()
 //                    val signalCandidates = legalCards.filter { it.color in highCardColors && it.isLowCard() }
 //                    if (signalCandidates.isNotEmpty()) //sein kortste kaart (of beter langste kaart?)

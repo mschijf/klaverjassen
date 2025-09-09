@@ -10,20 +10,6 @@ import kotlin.math.min
 
 class GeniusPlayerKlaverjassen(tableSide: TableSide, game: Game) : Player(tableSide, game) {
 
-    private fun leadColor() = game.getCurrentRound().getTrickOnTable().getLeadColor()
-    private fun trump() = game.getCurrentRound().getTrumpColor()
-
-    private fun troefGevraagdEnDieHebIkNiet() = (leadColor() == trump()) && getLegalPlayableCards().none{it.color == trump()}
-    private fun troefGevraagdEnDieHebIk() = (leadColor() == trump()) && getLegalPlayableCards().any{it.color == trump()}
-
-    private fun kleurGevraagdEnDieHebIkNietEnKanNietTroeven() = (leadColor() != trump()) && getLegalPlayableCards().none{it.color == leadColor() || it.color == trump()}
-    private fun kleurGevraagdEnDieHebIkNietEnKanWelTroeven() = (leadColor() != trump()) && getLegalPlayableCards().none{it.color == leadColor()} && getLegalPlayableCards().any{it.color == trump()}
-    private fun kleurGevraagdEnDieHebIk() = (leadColor() != trump()) && getLegalPlayableCards().any{it.color == leadColor()}
-
-    private fun ikGa() = tableSide == game.getCurrentRound().getContractOwningSide()
-    private fun partnerGaat() = tableSide.opposite() == game.getCurrentRound().getContractOwningSide()
-    private fun opponentGaat() = !ikGa() && !partnerGaat()
-
     override fun chooseCard(): Card {
         if (getLegalPlayableCards().size == 1)
             return getLegalPlayableCards().first()
@@ -64,6 +50,20 @@ class GeniusPlayerKlaverjassen(tableSide: TableSide, game: Game) : Player(tableS
 
         return cardColorOptions.maxBy { cardColor -> trumpChoiceAnalyzer.trumpChoiceValue(cardColor) }
     }
+
+    private fun leadColor() = game.getCurrentRound().getTrickOnTable().getLeadColor()
+    private fun trump() = game.getCurrentRound().getTrumpColor()
+
+    private fun troefGevraagdEnDieHebIkNiet() = (leadColor() == trump()) && getLegalPlayableCards().none{it.color == trump()}
+    private fun troefGevraagdEnDieHebIk() = (leadColor() == trump()) && getLegalPlayableCards().any{it.color == trump()}
+
+    private fun kleurGevraagdEnDieHebIkNietEnKanNietTroeven() = (leadColor() != trump()) && getLegalPlayableCards().none{it.color == leadColor() || it.color == trump()}
+    private fun kleurGevraagdEnDieHebIkNietEnKanWelTroeven() = (leadColor() != trump()) && getLegalPlayableCards().none{it.color == leadColor()} && getLegalPlayableCards().any{it.color == trump()}
+    private fun kleurGevraagdEnDieHebIk() = (leadColor() != trump()) && getLegalPlayableCards().any{it.color == leadColor()}
+
+    private fun ikGa() = tableSide == game.getCurrentRound().getContractOwningSide()
+    private fun partnerGaat() = tableSide.opposite() == game.getCurrentRound().getContractOwningSide()
+    private fun opponentGaat() = !ikGa() && !partnerGaat()
 
     companion object {
         private fun addTimePassed(rule: AbstractChooseCardRule, newTiming: Long) {

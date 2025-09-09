@@ -140,9 +140,9 @@ class KlaverjassenAnalyzer(
 
         allSides.forEach { side ->
             val other = playerProbablyHas[side.clockwiseNext(1)]!! + playerProbablyHas[side.clockwiseNext(2)]!! + playerProbablyHas[side.clockwiseNext(3)]!!
-            val impossibleCards = playerProbablyHas[side]!!.filter { card -> card in other }
-            if (impossibleCards.isNotEmpty())
-                println("komt voor $side --> $impossibleCards")
+//            val impossibleCards = playerProbablyHas[side]!!.filter { card -> card in other }
+//            if (impossibleCards.isNotEmpty())
+//                println("komt voor $side --> $impossibleCards")
         }
 
     }
@@ -179,7 +179,7 @@ class KlaverjassenAnalyzer(
                 //player just follows, we can not conclude anything yet
             }
         }
-        determineAssumptions(trick)
+        determineAssumptions(trick, cardPlayed)
         cardsPlayedDuringAnalysis.add(cardPlayed)
     }
 
@@ -202,36 +202,15 @@ class KlaverjassenAnalyzer(
         }
     }
 
-    private fun determineAssumptions(trickSoFar: Trick) {
-        val cardJustPlayed = trickSoFar.getCardsPlayed().last()
-        val playerJustMoved = trickSoFar.getSideThatPlayedCard(cardJustPlayed)!!
-
-        if (trickSoFar.isSideToLead(playerJustMoved) && currentRound.isContractOwningSide(playerJustMoved)) {
-            if (noRealTrumpsPlayed()) {
-                if (cardJustPlayed.color == trumpColor) {
-                    if (!cardJustPlayed.isJack(trumpColor)) {
-                        if (cardJustPlayed.isNine(trumpColor)) {
-                            addProbablyHas(playerJustMoved, Card(trumpColor, CardRank.JACK))
-                        } else {
-                            //speler speelt geen boer en geen negen: probeert boer er uit te krijgen, om eigen nel hoog te maken
-                            addProbablyHasNot(playerJustMoved, Card(trumpColor, CardRank.JACK))
-                            addProbablyHas(playerJustMoved, Card(trumpColor, CardRank.NINE))
-                        }
-                    }
-                } else {
-                    //speler komt met andere kaart dan de boer en ook geen troef
-                    //todo: wat als het een aas is? (poging eerst roem te spelen, voordat er troef wordt getrokken)?
-                    addProbablyHasNot(playerJustMoved, Card(trumpColor, CardRank.JACK))
-                }
-            }
-        }
+    private fun determineAssumptions(trick: Trick, cardJustPlayed: Card) {
+        val playerJustMoved = trick.getSideThatPlayedCard(cardJustPlayed)!!
 
         //seinen
         //todo: alleen seinen als het zeker is dat maat de slag haalt
         val highestCard = highestOfColorStillAvailable(cardJustPlayed.color)
         var heeftGeseind = false
-        if (playerJustMoved.isOppositeOf(trickSoFar.getWinningSide())) {
-            if (cardJustPlayed.color != trickSoFar.getLeadColor() && cardJustPlayed.color != trickSoFar.getWinningCard()!!.color && cardJustPlayed.color != trumpColor) {
+        if (playerJustMoved.isOppositeOf(trick.getWinningSide())) {
+            if (cardJustPlayed.color != trick.getLeadColor() && cardJustPlayed.color != trick.getWinningCard()!!.color && cardJustPlayed.color != trumpColor) {
                 if (highestCard != null && highestCard.toRankNumberNoTrump() >= Card(cardJustPlayed.color, CardRank.NINE).toRankNumberNoTrump()) {
                     if (cardJustPlayed.toRankNumberNoTrump() <= Card(cardJustPlayed.color, CardRank.NINE).toRankNumberNoTrump()) {
                         addProbablyHas(playerJustMoved, highestCard)
@@ -241,6 +220,7 @@ class KlaverjassenAnalyzer(
                         val secondHighest = secondHighestOfColorStillAvailable(cardJustPlayed.color)
                         if (secondHighest != null) {
                             addProbablyHas(playerJustMoved, secondHighest)
+                            setOthersCannotHebbenGeseind(playerJustMoved, cardJustPlayed)
                             setHeeftGeseind(playerJustMoved, cardJustPlayed)
                             heeftGeseind = true
                         }
@@ -250,45 +230,73 @@ class KlaverjassenAnalyzer(
         }
 
         //afSeinen
-        if (!heeftGeseind && cardJustPlayed == highestCard) {
-            setHeeftAfGeseind()
-        }
-
-        //todo: check op 10 weggegeven --> is die kaal? of noodzaak vanwege roem ontwijken
-
-        if (trickSoFar.isComplete()) { //playerToMove is last player in this trick that played a card
-            if (trickSoFar.getWinningSide() != playerJustMoved && trickSoFar.getWinningSide() != playerJustMoved.opposite()) {
-                if (roemWeggegevenDoorLastPlayer(trickSoFar)) { //roem weggegeven
-                    val bonusAfter = trickSoFar.getScore().getBonusForPlayer(playerJustMoved.clockwiseNext())
-                    trickSoFar.removeLastCard()
-                    playerCanHave[playerJustMoved]!!.filter { it.color == cardJustPlayed.color }.forEach { otherCard ->
-                        if (otherCard != cardJustPlayed) {
-                            trickSoFar.addCard(otherCard)
-                            if (trickSoFar.getScore().getBonusForPlayer(playerJustMoved.clockwiseNext()) < bonusAfter) {
-                                addProbablyHasNot(playerJustMoved, otherCard)
-                            }
-                            trickSoFar.removeLastCard()
-                        }
-                    }
-                    trickSoFar.addCard(cardJustPlayed)
-                }
-            } else {
-                if (roemOntwekenDoorLastPlayer(trickSoFar)) { //roem niet gemaakt
-                    val bonusAfter = trickSoFar.getScore().getBonusForPlayer(playerJustMoved)
-                    trickSoFar.removeLastCard()
-                    playerCanHave[playerJustMoved]!!.filter { it.color == cardJustPlayed.color }.forEach { otherCard ->
-                        if (otherCard != cardJustPlayed) {
-                            trickSoFar.addCard(otherCard)
-                            if (trickSoFar.getScore().getBonusForPlayer(playerJustMoved) > bonusAfter) {
-                                addProbablyHasNot(playerJustMoved, otherCard)
-                            }
-                            trickSoFar.removeLastCard()
-                        }
-                    }
-                    trickSoFar.addCard(cardJustPlayed)
+        if (cardJustPlayed == highestCard) {
+            if (trick.isSideToLead(playerJustMoved.opposite()) && trick.isLeadColor(cardJustPlayed.color)) {
+                if (playerHeeftGeseind[playerJustMoved]?.color == cardJustPlayed.color) {
+                    //maat is met kleur gekomen, nadat deze speler dat geseind heeft. Het sein geldt niet meer
+                    setHeeftAfGeseind(playerJustMoved)
+                    setOthersCannotHebbenGeseind(playerJustMoved, cardJustPlayed)
                 }
             }
+            if (playerJustMoved.others().any { playerHeeftGeseind[it]?.color == cardJustPlayed.color }) {
+                setOthersCannotHebbenGeseind(playerJustMoved, cardJustPlayed)
+            }
         }
+
+//        if (trick.isSideToLead(playerJustMoved) && currentRound.isContractOwningSide(playerJustMoved)) {
+//            if (noRealTrumpsPlayed()) {
+//                if (cardJustPlayed.color == trumpColor) {
+//                    if (!cardJustPlayed.isJack(trumpColor)) {
+//                        if (cardJustPlayed.isNine(trumpColor)) {
+//                            addProbablyHas(playerJustMoved, Card(trumpColor, CardRank.JACK))
+//                        } else {
+//                            //speler speelt geen boer en geen negen: probeert boer er uit te krijgen, om eigen nel hoog te maken
+//                            addProbablyHasNot(playerJustMoved, Card(trumpColor, CardRank.JACK))
+//                            addProbablyHas(playerJustMoved, Card(trumpColor, CardRank.NINE))
+//                        }
+//                    }
+//                } else {
+//                    //speler komt met andere kaart dan de boer en ook geen troef
+//                    //todo: wat als het een aas is? (poging eerst roem te spelen, voordat er troef wordt getrokken)?
+//                    addProbablyHasNot(playerJustMoved, Card(trumpColor, CardRank.JACK))
+//                }
+//            }
+//        }
+//
+//        //todo: check op 10 weggegeven --> is die kaal? of noodzaak vanwege roem ontwijken
+//        if (trick.isComplete()) { //playerToMove is last player in this trick that played a card
+//            if (trick.getWinningSide() != playerJustMoved && trick.getWinningSide() != playerJustMoved.opposite()) {
+//                if (roemWeggegevenDoorLastPlayer(trick)) { //roem weggegeven
+//                    val bonusAfter = trick.getScore().getBonusForPlayer(playerJustMoved.clockwiseNext())
+//                    trick.removeLastCard()
+//                    playerCanHave[playerJustMoved]!!.filter { it.color == cardJustPlayed.color }.forEach { otherCard ->
+//                        if (otherCard != cardJustPlayed) {
+//                            trick.addCard(otherCard)
+//                            if (trick.getScore().getBonusForPlayer(playerJustMoved.clockwiseNext()) < bonusAfter) {
+//                                addProbablyHasNot(playerJustMoved, otherCard)
+//                            }
+//                            trick.removeLastCard()
+//                        }
+//                    }
+//                    trick.addCard(cardJustPlayed)
+//                }
+//            } else {
+//                if (roemOntwekenDoorLastPlayer(trick)) { //roem niet gemaakt
+//                    val bonusAfter = trick.getScore().getBonusForPlayer(playerJustMoved)
+//                    trick.removeLastCard()
+//                    playerCanHave[playerJustMoved]!!.filter { it.color == cardJustPlayed.color }.forEach { otherCard ->
+//                        if (otherCard != cardJustPlayed) {
+//                            trick.addCard(otherCard)
+//                            if (trick.getScore().getBonusForPlayer(playerJustMoved) > bonusAfter) {
+//                                addProbablyHasNot(playerJustMoved, otherCard)
+//                            }
+//                            trick.removeLastCard()
+//                        }
+//                    }
+//                    trick.addCard(cardJustPlayed)
+//                }
+//            }
+//        }
     }
 
     private fun roemWeggegevenDoorLastPlayer(trickSoFar: Trick): Boolean {
@@ -352,8 +360,11 @@ class KlaverjassenAnalyzer(
         if (playerHeeftGeseind[side] == null)
             playerHeeftGeseind[side] = card
     }
-    private fun setHeeftAfGeseind() {
-        TableSide.values().forEach { playerHeeftGeseind[it] = null }
+    private fun setHeeftAfGeseind(side: TableSide) {
+        playerHeeftGeseind[side] = null
+    }
+    private fun setOthersCannotHebbenGeseind(side: TableSide, card: Card) {
+        side.others().forEach { if (playerHeeftGeseind[it]?.color == card.color) playerHeeftGeseind[it] = null  }
     }
 
 }

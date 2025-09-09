@@ -6,6 +6,7 @@ import com.cards.game.card.CardRank
 import com.cards.game.klaverjassen.*
 import com.cards.player.Player
 import tool.mylambdas.collectioncombination.mapCombinedItems
+import kotlin.collections.filter
 import kotlin.math.sign
 
 abstract class AbstractChooseCardRule(protected val player: Player) {
@@ -80,9 +81,15 @@ abstract class AbstractChooseCardRule(protected val player: Player) {
     protected fun Card.isHigherThanAllInPlayIncludingMine() = memory.allCardsInPlay.none { it.color == this.color && it.beats(this, trump)}
     protected fun CardColor.highestInPlayOrOnTable() =
         (memory.cardsInPlayOtherPlayers + currentTrick.getCardsPlayed()).filter {it.color == this}.maxByOrNull { it.toRankNumber(trump) }
+
     protected fun CardColor.myHighest() = myLegalCardsByColor[this]?.maxBy { it.toRankNumber(trump) }
     protected fun CardColor.iHaveHighest() = myHighest()?.isHigherThanOtherInPlay()?:false
 
+    protected val myTrumpCards = myCardsInHand.filter { it.isTrump()  }
+    protected fun troefGetrokken() = currentRound.getTrickList().dropLast(1).any { it.isLeadColor(trump)}
+    protected fun othersCanHaveTroef() = memory.cardsInPlayOtherPlayers.any { it.isTrump() }
+    protected fun opponentCanHaveTroef() = (player1.allAssumeCards + player3.allAssumeCards).any { it.isTrump() }
+    protected fun partnerCanHaveTroef() = player2.allAssumeCards.any { it.isTrump() }
 
 
     //------------------------------------------------------------------------------------------------------------------
@@ -90,7 +97,7 @@ abstract class AbstractChooseCardRule(protected val player: Player) {
     protected fun playFallbackCard(info: String? = null): Card {
 //        if (info != null)
 //            println("FALL BACK NOTE: Fallback card info: $info")
-        return myLegalCards.first()
+        return myLegalCards.minBy { it.color.ordinal * 100 + it.rank.ordinal }
     }
 
     //------------------------------------------------------------------------------------------------------------------

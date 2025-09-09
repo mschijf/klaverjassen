@@ -139,3 +139,18 @@ async function run() {
     console.log("After AJAX call");
 }
 
+function requestTakeBackTrick() {
+    let request = new XMLHttpRequest();
+
+    request.open("POST", requestBase + "/takeBackTrick/");
+    request.onreadystatechange = function() {
+        if(this.readyState === 4 && this.status === 200) {
+            let gameStatus = JSON.parse(this.responseText);
+            console.log("IK BEN HIER")
+            handleGameStatus(gameStatus)
+        } else {
+            console.log("IK BEN HIER ONVERWACHT")
+        }
+    };
+    request.send();
+}

@@ -55,6 +55,10 @@ class ControllerKlaverjassen(private val gameService: ServiceKlaverjassen) {
         return gameService.executeTrumpCardChoice(color, tableSide)
     }
 
+    @PostMapping("/takeBackTrick/")
+    fun requestTakeBackTrick(): GameStatusModelKlaverjassen {
+        return gameService.TakeBackTrick()
+    }
 
     private fun createCardPlayResponse(response: CardPlayedModel?): CardPlayedResponse {
         return CardPlayedResponse(response!= null, response)

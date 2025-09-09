@@ -46,6 +46,7 @@ data class Memory(
                     numberOfCardsInHandForSide(playerSide),
                     analyzer.playerCanHave[playerSide]!!,
                     analyzer.playerMustHave[playerSide]!!,
+                    analyzer.playerHeeftGeseind[playerSide]?.color,
                     otherPlayerCanHaveLegalCards(playerSide)
                 )
             }
@@ -107,6 +108,7 @@ data class OtherPlayer(
     val numberOfCardsInHand: Int,
     val canHave: Set<Card>,
     val mustHave: Set<Card>,
+    val geseindeKleur: CardColor?,
     val legalCards: Set<Card>,) {
     val allAssumeCards = canHave + mustHave
 }

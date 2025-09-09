@@ -92,3 +92,8 @@ function doSomeTest() {
     run()
 }
 
+function takeBackTrick() {
+    removeCardsFromTable()
+    requestTakeBackTrick()
+}
+

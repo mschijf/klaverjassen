@@ -36,17 +36,23 @@
     background: rgb(20, 128, 20);
     padding: 2rem;
 }
+.grid-log {
+    grid-area: log;
+    text-align: left;
+    background: rgb(20, 128, 20);
+    padding: 2rem;
+}
 
 .container {
     background:  rgb(20, 128, 20);
     display: grid;
-    grid-template-columns: 50px 175px 500px 175px 10px 400px;
+    grid-template-columns: 50px 175px 500px 175px 10px 400px 400px;
     grid-template-rows: auto;
     grid-template-areas:
-                    ".       signal  north   north  .      info"
-                    ".       west    table   east   .      info"
-                    "south   south   south   south  .      info"
-                    ".       button  button  footer footer footer";
+                    ".       signal  north   north  .      info   log"
+                    ".       west    table   east   .      info   log"
+                    "south   south   south   south  .      info   log"
+                    ".       button  button  footer footer footer footer";
 }
 
 /* ----------------------------------------------------------------------- */
@@ -270,6 +276,22 @@ th.mid-col, td.mid-col {
     text-align: center;
     padding: 10px;
 }
+
+.log {
+    font-size: 10px;
+    color: black;
+    text-align: left;
+
+    width: 100%;
+    height: 750px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #f8f8f8;
+    resize: none;
+}
+
 
 /*--------------------------------------------------------*/
 

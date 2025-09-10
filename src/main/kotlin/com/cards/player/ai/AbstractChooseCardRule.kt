@@ -5,6 +5,7 @@ import com.cards.game.card.CardColor
 import com.cards.game.card.CardRank
 import com.cards.game.klaverjassen.*
 import com.cards.player.Player
+import com.cards.tools.Log
 import tool.mylambdas.collectioncombination.mapCombinedItems
 import kotlin.collections.filter
 import kotlin.math.sign
@@ -96,8 +97,10 @@ abstract class AbstractChooseCardRule(protected val player: Player) {
     //------------------------------------------------------------------------------------------------------------------
 
     protected fun playFallbackCard(info: String? = null): Card {
-        if (info != null && doPrintFallBack)
+        if (info != null && doPrintFallBack) {
+            Log.println("FALL BACK NOTE ($mySide): $info")
             println("FALL BACK NOTE ($mySide): $info")
+        }
         return myLegalCards.minBy { it.color.ordinal * 100 + it.rank.ordinal }
     }
 

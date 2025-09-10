@@ -115,8 +115,8 @@ class ServiceKlaverjassen {
 
     fun computeMove(): CardPlayedModel? {
         val playerToMove = playerGroup.getPlayer(game.getSideToMove())
-        if (playerToMove.getNumberOfCardsInHand() == 2)
-            printGame()
+//        if (playerToMove.getNumberOfCardsInHand() == 2)
+//            printGame()
         val suggestedCardToPlay = playerToMove.chooseCard()
         return executeMove(suggestedCardToPlay.color, suggestedCardToPlay.rank)
     }

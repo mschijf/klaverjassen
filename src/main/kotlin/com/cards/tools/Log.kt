@@ -11,5 +11,9 @@ object Log {
         text.append(msg + "\n")
     }
 
-    fun get() = text.toString()
+    fun get(): String {
+        val result = text.toString()
+        text.clear()
+        return result
+    }
 }

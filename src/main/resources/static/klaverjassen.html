@@ -60,31 +60,6 @@
                 </div>    
             </div>
             
-            <div class="grid-table">
-                <div class="flexcontainer-table">
-                    <img id="trumpCard" src="carddeck/1C.svg" class="card-size-small">
-                    <div class="table-player-west">
-                        <img  id="tableWest" src="carddeck/NoCard.svg" class="card-size-normal">
-                        <div class="player-table-label"><label id="playerNameWest"></label> <label id="hasContractWest"></label></div>
-                    </div>
-                    <div class="flexcontainer-column">
-                        <div class="table-player-north">
-                            <div class="player-table-label"><label id="playerNameNorth"></label> <label id="hasContractNorth"></label></div>
-                            <img id="tableNorth" src="carddeck/NoCard.svg" class="card-size-normal">
-                        </div>
-                        <div class="table-arrow-middle"><img id="pointToWinnerNorth" src="assets/Green_Arrow_Up.svg" class="up-down-arrow"></div>
-                        <div class="table-player-south">
-                            <img id="tableSouth" src="carddeck/NoCard.svg" class="card-size-normal">
-                            <div class="player-table-label"><label id="playerNameSouth"></label> <label id="hasContractSouth"></label></div>
-                        </div>
-                    </div>
-                    <div class="table-player-east">
-                        <img id="tableEast" src="carddeck/NoCard.svg" class="card-size-normal">
-                        <div class="player-table-label"><label id="playerNameEast"></label> <label id="hasContractEast"></label></div>
-                    </div>
-                </div>    
-            </div>
-
             <div class="grid-player-east">
                 <div class="flexcontainer-player-vert">
                     <div class="flexcontainer-player">
@@ -105,6 +80,33 @@
                     </div>
                 </div>
             </div>
+
+
+
+        <div class="grid-table">
+            <div class="flexcontainer-table">
+                <img id="trumpCard" src="carddeck/1C.svg" class="card-size-small">
+                <div class="table-player-west">
+                    <img  id="tableWest" src="carddeck/NoCard.svg" class="card-size-normal">
+                    <div class="player-table-label"><label id="playerNameWest"></label> <label id="hasContractWest"></label></div>
+                </div>
+                <div class="flexcontainer-column">
+                    <div class="table-player-north">
+                        <div class="player-table-label"><label id="playerNameNorth"></label> <label id="hasContractNorth"></label></div>
+                        <img id="tableNorth" src="carddeck/NoCard.svg" class="card-size-normal">
+                    </div>
+                    <div class="table-arrow-middle"><img id="pointToWinnerNorth" src="assets/Green_Arrow_Up.svg" class="up-down-arrow"></div>
+                    <div class="table-player-south">
+                        <img id="tableSouth" src="carddeck/NoCard.svg" class="card-size-normal">
+                        <div class="player-table-label"><label id="playerNameSouth"></label> <label id="hasContractSouth"></label></div>
+                    </div>
+                </div>
+                <div class="table-player-east">
+                    <img id="tableEast" src="carddeck/NoCard.svg" class="card-size-normal">
+                    <div class="player-table-label"><label id="playerNameEast"></label> <label id="hasContractEast"></label></div>
+                </div>
+            </div>
+        </div>
 
             <div class="grid-player-south">
                 <div class="flexcontainer-player">
@@ -276,12 +278,14 @@
                     <tr><td colspan="6" class="info-line" id="shuffleSeed"></td></tr>
                 </table>
             </div>
-
+            <div class="grid-log">
+                <textarea id="log" rows="45" cols="40" readonly class="log"></textarea>
+            </div>
         </div>
         <button id="buttonNew" onclick="initGame()">NEW</button>
-        <button id="buttonPlay" onclick="requestComputeMove()">PLAY</button>
         <button id="buttonJson" onclick="showJson()">JSON</button>
         <button id="buttontest" onclick="doSomeTest()">TEST</button>
+        <button id="buttonPlay" onclick="requestComputeMove()">PLAY</button>
         <button id="buttonTakeBack" onclick="takeBackTrick()">Take Back Trick</button>
         <div id="jsonText"></div>
         <!-- Card images by Adrian Kennard - Own work, CC0, <a href="https://commons.wikimedia.org/w/index.php?curid=70667162">https://commons.wikimedia.org/w/index.php?curid=70667162</a>     -->

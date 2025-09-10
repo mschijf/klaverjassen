@@ -419,6 +419,7 @@ function resetTableCardAnimation(to, from) {
 //-----------------------------------------------------------------------------------------
 
 function handleLog(logLines) {
-    //todo: do something with log lines?
+    let log = document.getElementById("log")
+    log.innerHTML = log.innerHTML + logLines
 }
 

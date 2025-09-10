@@ -187,6 +187,9 @@ class IDontHaveLeadColorNorTrumpRule(player: Player): AbstractChooseCardFollower
         if (coveredTenCardCandidates.isNotEmpty())
             return coveredTenCardCandidates.last()
 
+        //todo: onderzoeken waarom roemSUre en roemPossible this trick wel van invloed is
+        //      logichefrwijs zou het weg moeten kunnen
+        //      kan komen door de twee random spelers
         return myLegalCards.filter{ !it.isAce() && !it.isTen() }.maxByOrNull { card ->
             2 * card.cardValue() +
                     -1 * card.kaalMakendeKaartPenalty() +
@@ -239,8 +242,6 @@ class IDontHaveLeadColorNorTrumpRule(player: Player): AbstractChooseCardFollower
         return myLegalCards.minBy { card ->
             2 * card.cardValue() +
                     card.kaalMakendeKaartPenalty() +
-                    roemSureThisTrickByCandidate(card) +
-                    (if (roemPossibleThisTrickByCandidate(card) > 0) 10 else 0) +
                     (if (isRoemPossibleNextTrick(card)) 5 else 0)
         }
     }

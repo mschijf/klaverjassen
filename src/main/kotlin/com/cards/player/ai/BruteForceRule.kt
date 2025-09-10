@@ -16,9 +16,9 @@ class BruteForceRule(player: Player): AbstractChooseCardRule(player) {
     override fun chooseCard(): Card {
         val combinations = getCombinations()
         val cardValueList = combinations.map { combination ->
-            fakeGroup.getPlayer(p1).setCardsInHand(combination.first)
-            fakeGroup.getPlayer(p2).setCardsInHand(combination.second)
-            fakeGroup.getPlayer(p3).setCardsInHand(combination.third)
+            fakeGroup.getPlayer(player1Side).setCardsInHand(combination.first)
+            fakeGroup.getPlayer(player2Side).setCardsInHand(combination.second)
+            fakeGroup.getPlayer(player3Side).setCardsInHand(combination.third)
             val valuePerCard = tryCard()
 //            println("$combination    -->  %-3s %4d %-3s %4d ".format(valuePerCard[0].card, valuePerCard[0].value, valuePerCard[1].card, valuePerCard[1].value))
             valuePerCard
@@ -97,9 +97,9 @@ class BruteForceRule(player: Player): AbstractChooseCardRule(player) {
         return PlayerGroup(
             listOf(
                 player,
-                Player(p1, currentGame),
-                Player(p2, currentGame),
-                Player(p3, currentGame))
+                Player(player1Side, currentGame),
+                Player(player2Side, currentGame),
+                Player(player3Side, currentGame))
             )
     }
 

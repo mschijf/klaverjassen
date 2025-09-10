@@ -1,7 +1,6 @@
 package com.cards.player.ai
 
 import com.cards.game.card.Card
-import com.cards.game.klaverjassen.TableSide
 import com.cards.game.klaverjassen.beats
 import com.cards.game.klaverjassen.toRankNumberTrump
 import com.cards.player.Player
@@ -30,6 +29,10 @@ TROEF BIJLOPEN
 *** 1e ronde tegenstander gaat en komt met boer
     vbd trick: b   zelf: 10,v  dan 10 (kans op 9 bij tegenpartij is groot en kans op 40,70 met vrouw te groot)
 
+*** 1e ronde tegenstander gaat en komt laag (wil boer er uit halen)
+    je hebt naast boer nog een keuze
+    --> gooi andere (als 2e en 4e speler).
+    --> check roem (als 3e speler)
 
  */
 
@@ -48,16 +51,38 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: Player): AbstractChooseCar
             }
         }
 
-        if (contractOwner.isOtherParty() && iAmFourthPlayer && myLegalCards.first().beats(currentTrick.getWinningCard(), trump)) {
-            if (trumpNine in myLegalCards && trumpJack in memory.cardsInPlayOtherPlayers)
-                return trumpNine
-            if (trumpAce in myLegalCards && (trumpJack in memory.cardsInPlayOtherPlayers || trumpNine in memory.cardsInPlayOtherPlayers))
-                return trumpAce
-            if (trumpTen in myLegalCards && (trumpJack in memory.cardsInPlayOtherPlayers || trumpNine in memory.cardsInPlayOtherPlayers || trumpAce in memory.cardsInPlayOtherPlayers))
-                return trumpTen
-            return myLegalCards.minBy { it.toRankNumberTrump() }
+        if (contractOwner.isOtherParty() && myLegalCards.first().beats(currentTrick.getWinningCard(), trump)) {
+            if (iAmFourthPlayer) {
+                if (trumpJack in myLegalCards && trumpNine in memory.cardsInPlayOtherPlayers) {
+                    val extraTrickWinByJack = 2 * (trumpJack.cardValue() + 3)
+                    val maxPointsOther = (myLegalCards - trumpJack).maxOf { card -> 2 * card.cardValue() + roemSureThisTrickByCandidate(card) } + extraTrickWinByJack
+                    val maxPointsJack = 2 * trumpJack.cardValue() + roemSureThisTrickByCandidate(trumpJack)
+                    if (maxPointsJack > maxPointsOther)
+                        return trumpJack
+                    return (myLegalCards - trumpJack).maxBy { card -> 2 * card.cardValue() + roemSureThisTrickByCandidate(card) }
+                }
+                if (trumpNine in myLegalCards && trumpJack in memory.cardsInPlayOtherPlayers)
+                    return trumpNine
+                if (trumpAce in myLegalCards && (trumpJack in memory.cardsInPlayOtherPlayers || trumpNine in memory.cardsInPlayOtherPlayers))
+                    return trumpAce
+                if (trumpTen in myLegalCards && (trumpJack in memory.cardsInPlayOtherPlayers || trumpNine in memory.cardsInPlayOtherPlayers || trumpAce in memory.cardsInPlayOtherPlayers))
+                    return trumpTen
+                return myLegalCards.minBy { it.toRankNumberTrump() }
+            }
+            if (iAmSecondPlayer) {
+                if (leadPlayer == contractOwner && trumpJack in myLegalCards && trumpNine in memory.cardsInPlayOtherPlayers) {
+                    return (myLegalCards - trumpJack).maxBy { it.toRankNumberTrump() }
+                }
+                if (leadPlayer == player3Side && trumpJack in myLegalCards && trumpNine in memory.cardsInPlayOtherPlayers) {
+                    return (myLegalCards - trumpJack).minBy { it.toRankNumberTrump() }
+                }
+            }
+            if (iAmThirdPlayer) {
+                if (trumpJack in myLegalCards && trumpNine in memory.cardsInPlayOtherPlayers) {
+                    return trumpJack
+                }
+            }
         }
-
 
         if (winningSide.isOtherParty() && winningCard.isJack()) {
             return if (trumpNine !in myLegalCards) {
@@ -94,7 +119,7 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: Player): AbstractChooseCar
             }
         }
 
-        return playFallbackCard()
+        return playFallbackCard(this.javaClass.simpleName + ": choosecard")
     }
 
     //------------------------------------------------------------------------------------------------------------------

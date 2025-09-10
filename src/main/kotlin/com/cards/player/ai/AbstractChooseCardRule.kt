@@ -20,6 +20,7 @@ abstract class AbstractChooseCardRule(protected val player: Player) {
     protected val currentTrick = currentRound.getTrickOnTable()
     protected val trump = player.game.getCurrentRound().getTrumpColor()
     protected val contractOwner = player.game.getCurrentRound().getContractOwningSide()
+    protected val leadPlayer = currentTrick.getSideToLead()
 
     protected fun Card.cardValue() = this.cardValue(trump)
     protected fun iHaveCard(card: Card) = card in player.getCardsInHand()
@@ -34,10 +35,10 @@ abstract class AbstractChooseCardRule(protected val player: Player) {
     protected val myLegalCards = player.getLegalPlayableCards()
     protected val myLegalCardsByColor = myLegalCards.groupBy { it.color }
 
-    protected val p1 = player.tableSide.clockwiseNext(1)
-    protected val p2 = player.tableSide.clockwiseNext(2)
-    protected val p3 = player.tableSide.clockwiseNext(3)
-    protected val partner = p2
+    protected val player1Side = player.tableSide.clockwiseNext(1)
+    protected val player2Side = player.tableSide.clockwiseNext(2)
+    protected val player3Side = player.tableSide.clockwiseNext(3)
+    protected val partner = player2Side
 
     protected val nTrickCardsPlayed = currentTrick.getCardsPlayed().size
     protected val iAmFirstPlayer = nTrickCardsPlayed == 0
@@ -45,17 +46,17 @@ abstract class AbstractChooseCardRule(protected val player: Player) {
     protected val iAmThirdPlayer = nTrickCardsPlayed == 2
     protected val iAmFourthPlayer = nTrickCardsPlayed == 3
 
-    protected val theyOwnContract = contractOwner == p1 || contractOwner == p3
-    protected val iAmContractOwnersPartner = contractOwner == p2
+    protected val theyOwnContract = contractOwner == player1Side || contractOwner == player3Side
+    protected val iAmContractOwnersPartner = contractOwner == player2Side
     protected val iAmContractOwner = !theyOwnContract && !iAmContractOwnersPartner
 
     private val playerMap = memory.playerList.associateBy { it.tableSide }
     protected fun player(side: TableSide) = playerMap[side]?:throw Exception("asked for wrong player")
-    protected val player1 = playerMap[p1]!!
-    protected val player2 = playerMap[p2]!!
-    protected val player3 = playerMap[p3]!!
+    protected val player1 = playerMap[player1Side]!!
+    protected val player2 = playerMap[player2Side]!!
+    protected val player3 = playerMap[player3Side]!!
 
-    protected val partnerCards = player(p2).allAssumeCards
+    protected val partnerCards = player(player2Side).allAssumeCards
     protected val partnerCardColors = partnerCards.map {it.color}.toSet()
 
     private val colorPlayedMap = memory.cardsPlayed.groupingBy { it.color }.eachCount()
@@ -70,7 +71,7 @@ abstract class AbstractChooseCardRule(protected val player: Player) {
     protected fun Card.isTrump() = this.color == trump
 
     protected fun TableSide.isPartner() = this == partner
-    protected fun TableSide.isOtherParty() = this == p1 || this == p3
+    protected fun TableSide.isOtherParty() = this == player1Side || this == player3Side
     protected fun TableSide.isContractOwner() = this == contractOwner
 
     protected fun Card.isKaal() = myLegalCardsByColor[this.color]!!.size == 1
@@ -95,8 +96,8 @@ abstract class AbstractChooseCardRule(protected val player: Player) {
     //------------------------------------------------------------------------------------------------------------------
 
     protected fun playFallbackCard(info: String? = null): Card {
-//        if (info != null)
-//            println("FALL BACK NOTE: Fallback card info: $info")
+        if (info != null && doPrintFallBack)
+            println("FALL BACK NOTE ($mySide): $info")
         return myLegalCards.minBy { it.color.ordinal * 100 + it.rank.ordinal }
     }
 
@@ -200,6 +201,10 @@ abstract class AbstractChooseCardRule(protected val player: Player) {
 //            return best
 //        }
 //    }
+
+    companion object {
+        var doPrintFallBack = true
+    }
 
 }
 

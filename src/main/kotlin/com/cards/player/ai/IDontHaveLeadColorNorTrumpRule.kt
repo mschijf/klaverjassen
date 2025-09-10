@@ -63,8 +63,9 @@ class IDontHaveLeadColorNorTrumpRule(player: Player): AbstractChooseCardFollower
             if (weCannotWinThisTrick()) {
                 return slagAanTegenstanderEnHetKanOnzeSlagNietWorden()
             } else {
-//                Slag aan tegenstander - maar we kunnen deze slag nog winnen (i am 2,3 or 4)
-                return playFallbackCard()
+//                Slag aan tegenstander - maar we kunnen deze slag nog winnen (iAmSecondPlayer2 en maat in de achterhand)
+//                Maar we kunnen ook verliezen
+                return slagAanTegenstanderEnOnduidelijkWieSlagGaatWinnen()
             }
         }
     }
@@ -141,7 +142,7 @@ class IDontHaveLeadColorNorTrumpRule(player: Player): AbstractChooseCardFollower
         if (bareCardCandidates.isNotEmpty())
             return bareCardCandidates.last() //let op, je gooit evt nu een kale 7 weg
 
-        return playFallbackCard("Slag aan maat (en andere partij gaat) en zeker weten dat slag aan maat blijft:")
+        return playFallbackCard(this.javaClass.simpleName + ": Slag aan maat (en andere partij gaat) en zeker weten dat slag aan maat blijft:")
     }
 
 
@@ -192,7 +193,7 @@ class IDontHaveLeadColorNorTrumpRule(player: Player): AbstractChooseCardFollower
                     1 * roemSureThisTrickByCandidate(card) +
                     1 * (if (roemPossibleThisTrickByCandidate(card) > 0) 10 else 0) +
                     -1 * (if (isRoemPossibleNextTrick(card)) 5 else 0)
-        } ?: playFallbackCard("Slag aan maat (en maat gaat) en slag blijft bij maat")
+        } ?: playFallbackCard(this.javaClass.simpleName + ": Slag aan maat (en maat gaat) en slag blijft bij maat")
     }
 
     private fun slagAanMaatEnMaatGaatEnNietZekerDatSlagAanMaatBlijft(): Card {
@@ -206,11 +207,12 @@ class IDontHaveLeadColorNorTrumpRule(player: Player): AbstractChooseCardFollower
 
         val evaluationRankOrder = listOf(CardRank.NINE, CardRank.EIGHT, CardRank.SEVEN, CardRank.JACK, CardRank.QUEEN, CardRank.KING, CardRank.TEN, CardRank.ACE)
         return myLegalCards.minBy { card ->
-            2 * evaluationRankOrder.indexOf(card.rank)
-            1 * card.kaalMakendeKaartPenalty() +
-                    1 * roemSureThisTrickByCandidate(card) +
-                    1 * (if (isRoemPossibleNextTrick(card)) 5 else 0)
-        }
+            2 * evaluationRankOrder.indexOf(card.rank) +
+                    1 * card.kaalMakendeKaartPenalty() }
+    }
+
+    private fun slagAanTegenstanderEnOnduidelijkWieSlagGaatWinnen(): Card {
+        return slagAanMaatEnMaatGaatEnNietZekerDatSlagAanMaatBlijft()
     }
 
     private fun slagAanTegenstanderEnHetKanOnzeSlagNietWorden():Card {

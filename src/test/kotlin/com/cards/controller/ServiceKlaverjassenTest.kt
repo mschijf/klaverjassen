@@ -7,12 +7,11 @@ import com.cards.game.klaverjassen.ScoreType
 import com.cards.game.klaverjassen.TableSide
 import com.cards.player.Player
 import com.cards.player.PlayerGroup
+import com.cards.player.ai.AbstractChooseCardRule
 import com.cards.player.ai.GeniusPlayerKlaverjassen
-import com.cards.player.ai.KlaverjassenAnalyzer
 import com.cards.tools.RANDOMIZER
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import kotlin.collections.reduce
 
 class ServiceKlaverjassenTest {
     @Test
@@ -55,6 +54,8 @@ class ServiceKlaverjassenTest {
     @Test
     fun runTestGenius() {
 
+        AbstractChooseCardRule.doPrintFallBack = false
+
         val startTime = System.currentTimeMillis()
         var natCountNS = 0
         var natCountEW = 0
@@ -86,7 +87,9 @@ class ServiceKlaverjassenTest {
         val winsEW = serie.count { it.getNorthSouthTotal() < it.getEastWestTotal() }
         println("number of wins: %10d %10d".format(winsNS,winsEW))
         val total = serie.reduce { acc, score -> acc.plus(score) }
-        println("Points          %10d %10d".format(total.getNorthSouthTotal(), total.getEastWestTotal()))
+        println("Total           %10d %10d".format(total.getNorthSouthTotal(), total.getEastWestTotal()))
+        println("Points          %10d %10d".format(total.northSouthPoints, total.eastWestPoints))
+        println("Bonus           %10d %10d".format(total.northSouthBonus, total.eastWestBonus))
         println("Pit             %10d %10d".format(pitCountNS, pitCountEW))
         println("Nat             %10d %10d".format(natCountNS, natCountEW))
         val timePassed = System.currentTimeMillis() - startTime

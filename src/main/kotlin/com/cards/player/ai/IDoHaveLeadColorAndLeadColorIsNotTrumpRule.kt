@@ -100,7 +100,7 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
 
         //todo: if weWillWin --> throw highestValue
         //      if we can loose --> throw lowest
-        return playFallbackCard()
+        return playFallbackCard(this.javaClass.simpleName + ": choosecard")
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -166,7 +166,7 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
         if (myLegalCards.size >= 4)
             return myHighest
 
-        return playFallbackCard()
+        return playFallbackCard(this.javaClass.simpleName + ": playColorForFirstTimeAndIHaveHighest")
     }
 
     //todo: meer kijken naar de mogelijkheden met wel of niet roem ontwijken

@@ -76,7 +76,7 @@ class IAmLeadPlayerIOwnContractRule(player: Player): AbstractChooseCardLeaderRul
                     return trumpCard
                 val seinKaart = myCardsInHand
                     .filter {it.color == player2.geseindeKleur}
-                    .maxBy { roemPossibleThisTrickByCandidate(it) }
+                    .maxByOrNull { roemPossibleThisTrickByCandidate(it) }
                 if (seinKaart != null)
                     return seinKaart
             }
@@ -99,6 +99,7 @@ class IAmLeadPlayerIOwnContractRule(player: Player): AbstractChooseCardLeaderRul
         }
 
 
+//        return playFallbackCard(this.javaClass.simpleName+ ": chooseCard")
         return playFallbackCard()
     }
 

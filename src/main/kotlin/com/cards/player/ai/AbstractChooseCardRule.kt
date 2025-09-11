@@ -92,7 +92,7 @@ abstract class AbstractChooseCardRule(protected val player: Player) {
     protected fun CardColor.iHaveHighest() = myHighest()?.isHigherThanOtherInPlay()?:false
 
     protected val myTrumpCards = myCardsInHand.filter { it.isTrump()  }
-    protected fun troefGetrokken() = currentRound.getTrickList().dropLast(1).any { it.isLeadColor(trump)}
+    protected fun erIsEerderTroefGetrokken() = currentRound.getTrickList().dropLast(1).any { it.isLeadColor(trump)}
     protected fun othersCanHaveTroef() = memory.cardsInPlayOtherPlayers.any { it.isTrump() }
     protected fun opponentCanHaveTroef() = (player1.allAssumeCards + player3.allAssumeCards).any { it.isTrump() }
     protected fun partnerCanHaveTroef() = player2.allAssumeCards.any { it.isTrump() }

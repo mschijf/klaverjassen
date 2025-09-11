@@ -60,9 +60,10 @@ class IAmLeadPlayerIOwnContractRule(player: Player): AbstractChooseCardLeaderRul
                         .filter { it.isHigherThanOtherInPlay() }
                         .maxBy { roemPossibleThisTrickByCandidate(it) }
                 else
-                    myTrumpCards
-                        .filter { it.isHigherThanOtherInPlay() }
-                        .maxBy { roemPossibleThisTrickByCandidate(it) }
+                    myTrumpCards.maxBy {
+                        //if (it.isHigherThanOtherInPlay()) 10 else 0 +
+                        roemPossibleThisTrickByCandidate(it)
+                    }
             } else if (myCardsInHand.size - potentialTricksToWinByMe >= 1 && potentialTricksToWinByPartner >= 1) {
                 val highBijkaart = (myCardsInHand - myTrumpCards)
                     .filter { it.isHigherThanOtherInPlay() }
@@ -166,8 +167,9 @@ class IAmLeadPlayerIOwnContractRule(player: Player): AbstractChooseCardLeaderRul
     private fun potentialTricksToWinByPartner(): Int {
         if (opponentCanHaveTroef())
             return -1
+        val trumpCards = player2.allAssumeCards.count { it.isTrump() }
         return if (myCardsInHand.any { it.color == player2.geseindeKleur })
-            1
+            1 + trumpCards
         else
             0
     }

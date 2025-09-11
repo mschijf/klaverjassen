@@ -118,6 +118,23 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: Player): AbstractChooseCar
                         1 * (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MIN else 0)
             }
         }
+
+        if (contractOwner.isPartner() && winningSide.isPartner()) {
+            if (winningCard.isNine()) //assume partner has jack as well
+                return myLegalCards.maxBy { card ->
+                    1 * roemSureThisTrickByCandidate(card) +
+                            1 * (if (roemPossibleThisTrickByCandidate(card) > 0) 15 else 0) +
+                            -1 * (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MAX else 0)
+                }
+            if (player1.legalCards.none{it.beats(winningCard, trump)}) {
+                return myLegalCards.maxBy { card ->
+                    1 * roemSureThisTrickByCandidate(card) +
+                            1 * (if (roemPossibleThisTrickByCandidate(card) > 0) 15 else 0) +
+                            1 * (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MAX else 0)
+                }
+            }
+        }
+
         if (iAmThirdPlayer || iAmFourthPlayer)
             return cardGivingBestValueByPlayingFullTrick()
 
@@ -141,6 +158,7 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: Player): AbstractChooseCar
             player2.legalCards.none { it.beats(winningCard, trump) }
         }
     }
+
 
 
     private fun keepCardInHandToPreventPit(card: Card) = (memory.numberOfTricksWonByUs == 0) && !denkIkNogEenSlagTeHalenZonder(card)

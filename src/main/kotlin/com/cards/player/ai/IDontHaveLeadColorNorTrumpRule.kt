@@ -207,7 +207,16 @@ class IDontHaveLeadColorNorTrumpRule(player: Player): AbstractChooseCardFollower
 //                    ==> als kans groot dat slag bij maat blijft dan b,h,v, 9,8,7 , 10,a
 //                    (let wel: gedekte 10 van niet gespeelde kleur is meer waard dan vrije aas.)
 
-        val evaluationRankOrder = listOf(CardRank.NINE, CardRank.EIGHT, CardRank.SEVEN, CardRank.JACK, CardRank.QUEEN, CardRank.KING, CardRank.TEN, CardRank.ACE)
+        val kaleGevaarlijkeKaarten = myLegalCards.filter { myCard ->
+            myCard.isKaal() && !myCard.isTen() && !myCard.isAce() &&
+                    isRoemPossibleNextTrick(myCard) &&
+                    (player1.allAssumeCards + player3.allAssumeCards).any { it.isHigherThanAllInPlayIncludingMine() }
+        }
+
+        val evaluationRankOrder = listOf(CardRank.NINE, CardRank.JACK, CardRank.EIGHT, CardRank.QUEEN, CardRank.SEVEN, CardRank.KING, CardRank.TEN, CardRank.ACE)
+        if (kaleGevaarlijkeKaarten.isNotEmpty())
+            return kaleGevaarlijkeKaarten.minBy { evaluationRankOrder.indexOf(it.rank)  }
+
         return myLegalCards.minBy { card ->
             2 * evaluationRankOrder.indexOf(card.rank) +
                     1 * card.kaalMakendeKaartPenalty() }

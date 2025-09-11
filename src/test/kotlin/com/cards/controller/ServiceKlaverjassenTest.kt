@@ -12,6 +12,7 @@ import com.cards.player.ai.GeniusPlayerKlaverjassen
 import com.cards.tools.RANDOMIZER
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.util.Locale
 
 class ServiceKlaverjassenTest {
     @Test
@@ -87,11 +88,13 @@ class ServiceKlaverjassenTest {
         val winsEW = serie.count { it.getNorthSouthTotal() < it.getEastWestTotal() }
         println("number of wins: %10d %10d".format(winsNS,winsEW))
         val total = serie.reduce { acc, score -> acc.plus(score) }
-        println("Total           %10d %10d".format(total.getNorthSouthTotal(), total.getEastWestTotal()))
-        println("Points          %10d %10d".format(total.northSouthPoints, total.eastWestPoints))
-        println("Bonus           %10d %10d".format(total.northSouthBonus, total.eastWestBonus))
-        println("Pit             %10d %10d".format(pitCountNS, pitCountEW))
-        println("Nat             %10d %10d".format(natCountNS, natCountEW))
+        println(String.format(Locale.GERMANY,"Total           %,10d %,10d",total.getNorthSouthTotal(), total.getEastWestTotal()))
+        println(String.format(Locale.GERMANY,"Points          %,10d %,10d", total.northSouthPoints, total.eastWestPoints))
+
+        println(String.format(Locale.GERMANY,"Bonus           %,10d %,10d",total.northSouthBonus, total.eastWestBonus))
+        println(String.format(Locale.GERMANY,"Pit             %,10d %,10d",pitCountNS, pitCountEW))
+        println(String.format(Locale.GERMANY,"Nat             %,10d %,10d",natCountNS, natCountEW))
+
         val timePassed = System.currentTimeMillis() - startTime
         println("Total time passed: %d.%03d sec".format(timePassed / 1000, timePassed % 1000))
         val max = GeniusPlayerKlaverjassen.maxTiming

@@ -34,6 +34,8 @@ class ServiceKlaverjassen {
         }
 
     fun newGame(): GameStatusModelKlaverjassen {
+//        RANDOMIZER.setSeed(282780278)
+//        game = Game(TableSide.SOUTH)
         game = Game()
         playerGroup = PlayerGroup(createInitialPlayerList())
         playerGroup.dealCards()
@@ -103,7 +105,7 @@ class ServiceKlaverjassen {
     }
 
     private fun getGeniusCardValue(geniusPlayerKlaverjassen: GeniusPlayerKlaverjassen, card: Card): String {
-        val bc = if (geniusPlayerKlaverjassen.tableSide == TableSide.SOUTH && game.getSideToMove() == TableSide.SOUTH)
+        val bc = if (geniusPlayerKlaverjassen.tableSide == TableSide.SOUTH && game.getSideToMove() == TableSide.SOUTH && geniusPlayerKlaverjassen.getLegalPlayableCards().isNotEmpty())
             geniusPlayerKlaverjassen.chooseCard()
         else
             null

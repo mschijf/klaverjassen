@@ -7,8 +7,9 @@ import com.cards.game.klaverjassen.ScoreType
 import com.cards.game.klaverjassen.TableSide
 import com.cards.player.Player
 import com.cards.player.PlayerGroup
-import com.cards.player.ai.AbstractChooseCardRule
-import com.cards.player.ai.GeniusPlayerKlaverjassen
+import com.cards.player.ai.main.AbstractChooseCardRule
+import com.cards.player.ai.main.GeniusPlayerKlaverjassen as mainGenius
+import com.cards.player.ai.v0.GeniusPlayerKlaverjassen as v0Genius
 import com.cards.tools.RANDOMIZER
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -70,8 +71,12 @@ class ServiceKlaverjassenTest {
 //            if (it % 10 == 0) println(it)
             val game = Game()
             val playerGroup = PlayerGroup(
-                listOf(Player(TableSide.WEST, game), GeniusPlayerKlaverjassen(TableSide.NORTH, game),
-                    Player(TableSide.EAST, game), GeniusPlayerKlaverjassen(TableSide.SOUTH, game),)
+                listOf(
+                    v0Genius(TableSide.WEST, game),
+                    mainGenius(TableSide.NORTH, game),
+                    v0Genius(TableSide.EAST, game),
+                    mainGenius(TableSide.SOUTH, game),
+                    )
             )
             val scoresPerRound = testOneGame(game, playerGroup)
             pitCountNS += scoresPerRound.count { it.getNorthSouthTotal() > 0 && it.scoreType == ScoreType.PIT }
@@ -97,9 +102,9 @@ class ServiceKlaverjassenTest {
 
         val timePassed = System.currentTimeMillis() - startTime
         println("Total time passed: %d.%03d sec".format(timePassed / 1000, timePassed % 1000))
-        val max = GeniusPlayerKlaverjassen.maxTiming
+        val max = mainGenius.maxTiming
         println("maxTime choose card: %d.%03d sec".format(max / 1000, max  % 1000))
-        val avg = GeniusPlayerKlaverjassen.avgTiming()
+        val avg = mainGenius.avgTiming()
         println("avg time choose card: %d.%03d sec".format(avg / 1000, avg  % 1000))
 
 //        val totalTiming = GeniusPlayerKlaverjassen.totalTiming

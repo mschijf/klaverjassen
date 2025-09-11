@@ -1,4 +1,4 @@
-package com.cards.player.ai
+package com.cards.player.ai.v0
 
 import com.cards.game.card.CARDDECK
 import com.cards.game.card.Card

@@ -4,6 +4,8 @@ import com.cards.game.card.Card
 import com.cards.game.card.CardColor
 import com.cards.game.klaverjassen.Game
 import com.cards.game.klaverjassen.TableSide
+import com.cards.player.ai.main.BruteForceRule
+import com.cards.player.ai.main.GeniusPlayerKlaverjassen
 import org.junit.jupiter.api.Test
 
 class BruteForceTest {

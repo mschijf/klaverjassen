@@ -11,7 +11,7 @@ import com.cards.game.klaverjassen.ScoreType
 import com.cards.game.klaverjassen.TableSide
 import com.cards.player.Player
 import com.cards.player.PlayerGroup
-import com.cards.player.ai.GeniusPlayerKlaverjassen
+import com.cards.player.ai.main.GeniusPlayerKlaverjassen
 import com.cards.tools.RANDOMIZER
 import org.springframework.stereotype.Service
 

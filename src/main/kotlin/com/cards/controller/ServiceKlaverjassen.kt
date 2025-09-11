@@ -30,7 +30,7 @@ class ServiceKlaverjassen {
 
     private var playerGroup = PlayerGroup(createInitialPlayerList())
         .also {
-            RANDOMIZER.setSeed(1426494019)
+//            RANDOMIZER.setSeed(1426494019)
             it.dealCards()
         }
 
@@ -64,10 +64,6 @@ class ServiceKlaverjassen {
 
         val gameJsonString = ""
         val newRoundToBeStarted = game.newRoundToBeStarted()
-
-//        println("====================================================================================================")
-//        println("To Move: $sideToMove")
-//        (playerGroup.getPlayer(TableSide.SOUTH) as GeniusPlayerKlaverjassen).printAnalyzer()
 
         return GameStatusModelKlaverjassen(
             generic = GameStatusModel(
@@ -108,15 +104,15 @@ class ServiceKlaverjassen {
     }
 
     private fun getGeniusCardValue(geniusPlayerKlaverjassen: GeniusPlayerKlaverjassen, card: Card): String {
-//        val valueList = geniusPlayerKlaverjassen.getCardPlayedValueList()
-//        return valueList.firstOrNull{card == it.card}?.value?.toString()?:"x"
-        return if (geniusPlayerKlaverjassen.tableSide == TableSide.SOUTH) " " else if (card.isJack()) "x" else " "
+        val bc = if (geniusPlayerKlaverjassen.tableSide == TableSide.SOUTH && game.getSideToMove() == TableSide.SOUTH)
+            geniusPlayerKlaverjassen.chooseCard()
+        else
+            null
+        return if (card == bc) "X" else " "
     }
 
     fun computeMove(): CardPlayedModel? {
         val playerToMove = playerGroup.getPlayer(game.getSideToMove())
-//        if (playerToMove.getNumberOfCardsInHand() == 2)
-//            printGame()
         val suggestedCardToPlay = playerToMove.chooseCard()
         return executeMove(suggestedCardToPlay.color, suggestedCardToPlay.rank)
     }
@@ -143,6 +139,9 @@ class ServiceKlaverjassen {
             null
 
         val nextSideToPlay = if (gameStatus.gameFinished) GAME_START_PLAYER else game.getSideToMove()
+
+        if (gameStatus.gameFinished)
+            printGame()
 
         return CardPlayedModel(
             playerToMove.tableSide,

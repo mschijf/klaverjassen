@@ -73,9 +73,8 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
     //------------------------------------------------------------------------------------------------------------------
 
     override fun chooseCard(): Card {
-        if (iAmFourthPlayer) {
+        if (iAmFourthPlayer)
             return playFourthPLayer()
-        }
 
         if (weCannotWinThisTrick())
             return playWeCannotWinThisTrick()
@@ -91,16 +90,21 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
                 return playColorForFirstTimeAndIDoNotHaveHighestAndIHighestStillInPlay()
         }
 
-        if (leadColor.playedForSecondTime())
+        if (leadColor.playedForSecondTime()) {
             if (leadColor.iHaveHighest())
                 return playColorSecondTimeAndIHaveHighest()
+        }
 
         if (winningSide.isPartner() && myLegalCards.all{it.isVrij()})
             playNoMoreOfColorAndPartnerIsWinning()
 
+        if (iAmThirdPlayer)
+            return cardGivingBestValueByPlayingFullTrick()
+
         //todo: if weWillWin --> throw highestValue
         //      if we can loose --> throw lowest
-        return playFallbackCard(this.javaClass.simpleName + ": choosecard")
+//        return cardGivingBestValueByPlayingFullTrick()
+        return playFallbackCard(this.javaClass.simpleName)
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -113,7 +117,7 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
             2 * card.cardValue() +
                     roemSureThisTrickByCandidate(card) +
                     roemPossibleThisTrickByCandidate(card)/2 +
-                    (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                    (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MIN else 0)
         }
     }
 
@@ -191,7 +195,7 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
                 2 * card.cardValue() +
                         roemSureThisTrickByCandidate(card) +
                         roemPossibleThisTrickByCandidate(card)/2 +
-                        (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                        (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MIN else 0)
             }
         }
 
@@ -200,7 +204,7 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
                 2 * card.cardValue() +
                         roemSureThisTrickByCandidate(card) +
                         roemPossibleThisTrickByCandidate(card)/2 +
-                        (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                        (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MIN else 0)
             }
         }
 
@@ -209,14 +213,14 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
                 2 * card.cardValue() +
                         roemSureThisTrickByCandidate(card) +
                         roemPossibleThisTrickByCandidate(card)/2 +
-                        (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                        (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MIN else 0)
             }
         } else {
             myLegalCards.maxBy { card ->
                 2 * card.cardValue() +
                         roemSureThisTrickByCandidate(card) +
                         roemPossibleThisTrickByCandidate(card)/2 +
-                        (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                        (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MAX else 0)
             }
         }
     }
@@ -286,7 +290,7 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
             2 * card.cardValue() +
                     roemSureThisTrickByCandidate(card) +
                     roemPossibleThisTrickByCandidate(card)/2 +
-                    (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                    (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MAX else 0)
         }
     }
 
@@ -300,7 +304,7 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
                 2 * card.cardValue() +
                         roemSureThisTrickByCandidate(card) +
                         roemPossibleThisTrickByCandidate(card)/2 +
-                        (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                        (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MAX else 0)
             }
 
         if (player1.allAssumeCards.any { it.color == trump })
@@ -308,14 +312,14 @@ class IDoHaveLeadColorAndLeadColorIsNotTrumpRule(player: Player): AbstractChoose
                 2 * card.cardValue() +
                         roemSureThisTrickByCandidate(card) +
                         roemPossibleThisTrickByCandidate(card)/2 +
-                        (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                        (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MIN else 0)
             }
 
         return myLegalCards.maxBy { card ->
             2 * card.cardValue() +
                     roemSureThisTrickByCandidate(card) +
                     roemPossibleThisTrickByCandidate(card)/2 +
-                    (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                    (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MAX else 0)
         }
     }
 

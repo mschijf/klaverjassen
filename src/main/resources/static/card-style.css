@@ -1,46 +1,46 @@
 .grid-signal {
     grid-area: signal;
     background:  rgb(20, 128, 20);
-    padding: 2rem;
+    padding: 1rem;
 }
 .grid-player-north {
     grid-area: north;
     background:  rgb(20, 128, 20);
-    padding: 2rem;
+    padding: 1rem;
 }
 .grid-player-west {
     grid-area: west;
     background:  rgb(20, 128, 20);
-    padding: 2rem;
+    padding: 1rem;
 }
 .grid-player-east {
     grid-area: east;
     background:  rgb(20, 128, 20);
-    padding: 2rem;
+    padding: 1rem;
 }
 .grid-player-south {
     grid-area: south;
     background:  rgb(20, 128, 20);
-    padding: 2rem;
+    padding: 1rem;
 }
 .grid-table {
     grid-area: table;
     border: 1px solid white;
     background:  darkgreen;
     /* background:  rgb(20, 128, 20);  */
-    padding: 2rem;
+    padding: 1rem;
 }
 .grid-info {
     grid-area: info;
     text-align: center;
     background: rgb(20, 128, 20);
-    padding: 2rem;
+    padding: 1rem;
 }
 .grid-log {
     grid-area: log;
     text-align: left;
     background: rgb(20, 128, 20);
-    padding: 2rem;
+    padding: 1rem;
 }
 
 .container {

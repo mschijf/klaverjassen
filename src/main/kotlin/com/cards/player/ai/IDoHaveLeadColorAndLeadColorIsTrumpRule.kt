@@ -90,7 +90,7 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: Player): AbstractChooseCar
                     2 * card.cardValue() +
                             1 * roemSureThisTrickByCandidate(card) +
                             1 * (if (roemPossibleThisTrickByCandidate(card) > 0) 10 else 0) +
-                            1 * (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                            1 * (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MIN else 0)
                 }
             } else {
                 val chooseFrom = if (keepCardInHandToPreventPit(trumpNine)) myLegalCards-trumpNine else myLegalCards
@@ -98,7 +98,7 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: Player): AbstractChooseCar
                     2 * card.cardValue() +
                             1 * roemSureThisTrickByCandidate(card) +
                             1 * (if (roemPossibleThisTrickByCandidate(card) >= 50) 10 else 0) +
-                            1 * (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                            1 * (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MIN else 0)
                 }
             }
         }
@@ -115,11 +115,14 @@ class IDoHaveLeadColorAndLeadColorIsTrumpRule(player: Player): AbstractChooseCar
                 2 * card.cardValue() +
                         1 * roemSureThisTrickByCandidate(card) +
                         1 * (if (roemPossibleThisTrickByCandidate(card) > 0) 10 else 0) +
-                        1 * (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                        1 * (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MIN else 0)
             }
         }
+        if (iAmThirdPlayer || iAmFourthPlayer)
+            return cardGivingBestValueByPlayingFullTrick()
 
-        return playFallbackCard(this.javaClass.simpleName + ": choosecard")
+//        return cardGivingBestValueByPlayingFullTrick()
+        return playFallbackCard(this.javaClass.simpleName)
     }
 
     //------------------------------------------------------------------------------------------------------------------

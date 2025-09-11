@@ -175,14 +175,12 @@ function showPlayerCards(player, playerHand, show) {
 
 function clearGeniusSouthValues() {
     for (let i = 0; i < 8; i++) {
-        document.getElementById("meta" + i).innerHTML = ""
+        document.getElementById("meta" + i).innerHTML = "."
     }
 }
 
 function showGeniusSouthValues(cardModelListPlayerSouth) {
-    for (let i = 0; i < 8; i++) {
-        document.getElementById("meta" + i).innerHTML = ""
-    }
+    clearGeniusSouthValues()
     for (let i = 0; i < cardModelListPlayerSouth.length; i++) {
         document.getElementById("meta" + i).innerHTML = cardModelListPlayerSouth[i].geniusValue
     }

@@ -18,6 +18,7 @@ import com.cards.player.Player
 
      gooi kleur die troef bij tegenstander kan trekken
 
+    laat maat introeven (als nog veel troef in spel en je denkt dat maat kan troeven)
 
 
  */

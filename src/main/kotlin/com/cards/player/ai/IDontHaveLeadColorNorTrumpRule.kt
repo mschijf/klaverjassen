@@ -142,6 +142,9 @@ class IDontHaveLeadColorNorTrumpRule(player: Player): AbstractChooseCardFollower
         if (bareCardCandidates.isNotEmpty())
             return bareCardCandidates.last() //let op, je gooit evt nu een kale 7 weg
 
+        if (iAmThirdPlayer || iAmFourthPlayer)
+            return cardGivingBestValueByPlayingFullTrick()
+
         return playFallbackCard(this.javaClass.simpleName + ": Slag aan maat (en andere partij gaat) en zeker weten dat slag aan maat blijft:")
     }
 
@@ -187,16 +190,12 @@ class IDontHaveLeadColorNorTrumpRule(player: Player): AbstractChooseCardFollower
         if (coveredTenCardCandidates.isNotEmpty())
             return coveredTenCardCandidates.last()
 
-        //todo: onderzoeken waarom roemSUre en roemPossible this trick wel van invloed is
-        //      logichefrwijs zou het weg moeten kunnen
-        //      kan komen door de twee random spelers
         return myLegalCards.filter{ !it.isAce() && !it.isTen() }.maxByOrNull { card ->
             2 * card.cardValue() +
                     -1 * card.kaalMakendeKaartPenalty() +
-                    1 * roemSureThisTrickByCandidate(card) +
                     1 * (if (roemPossibleThisTrickByCandidate(card) > 0) 10 else 0) +
-                    -1 * (if (isRoemPossibleNextTrick(card)) 5 else 0)
-        } ?: playFallbackCard(this.javaClass.simpleName + ": Slag aan maat (en maat gaat) en slag blijft bij maat")
+                    1 * (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MAX else 0)
+        } ?: cardGivingBestValueByPlayingFullTrick()
     }
 
     private fun slagAanMaatEnMaatGaatEnNietZekerDatSlagAanMaatBlijft(): Card {
@@ -242,7 +241,7 @@ class IDontHaveLeadColorNorTrumpRule(player: Player): AbstractChooseCardFollower
         return myLegalCards.minBy { card ->
             2 * card.cardValue() +
                     card.kaalMakendeKaartPenalty() +
-                    (if (isRoemPossibleNextTrick(card)) 5 else 0)
+                    (if (isRoemPossibleNextTrick(card)) ROEM_POSSIBLE_NEXT_TRICK_VALUE_MIN else 0)
         }
     }
 

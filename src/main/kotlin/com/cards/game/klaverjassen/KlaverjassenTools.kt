@@ -84,7 +84,7 @@ fun List<Card>.bonusValue(trumpColor: CardColor): Int {
 
 private fun bonusValueForfourEqualRanks(cardList: List<Card>): Int {
     //see for rules: https://www.spelregels.eu/wp-content/uploads/2021/01/spelregels-klaverjassen.pdf
-    return if (cardList.map {it.rank}.distinct().size == 1)
+    return if (cardList.size == 4 && cardList.map {it.rank}.distinct().size == 1)
         100
     else
         0

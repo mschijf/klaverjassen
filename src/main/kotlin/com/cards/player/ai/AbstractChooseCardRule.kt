@@ -10,6 +10,10 @@ import tool.mylambdas.collectioncombination.mapCombinedItems
 import kotlin.collections.filter
 import kotlin.math.sign
 
+
+const val ROEM_POSSIBLE_NEXT_TRICK_VALUE_MIN = 10
+const val ROEM_POSSIBLE_NEXT_TRICK_VALUE_MAX = -10
+
 abstract class AbstractChooseCardRule(protected val player: Player) {
 
     abstract fun chooseCard(): Card
@@ -131,7 +135,10 @@ abstract class AbstractChooseCardRule(protected val player: Player) {
         } else { //iAmFourthPlayer
             listOf((currentTrick.getCardsPlayed() + candidate))
         }
-        return listOfTrickPossibilities.maxOf { poss -> poss.bonusValue(trump) }
+        return listOfTrickPossibilities
+            .filter{ poss -> poss.bonusValue(trump) > (poss-candidate).bonusValue(trump)}
+            .maxOfOrNull { poss -> poss.bonusValue(trump) }
+            ?: 0
     }
 
     protected fun isRoemPossibleNextTrick(candidate: Card): Boolean {
@@ -148,62 +155,41 @@ abstract class AbstractChooseCardRule(protected val player: Player) {
     }
 
 //------------------------------------------------------------------------------------------------------------------
-//    private fun List<Card>.cardGivingBestValue(): CardValue {
-//        var best = Int.MIN_VALUE
-//        var bestCard: Card? = null
-//        this.forEach { card ->
-//            val v = card.trickValueAfterPlayed()
-//            if (v > best) {
-//                best = v
-//                bestCard = card
-//            }
-//        }
-//        return CardValue(bestCard!!, best)
-//    }
-//
-//    private fun Card.trickValueAfterPlayed(): Int {
-//        currentTrick.addCard(this)
-//        val v = currentTrick.getScore().getDeltaForPlayer(player.tableSide)
-//        currentTrick.removeLastCard()
-//        return v
-//    }
-//
-//
-//    private val dummyCard = Card(CardColor.CLUBS, CardRank.THREE)
-//    private fun cardGivingBestValueByPlayingFullTrick(trick: Trick, sideToMove: TableSide): CardValue {
-//        if (trick.isComplete())
-//            return CardValue(dummyCard, trick.getScore().getDeltaForPlayer(player.tableSide))
-//
-//        val checkCards = if (sideToMove == player.tableSide) {
-//            player.getLegalPlayableCards()
-//        }  else {
-//            (brain.player(sideToMove).allAssumeCards - trick.getCardsPlayed())
-//                .toList()
-//                .legalPlayable(trick, brain.trump)
-//        }
-//
-//        if (sideToMove == player.tableSide || sideToMove.opposite() == player.tableSide) {
-//            var best = CardValue(dummyCard, Int.MIN_VALUE)
-//            checkCards.forEach { card ->
-//                trick.addCard(card)
-//                val cv = cardGivingBestValueByPlayingFullTrick(trick, sideToMove.clockwiseNext())
-//                trick.removeLastCard()
-//                if (cv.value > best.value)
-//                    best = CardValue(card, cv.value)
-//            }
-//            return best
-//        } else {
-//            var best = CardValue(dummyCard, Int.MAX_VALUE)
-//            checkCards.forEach { card ->
-//                trick.addCard(card)
-//                val cv = cardGivingBestValueByPlayingFullTrick(trick, sideToMove.clockwiseNext())
-//                trick.removeLastCard()
-//                if (cv.value < best.value)
-//                    best = CardValue(card, cv.value)
-//            }
-//            return best
-//        }
-//    }
+
+    protected fun cardGivingBestValueByPlayingFullTrick(): Card {
+        val result = cardGivingBestValueByPlayingFullTrick(currentTrick, mySide)
+        return result.card?:throw Exception("card givng best value surprsingly gave null result")
+    }
+
+    private data class CardOrNullValue (val card: Card?, val value: Int)
+    private fun cardGivingBestValueByPlayingFullTrick(trick: Trick, sideToMove: TableSide): CardOrNullValue {
+        if (trick.isComplete())
+            return CardOrNullValue(null, trick.getScore().getDeltaForPlayer(mySide))
+
+        val checkCards = if (sideToMove == mySide) myLegalCards else player(sideToMove).legalCards.toList()
+
+        if (sideToMove == mySide || sideToMove.isPartner()) {
+            var best = CardOrNullValue(null, Int.MIN_VALUE)
+            checkCards.forEach { card ->
+                trick.addCard(card)
+                val cv = cardGivingBestValueByPlayingFullTrick(trick, sideToMove.clockwiseNext())
+                trick.removeLastCard()
+                if (cv.value > best.value)
+                    best = CardOrNullValue(card, cv.value)
+            }
+            return best
+        } else {
+            var best = CardOrNullValue(null, Int.MAX_VALUE)
+            checkCards.forEach { card ->
+                trick.addCard(card)
+                val cv = cardGivingBestValueByPlayingFullTrick(trick, sideToMove.clockwiseNext())
+                trick.removeLastCard()
+                if (cv.value < best.value)
+                    best = CardOrNullValue(card, cv.value)
+            }
+            return best
+        }
+    }
 
     companion object {
         var doPrintFallBack = true

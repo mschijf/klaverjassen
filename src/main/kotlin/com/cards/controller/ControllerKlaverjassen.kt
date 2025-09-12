@@ -71,7 +71,7 @@ class ControllerKlaverjassen(private val gameService: ServiceKlaverjassen) {
 
     @PostMapping("/printgame")
     fun printGame() {
-        return gameService.printGame()
+        return gameService.printRound()
     }
 
     @GetMapping("/asynctest")

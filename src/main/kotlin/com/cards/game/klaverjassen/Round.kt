@@ -1,6 +1,8 @@
 package com.cards.game.klaverjassen
 
+import com.cards.game.card.Card
 import com.cards.game.card.CardColor
+import com.cards.tools.RANDOMIZER
 
 class Round(
     private val trumpColor: CardColor,
@@ -47,7 +49,6 @@ class Round(
 
     fun getTrumpColor() = trumpColor
     fun getContractOwningSide() = contractOwningSide
-    fun isContractOwningSide(tableSide: TableSide) = (contractOwningSide == tableSide)
 
     private fun allTricksWonByTeam(team: Set<TableSide>): Boolean {
         return getTrickList().all { trick -> trick.getWinningSide()!! in team }
@@ -77,5 +78,49 @@ class Round(
             else
                 roundScore
         }
+    }
+
+    fun header(): String {
+        return "Seed\tWest\tNorth\tEast\tSouth\tLead\tContract\tTrump\ttrick1\ttrick2\ttrick3\ttrick4\ttrick5\ttrick6\ttrick7\ttrick8" +
+        "\tNS-points\tNS-roem\tEW-points\tEW-roem\ttype"
+    }
+
+    private fun determineCardsForPlayer(side: TableSide) : List<Card> {
+        if (!isComplete())
+            return emptyList()
+        return trickList
+            .map {it.getCardPlayedBy(side)!!}
+            .sortedBy { card -> 100 * card.color.ordinal + card.rank.ordinal }
+    }
+
+    override fun toString(): String {
+        val score = getScore()
+        return "" +
+                "${RANDOMIZER.getLastSeedUsed()}\t" +
+                "${determineCardsForPlayer(TableSide.WEST)}\t" +
+                "${determineCardsForPlayer(TableSide.NORTH)}\t" +
+                "${determineCardsForPlayer(TableSide.EAST)}\t" +
+                "${determineCardsForPlayer(TableSide.SOUTH)}\t" +
+                "${getFirstTrickLead()}\t" +
+                "${getContractOwningSide()}\t" +
+                "${getTrumpColor()}\t" +
+                trickList.joinToString("\t"){it.toString()} + "\t" +
+                "\t".repeat(8-trickList.size) +
+                "${score.northSouthPoints}\t${score.northSouthBonus}\t" +
+                "${score.eastWestPoints}\t${score.eastWestBonus}\t" +
+                "${score.scoreType}"
+    }
+
+    fun toPrettyString(): String {
+        val score = getScore()
+        return "" +
+                "Random seed  : ${RANDOMIZER.getLastSeedUsed()}\n" +
+                "RoundLead    : ${getFirstTrickLead()}\n" +
+                "ContractOwner: ${getContractOwningSide()}\n" +
+                "Trump        : ${getTrumpColor()}\n" +
+                "Tricks       : " + trickList.joinToString("\t"){it.toString()} + "\n" +
+                "NS-Points    : ${score.northSouthPoints} + ${score.northSouthBonus}\n" +
+                "EW-Points    : ${score.eastWestPoints} + ${score.eastWestBonus}\n" +
+                "Score type   : ${score.scoreType}"
     }
 }

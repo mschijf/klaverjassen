@@ -88,8 +88,7 @@ function clearContract() {
 //----------------------------------------------------------------------------------------------------------------
 
 function doSomeTest() {
-    // requestPrintGame()
-    run()
+    requestPrintGame()
 }
 
 function takeBackTrick() {

@@ -34,7 +34,7 @@ class ServiceKlaverjassen {
         }
 
     fun newGame(): GameStatusModelKlaverjassen {
-//        RANDOMIZER.setSeed(282780278)
+        RANDOMIZER.setSeed(1126615292)
 //        game = Game(TableSide.SOUTH)
         game = Game()
         playerGroup = PlayerGroup(createInitialPlayerList())
@@ -141,8 +141,8 @@ class ServiceKlaverjassen {
 
         val nextSideToPlay = if (gameStatus.gameFinished) GAME_START_PLAYER else game.getSideToMove()
 
-        if (gameStatus.gameFinished)
-            printGame()
+        if (gameStatus.roundFinished)
+            printRound()
 
         return CardPlayedModel(
             playerToMove.tableSide,
@@ -208,13 +208,10 @@ class ServiceKlaverjassen {
         return this.getCurrentRound().getTrickList().size == 1 && this.getCurrentRound().getTrickOnTable().hasNotStarted()
     }
 
-    fun printGame() {
-        println("Random seed  : ${RANDOMIZER.getLastSeedUsed()}")
-        println("RoundLead    : ${game.getCurrentRound().getFirstTrickLead()}")
-        println("ContractOwner: ${game.getCurrentRound().getContractOwningSide()}")
-        println("Trump        : ${game.getCurrentRound().getTrumpColor()}")
-        println("PlayerToMove : ${game.getCurrentRound().getTrickOnTable().getSideToPlay()}")
-        println(game.getCurrentRound().getTrickList().flatMap { it.getCardsPlayed() })
+    fun printRound() {
+//        println(game.getCurrentRound().header())
+//        println(game.getCurrentRound())
+        println(game.getCurrentRound().toPrettyString())
     }
 
     //======================================================================================================

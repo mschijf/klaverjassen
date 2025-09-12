@@ -118,27 +118,6 @@ function requestPrintGame() {
     request.send();
 }
 
-// Define an async function that fetches data
-async function getData() {
-    const response = await fetch(requestBase + "/asynctest"); // waits until response arrives
-    if (!response.ok) {
-        throw new Error("Network error " + response.status);
-    }
-    const data = await response.json(); // waits until JSON is parsed
-    return data;
-}
-
-// Use it in synchronous-looking style
-async function run() {
-    console.log("Before AJAX call");
-
-    let result = await getData(); // execution pauses here until result is ready
-
-    console.log("Got result:", result);
-
-    console.log("After AJAX call");
-}
-
 function requestTakeBackTrick() {
     let request = new XMLHttpRequest();
 
@@ -146,10 +125,7 @@ function requestTakeBackTrick() {
     request.onreadystatechange = function() {
         if(this.readyState === 4 && this.status === 200) {
             let gameStatus = JSON.parse(this.responseText);
-            console.log("IK BEN HIER")
             handleGameStatus(gameStatus)
-        } else {
-            console.log("IK BEN HIER ONVERWACHT")
         }
     };
     request.send();

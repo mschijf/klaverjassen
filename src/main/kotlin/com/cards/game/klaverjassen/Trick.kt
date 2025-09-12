@@ -78,4 +78,24 @@ class Trick (
         }
     }
 
+    override fun toString(): String {
+        val west = getCardPlayedBy(TableSide.WEST)
+        val north = getCardPlayedBy(TableSide.NORTH)
+        val east = getCardPlayedBy(TableSide.EAST)
+        val south = getCardPlayedBy(TableSide.SOUTH)
+        val str = StringBuilder("")
+        for (i in 0..3) {
+            if (i > 0)
+                str.append(" ")
+            val side = TableSide.WEST.clockwiseNext(i)
+            val card = getCardPlayedBy(side)?.toString()?:"--"
+            if (side == sideToLead)
+                str.append("(")
+            str.append(card)
+            if (side == sideToLead)
+                str.append(")")
+        }
+        return str.toString()
+    }
+
 }
